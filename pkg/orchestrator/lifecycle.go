@@ -87,8 +87,14 @@ func (o *Orchestrator) Run(ctx context.Context, exp *v1alpha1.ChaosExperiment) (
 		namespace = "opendatahub"
 	}
 
+	// Determine target resource for forbidden-resource validation
+	targetResource := exp.Spec.Target.Resource
+	if targetResource == "" {
+		targetResource = fmt.Sprintf("%s/%s", exp.Spec.Target.Component, exp.Metadata.Name)
+	}
+
 	// Check blast radius
-	if err := safety.ValidateBlastRadius(exp.Spec.BlastRadius, namespace, exp.Spec.Injection.Count); err != nil {
+	if err := safety.ValidateBlastRadius(exp.Spec.BlastRadius, namespace, targetResource, exp.Spec.Injection.Count); err != nil {
 		result.Error = fmt.Sprintf("blast radius validation failed: %v", err)
 		result.Phase = v1alpha1.PhaseAborted
 		return result, fmt.Errorf("blast radius: %w", err)
@@ -128,7 +134,7 @@ func (o *Orchestrator) Run(ctx context.Context, exp *v1alpha1.ChaosExperiment) (
 	if exp.Spec.BlastRadius.DryRun {
 		o.log("DRY RUN: Would inject %s into %s/%s", exp.Spec.Injection.Type, exp.Spec.Target.Operator, exp.Spec.Target.Component)
 		result.Phase = v1alpha1.PhaseComplete
-		result.Verdict = v1alpha1.Resilient
+		result.Verdict = v1alpha1.Inconclusive
 		return result, nil
 	}
 
@@ -138,7 +144,13 @@ func (o *Orchestrator) Run(ctx context.Context, exp *v1alpha1.ChaosExperiment) (
 
 	var preCheck *v1alpha1.CheckResult
 	if len(exp.Spec.SteadyState.Checks) > 0 {
-		preCheck = o.observer.CheckSteadyState(ctx, exp.Spec.SteadyState.Checks, namespace)
+		var preCheckErr error
+		preCheck, preCheckErr = o.observer.CheckSteadyState(ctx, exp.Spec.SteadyState.Checks, namespace)
+		if preCheckErr != nil {
+			result.Error = fmt.Sprintf("steady state pre-check error: %v", preCheckErr)
+			result.Phase = v1alpha1.PhaseAborted
+			return result, fmt.Errorf("pre-check: %w", preCheckErr)
+		}
 	} else {
 		preCheck = &v1alpha1.CheckResult{Passed: true, Timestamp: time.Now()}
 	}
@@ -163,11 +175,13 @@ func (o *Orchestrator) Run(ctx context.Context, exp *v1alpha1.ChaosExperiment) (
 		return result, fmt.Errorf("injection: %w", err)
 	}
 
-	// Ensure cleanup runs
+	// Ensure cleanup runs even if the parent context is cancelled
 	defer func() {
 		if cleanup != nil {
 			o.log("Phase: CLEANUP")
-			if cleanErr := cleanup(ctx); cleanErr != nil {
+			cleanupCtx, cleanupCancel := context.WithTimeout(context.Background(), 30*time.Second)
+			defer cleanupCancel()
+			if cleanErr := cleanup(cleanupCtx); cleanErr != nil {
 				o.log("Cleanup warning: %v", cleanErr)
 			}
 		}
@@ -204,7 +218,12 @@ func (o *Orchestrator) Run(ctx context.Context, exp *v1alpha1.ChaosExperiment) (
 
 	var postCheck *v1alpha1.CheckResult
 	if len(exp.Spec.SteadyState.Checks) > 0 {
-		postCheck = o.observer.CheckSteadyState(ctx, exp.Spec.SteadyState.Checks, namespace)
+		var postCheckErr error
+		postCheck, postCheckErr = o.observer.CheckSteadyState(ctx, exp.Spec.SteadyState.Checks, namespace)
+		if postCheckErr != nil {
+			o.log("Post-check error: %v", postCheckErr)
+			postCheck = &v1alpha1.CheckResult{Passed: false, Timestamp: time.Now()}
+		}
 	} else {
 		postCheck = &v1alpha1.CheckResult{Passed: true, Timestamp: time.Now()}
 	}
@@ -261,7 +280,7 @@ func (o *Orchestrator) Run(ctx context.Context, exp *v1alpha1.ChaosExperiment) (
 }
 
 func (o *Orchestrator) log(format string, args ...interface{}) {
-	if o.verbose || true { // Always log for now
+	if o.verbose {
 		fmt.Fprintf(o.output, format+"\n", args...)
 	}
 }

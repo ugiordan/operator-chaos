@@ -81,6 +81,16 @@ const (
 	SourceHook         InjectionType = "SourceHook"
 )
 
+// Phase 2 injection types (SDK middleware-based, one-line change)
+const (
+	ClientThrottle     InjectionType = "ClientThrottle"
+	APIServerError     InjectionType = "APIServerError"
+	WatchDisconnect    InjectionType = "WatchDisconnect"
+	LeaderElectionLoss InjectionType = "LeaderElectionLoss"
+	WebhookTimeout     InjectionType = "WebhookTimeout"
+	WebhookReject      InjectionType = "WebhookReject"
+)
+
 type ObservationSpec struct {
 	Interval             Duration `json:"interval,omitempty" yaml:"interval,omitempty"`
 	Duration             Duration `json:"duration,omitempty" yaml:"duration,omitempty"`

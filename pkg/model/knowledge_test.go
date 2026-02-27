@@ -1,6 +1,8 @@
 package model
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -42,6 +44,17 @@ func TestKnowledgeRecoveryDefaults(t *testing.T) {
 
 	assert.Equal(t, 300*time.Second, k.Recovery.ReconcileTimeout.Duration)
 	assert.Equal(t, 10, k.Recovery.MaxReconcileCycles)
+}
+
+func TestLoadKnowledgeRejectsOversizedFile(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "huge.yaml")
+	data := make([]byte, 2*1024*1024) // 2MB, exceeds 1MB limit
+	require.NoError(t, os.WriteFile(path, data, 0644))
+
+	_, err := LoadKnowledge(path)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "exceeds maximum")
 }
 
 func TestManagedResourceExpectedSpec(t *testing.T) {

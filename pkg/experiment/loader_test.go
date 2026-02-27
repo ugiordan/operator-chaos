@@ -1,6 +1,8 @@
 package experiment
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -32,6 +34,17 @@ func TestValidateExperimentMissingFields(t *testing.T) {
 
 	errs := Validate(exp)
 	assert.NotEmpty(t, errs)
+}
+
+func TestLoadRejectsOversizedFile(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "huge.yaml")
+	data := make([]byte, 2*1024*1024) // 2MB, exceeds 1MB limit
+	require.NoError(t, os.WriteFile(path, data, 0644))
+
+	_, err := Load(path)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "exceeds maximum")
 }
 
 func TestValidateBlastRadius(t *testing.T) {

@@ -6,7 +6,7 @@ import (
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
 )
 
-func ValidateBlastRadius(spec v1alpha1.BlastRadiusSpec, targetNamespace string, affectedCount int) error {
+func ValidateBlastRadius(spec v1alpha1.BlastRadiusSpec, targetNamespace string, targetResource string, affectedCount int) error {
 	if spec.MaxPodsAffected <= 0 {
 		return fmt.Errorf("maxPodsAffected must be > 0, got %d", spec.MaxPodsAffected)
 	}
@@ -27,8 +27,8 @@ func ValidateBlastRadius(spec v1alpha1.BlastRadiusSpec, targetNamespace string, 
 	}
 
 	for _, forbidden := range spec.ForbiddenResources {
-		if forbidden == targetNamespace {
-			return fmt.Errorf("resource %q is in forbidden list", forbidden)
+		if forbidden == targetResource {
+			return fmt.Errorf("resource %q is forbidden", targetResource)
 		}
 	}
 

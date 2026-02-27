@@ -8,5 +8,5 @@ import (
 
 // Observer watches Kubernetes state and checks steady-state conditions.
 type Observer interface {
-	CheckSteadyState(ctx context.Context, checks []v1alpha1.SteadyStateCheck, namespace string) *v1alpha1.CheckResult
+	CheckSteadyState(ctx context.Context, checks []v1alpha1.SteadyStateCheck, namespace string) (*v1alpha1.CheckResult, error)
 }

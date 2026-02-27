@@ -23,7 +23,7 @@ func NewKubernetesObserver(c client.Client) *KubernetesObserver {
 
 // CheckSteadyState evaluates a list of steady-state checks against the cluster
 // and returns a CheckResult summarizing which checks passed or failed.
-func (o *KubernetesObserver) CheckSteadyState(ctx context.Context, checks []v1alpha1.SteadyStateCheck, namespace string) *v1alpha1.CheckResult {
+func (o *KubernetesObserver) CheckSteadyState(ctx context.Context, checks []v1alpha1.SteadyStateCheck, namespace string) (*v1alpha1.CheckResult, error) {
 	result := &v1alpha1.CheckResult{
 		ChecksRun: len(checks),
 		Timestamp: time.Now(),
@@ -57,7 +57,7 @@ func (o *KubernetesObserver) CheckSteadyState(ctx context.Context, checks []v1al
 	}
 
 	result.Passed = result.ChecksPassed == result.ChecksRun
-	return result
+	return result, nil
 }
 
 // checkCondition verifies that a specific condition on a Kubernetes resource has status "True".

@@ -1,8 +1,10 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"time"
 
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
 	"github.com/opendatahub-io/odh-platform-chaos/pkg/evaluator"
@@ -19,9 +21,12 @@ import (
 
 func newRunCommand() *cobra.Command {
 	var (
-		knowledgePath string
-		reportDir     string
-		dryRun        bool
+		knowledgePath   string
+		reportDir       string
+		dryRun          bool
+		timeout         time.Duration
+		distributedLock bool
+		lockNamespace   string
 	)
 
 	cmd := &cobra.Command{
@@ -29,6 +34,9 @@ func newRunCommand() *cobra.Command {
 		Short: "Run a chaos experiment",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx, cancel := context.WithTimeout(cmd.Context(), timeout)
+			defer cancel()
+
 			// Load experiment
 			exp, err := experiment.Load(args[0])
 			if err != nil {
@@ -85,6 +93,13 @@ func newRunCommand() *cobra.Command {
 			registry.Register(v1alpha1.ConfigDrift, injection.NewConfigDriftInjector(k8sClient))
 			registry.Register(v1alpha1.NetworkPartition, injection.NewNetworkPartitionInjector(k8sClient))
 
+			// Register Phase 2 injectors (require K8s client)
+			if k8sClient != nil {
+				registry.Register(v1alpha1.WebhookDisrupt, injection.NewWebhookDisruptInjector(k8sClient))
+				registry.Register(v1alpha1.RBACRevoke, injection.NewRBACRevokeInjector(k8sClient))
+				registry.Register(v1alpha1.FinalizerBlock, injection.NewFinalizerBlockInjector(k8sClient))
+			}
+
 			// Build orchestrator
 			verbose, _ := cmd.Flags().GetBool("verbose")
 			maxCycles := 10
@@ -92,19 +107,27 @@ func newRunCommand() *cobra.Command {
 				maxCycles = knowledge.Recovery.MaxReconcileCycles
 			}
 
+			// Build experiment lock: distributed (Lease-based) or local (in-process)
+			var lock safety.ExperimentLock
+			if distributedLock && k8sClient != nil {
+				lock = safety.NewLeaseExperimentLock(k8sClient, lockNamespace)
+			} else {
+				lock = safety.NewLocalExperimentLock()
+			}
+
 			orch := orchestrator.New(orchestrator.OrchestratorConfig{
 				Registry:   registry,
 				Observer:   observer.NewKubernetesObserver(k8sClient),
 				Reconciler: observer.NewReconciliationChecker(k8sClient),
 				Evaluator:  evaluator.New(maxCycles),
-				Lock:       safety.NewLocalExperimentLock(),
+				Lock:       lock,
 				Knowledge:  knowledge,
 				ReportDir:  reportDir,
 				Verbose:    verbose,
 			})
 
 			// Run
-			result, err := orch.Run(cmd.Context(), exp)
+			result, err := orch.Run(ctx, exp)
 			if err != nil {
 				return fmt.Errorf("experiment failed: %w", err)
 			}
@@ -129,6 +152,9 @@ func newRunCommand() *cobra.Command {
 	cmd.Flags().StringVar(&knowledgePath, "knowledge", "", "path to operator knowledge YAML")
 	cmd.Flags().StringVar(&reportDir, "report-dir", "", "directory for report output")
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "validate without injecting")
+	cmd.Flags().DurationVar(&timeout, "timeout", 10*time.Minute, "total experiment timeout")
+	cmd.Flags().BoolVar(&distributedLock, "distributed-lock", false, "use Kubernetes Lease-based distributed locking")
+	cmd.Flags().StringVar(&lockNamespace, "lock-namespace", "opendatahub", "namespace for distributed lock leases")
 
 	return cmd
 }

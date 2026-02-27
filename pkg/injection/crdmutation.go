@@ -52,16 +52,18 @@ func (m *CRDMutationInjector) Inject(ctx context.Context, spec v1alpha1.Injectio
 		return nil, nil, fmt.Errorf("getting resource %s/%s: %w", spec.Parameters["kind"], spec.Parameters["name"], err)
 	}
 
-	// Save original for cleanup
-	originalData, err := json.Marshal(obj.Object)
-	if err != nil {
-		return nil, nil, fmt.Errorf("saving original state: %w", err)
+	// Save original field value for cleanup
+	fieldName := spec.Parameters["field"]
+	specMap, _, _ := unstructured.NestedMap(obj.Object, "spec")
+	var originalValue interface{}
+	if specMap != nil {
+		originalValue = specMap[fieldName]
 	}
 
 	// Apply mutation via merge patch (use json.Marshal for safe serialization)
 	patchMap := map[string]interface{}{
 		"spec": map[string]interface{}{
-			spec.Parameters["field"]: spec.Parameters["value"],
+			fieldName: spec.Parameters["value"],
 		},
 	}
 	patch, err := json.Marshal(patchMap)
@@ -72,22 +74,50 @@ func (m *CRDMutationInjector) Inject(ctx context.Context, spec v1alpha1.Injectio
 		return nil, nil, fmt.Errorf("applying mutation: %w", err)
 	}
 
+	// Save GVK info for cleanup re-fetch
+	apiVersion := spec.Parameters["apiVersion"]
+	kind := spec.Parameters["kind"]
+
 	events := []v1alpha1.InjectionEvent{
 		NewEvent(v1alpha1.CRDMutation, key.String(), "mutated",
 			map[string]string{
-				"field": spec.Parameters["field"],
+				"field": fieldName,
 				"value": spec.Parameters["value"],
 			}),
 	}
 
-	// Cleanup restores original state
+	// Cleanup restores original field value using merge patch to avoid resourceVersion conflicts
 	cleanup := func(ctx context.Context) error {
-		var original map[string]interface{}
-		if err := json.Unmarshal(originalData, &original); err != nil {
-			return fmt.Errorf("unmarshaling original state: %w", err)
+		// Build a merge patch that restores just the mutated field
+		var restorePatchMap map[string]interface{}
+		if originalValue == nil {
+			// Field was not set before; set it to null to remove it via merge patch
+			restorePatchMap = map[string]interface{}{
+				"spec": map[string]interface{}{
+					fieldName: nil,
+				},
+			}
+		} else {
+			restorePatchMap = map[string]interface{}{
+				"spec": map[string]interface{}{
+					fieldName: originalValue,
+				},
+			}
 		}
-		restored := &unstructured.Unstructured{Object: original}
-		return m.client.Update(ctx, restored)
+		restorePatch, err := json.Marshal(restorePatchMap)
+		if err != nil {
+			return fmt.Errorf("building restore patch: %w", err)
+		}
+
+		// Re-fetch the resource to get current state as patch target
+		current := &unstructured.Unstructured{}
+		current.SetAPIVersion(apiVersion)
+		current.SetKind(kind)
+		if err := m.client.Get(ctx, key, current); err != nil {
+			return fmt.Errorf("re-fetching resource for cleanup: %w", err)
+		}
+
+		return m.client.Patch(ctx, current, client.RawPatch(types.MergePatchType, restorePatch))
 	}
 
 	return cleanup, events, nil

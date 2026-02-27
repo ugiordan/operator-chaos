@@ -142,7 +142,17 @@ func (r *ReconciliationChecker) CheckReconciliation(
 
 		// Reset resources for next cycle
 		result.Resources = nil
-		time.Sleep(2 * time.Second)
+
+		// Wait for poll interval or context cancellation
+		select {
+		case <-time.After(2 * time.Second):
+			// continue polling
+		case <-ctx.Done():
+			result.AllReconciled = false
+			result.ReconcileCycles = cycles
+			result.RecoveryTime = time.Since(startTime)
+			return result, ctx.Err()
+		}
 	}
 
 	result.AllReconciled = false

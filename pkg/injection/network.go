@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
+	"github.com/opendatahub-io/odh-platform-chaos/pkg/safety"
 	networkingv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -53,6 +54,11 @@ func (n *NetworkPartitionInjector) Inject(ctx context.Context, spec v1alpha1.Inj
 		}
 	}
 
+	annotations := map[string]string{}
+	if spec.TTL.Duration > 0 {
+		annotations[safety.TTLAnnotationKey] = safety.TTLExpiry(spec.TTL.Duration)
+	}
+
 	policy := &networkingv1.NetworkPolicy{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      policyName,
@@ -61,6 +67,7 @@ func (n *NetworkPartitionInjector) Inject(ctx context.Context, spec v1alpha1.Inj
 				"app.kubernetes.io/managed-by": "odh-chaos",
 				"chaos.opendatahub.io/type":    "network-partition",
 			},
+			Annotations: annotations,
 		},
 		Spec: networkingv1.NetworkPolicySpec{
 			PodSelector: metav1.LabelSelector{

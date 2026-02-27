@@ -76,12 +76,23 @@ func TestChaosExperimentLoadFromFile(t *testing.T) {
 }
 
 func TestInjectionTypes(t *testing.T) {
+	// Phase 1 injection types
 	types := []InjectionType{
 		PodKill, PodFailure, NetworkPartition, NetworkLatency,
 		ResourceExhaustion, CRDMutation, ConfigDrift,
 		WebhookDisrupt, RBACRevoke, FinalizerBlock, OwnerRefOrphan,
+		SourceHook,
 	}
 	for _, it := range types {
+		assert.NotEmpty(t, string(it))
+	}
+
+	// Phase 2 injection types (SDK middleware-based)
+	phase2Types := []InjectionType{
+		ClientThrottle, APIServerError, WatchDisconnect,
+		LeaderElectionLoss, WebhookTimeout, WebhookReject,
+	}
+	for _, it := range phase2Types {
 		assert.NotEmpty(t, string(it))
 	}
 }

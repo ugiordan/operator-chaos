@@ -8,8 +8,18 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
+const maxExperimentFileSize = 1 * 1024 * 1024 // 1 MB
+
 // Load reads and parses a ChaosExperiment YAML file from the given path.
 func Load(path string) (*v1alpha1.ChaosExperiment, error) {
+	info, err := os.Stat(path)
+	if err != nil {
+		return nil, fmt.Errorf("stat %s: %w", path, err)
+	}
+	if info.Size() > maxExperimentFileSize {
+		return nil, fmt.Errorf("file %s (%d bytes) exceeds maximum size of %d bytes", path, info.Size(), maxExperimentFileSize)
+	}
+
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("reading experiment file %s: %w", path, err)

@@ -13,7 +13,8 @@ func TestNewKubernetesObserver(t *testing.T) {
 
 func TestCheckSteadyStateEmptyChecks(t *testing.T) {
 	obs := NewKubernetesObserver(nil)
-	result := obs.CheckSteadyState(nil, nil, "test")
+	result, err := obs.CheckSteadyState(nil, nil, "test")
+	assert.NoError(t, err)
 	assert.True(t, result.Passed) // No checks = all passed
 	assert.Equal(t, 0, result.ChecksRun)
 }

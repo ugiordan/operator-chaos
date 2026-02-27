@@ -11,13 +11,17 @@ import (
 	"github.com/opendatahub-io/odh-platform-chaos/pkg/observer"
 	"github.com/opendatahub-io/odh-platform-chaos/pkg/orchestrator"
 	"github.com/opendatahub-io/odh-platform-chaos/pkg/safety"
+	"github.com/opendatahub-io/odh-platform-chaos/pkg/sdk"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 func TestPodKillExperimentE2E(t *testing.T) {
@@ -177,5 +181,96 @@ func TestDryRunExperimentE2E(t *testing.T) {
 	result, err := orch.Run(context.Background(), exp)
 	require.NoError(t, err)
 	assert.Equal(t, v1alpha1.PhaseComplete, result.Phase)
-	assert.Equal(t, v1alpha1.Resilient, result.Verdict)
+	assert.Equal(t, v1alpha1.Inconclusive, result.Verdict)
+}
+
+func TestChaosClientIntegration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test in short mode")
+	}
+
+	// Use fake client for integration test (no envtest needed)
+	scheme := runtime.NewScheme()
+	require.NoError(t, corev1.AddToScheme(scheme))
+
+	cm := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{Name: "test-config", Namespace: "default"},
+		Data:       map[string]string{"key": "value"},
+	}
+	inner := fake.NewClientBuilder().WithScheme(scheme).WithObjects(cm).Build()
+
+	// Test 1: ChaosClient with nil faults (passthrough)
+	cc := sdk.NewChaosClient(inner, nil)
+	obj := &corev1.ConfigMap{}
+	err := cc.Get(context.Background(), client.ObjectKey{Name: "test-config", Namespace: "default"}, obj)
+	assert.NoError(t, err)
+	assert.Equal(t, "value", obj.Data["key"])
+
+	// Test 2: ChaosClient with inactive faults (still passthrough)
+	faults := &sdk.FaultConfig{Active: false}
+	cc2 := sdk.NewChaosClient(inner, faults)
+	obj2 := &corev1.ConfigMap{}
+	err = cc2.Get(context.Background(), client.ObjectKey{Name: "test-config", Namespace: "default"}, obj2)
+	assert.NoError(t, err)
+
+	// Test 3: ChaosClient with active faults
+	faults.Active = true
+	faults.Faults = map[string]sdk.FaultSpec{
+		"get": {ErrorRate: 1.0, Error: "chaos: api server error"},
+	}
+	cc3 := sdk.NewChaosClient(inner, faults)
+	obj3 := &corev1.ConfigMap{}
+	err = cc3.Get(context.Background(), client.ObjectKey{Name: "test-config", Namespace: "default"}, obj3)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "chaos: api server error")
+}
+
+func TestWrapReconcilerIntegration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test in short mode")
+	}
+
+	// Test WrapReconciler with and without faults
+	called := false
+	inner := reconcile.Func(func(ctx context.Context, req reconcile.Request) (reconcile.Result, error) {
+		called = true
+		return reconcile.Result{}, nil
+	})
+
+	// Without faults
+	wrapped := sdk.WrapReconciler(inner)
+	_, err := wrapped.Reconcile(context.Background(), reconcile.Request{})
+	assert.NoError(t, err)
+	assert.True(t, called)
+
+	// With active faults
+	called = false
+	faults := &sdk.FaultConfig{
+		Active: true,
+		Faults: map[string]sdk.FaultSpec{
+			"reconcile": {ErrorRate: 1.0, Error: "chaos: reconcile failed"},
+		},
+	}
+	wrapped2 := sdk.WrapReconciler(inner, sdk.WithFaultConfig(faults))
+	_, err = wrapped2.Reconcile(context.Background(), reconcile.Request{})
+	assert.Error(t, err)
+	assert.False(t, called, "inner reconciler should not be called when fault fires")
+}
+
+func TestTestChaosHelperIntegration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test in short mode")
+	}
+
+	// Test the test helper
+	ch := sdk.NewForTest(t, "model-registry")
+	ch.Activate("get", sdk.FaultSpec{ErrorRate: 1.0, Error: "test error"})
+
+	err := ch.Config().MaybeInject("get")
+	assert.Error(t, err)
+	assert.Equal(t, "test error", err.Error())
+
+	ch.Deactivate("get")
+	err = ch.Config().MaybeInject("get")
+	assert.Nil(t, err)
 }
