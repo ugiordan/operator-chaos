@@ -113,10 +113,10 @@ func TestValidateBlastRadiusForbiddenResources(t *testing.T) {
 }
 
 func TestCheckDangerLevel(t *testing.T) {
-	err := CheckDangerLevel("high", false)
+	err := CheckDangerLevel(v1alpha1.DangerLevelHigh, false)
 	assert.Error(t, err)
 
-	err = CheckDangerLevel("high", true)
+	err = CheckDangerLevel(v1alpha1.DangerLevelHigh, true)
 	assert.NoError(t, err)
 
 	err = CheckDangerLevel("", false)

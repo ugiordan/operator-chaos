@@ -2,9 +2,11 @@ package injection
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
+	"github.com/opendatahub-io/odh-platform-chaos/pkg/safety"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -213,4 +215,78 @@ func TestRBACRevokeNotFound(t *testing.T) {
 	_, _, err := injector.Inject(context.Background(), spec, "default")
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "nonexistent-binding")
+}
+
+func TestRBACRevokeInjectStoresRollbackAnnotation(t *testing.T) {
+	scheme := runtime.NewScheme()
+	require.NoError(t, rbacv1.AddToScheme(scheme))
+
+	originalSubjects := []rbacv1.Subject{
+		{Kind: "ServiceAccount", Name: "operator-sa", Namespace: "opendatahub"},
+		{Kind: "User", Name: "admin-user"},
+	}
+
+	crb := &rbacv1.ClusterRoleBinding{
+		ObjectMeta: metav1.ObjectMeta{Name: "test-rollback-binding"},
+		RoleRef: rbacv1.RoleRef{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "ClusterRole",
+			Name:     "test-role",
+		},
+		Subjects: originalSubjects,
+	}
+
+	k8sClient := fake.NewClientBuilder().WithScheme(scheme).WithObjects(crb).Build()
+	injector := NewRBACRevokeInjector(k8sClient)
+
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.RBACRevoke,
+		Parameters: map[string]string{
+			"bindingName": "test-rollback-binding",
+			"bindingType": "ClusterRoleBinding",
+		},
+	}
+
+	ctx := context.Background()
+	cleanup, events, err := injector.Inject(ctx, spec, "")
+	require.NoError(t, err)
+	assert.NotEmpty(t, events)
+	assert.NotNil(t, cleanup)
+
+	// Verify the rollback annotation exists and contains the original subjects
+	modified := &rbacv1.ClusterRoleBinding{}
+	require.NoError(t, k8sClient.Get(ctx, client.ObjectKey{Name: "test-rollback-binding"}, modified))
+	assert.Empty(t, modified.Subjects)
+
+	rollbackData, ok := modified.Annotations[safety.RollbackAnnotationKey]
+	require.True(t, ok, "rollback annotation should be present")
+
+	var storedSubjects []rbacv1.Subject
+	require.NoError(t, json.Unmarshal([]byte(rollbackData), &storedSubjects))
+	assert.Len(t, storedSubjects, 2)
+	assert.Equal(t, "operator-sa", storedSubjects[0].Name)
+	assert.Equal(t, "admin-user", storedSubjects[1].Name)
+
+	// Verify chaos labels are set
+	assert.Equal(t, safety.ManagedByValue, modified.Labels[safety.ManagedByLabel])
+	assert.Equal(t, string(v1alpha1.RBACRevoke), modified.Labels[safety.ChaosTypeLabel])
+
+	// Run cleanup and verify annotation and labels are removed
+	require.NoError(t, cleanup(ctx))
+
+	restored := &rbacv1.ClusterRoleBinding{}
+	require.NoError(t, k8sClient.Get(ctx, client.ObjectKey{Name: "test-rollback-binding"}, restored))
+	assert.Len(t, restored.Subjects, 2)
+	assert.Equal(t, "operator-sa", restored.Subjects[0].Name)
+	assert.Equal(t, "admin-user", restored.Subjects[1].Name)
+
+	// Rollback annotation should be removed
+	_, hasAnnotation := restored.Annotations[safety.RollbackAnnotationKey]
+	assert.False(t, hasAnnotation, "rollback annotation should be removed after cleanup")
+
+	// Chaos labels should be removed
+	_, hasManagedBy := restored.Labels[safety.ManagedByLabel]
+	assert.False(t, hasManagedBy, "managed-by label should be removed after cleanup")
+	_, hasChaosType := restored.Labels[safety.ChaosTypeLabel]
+	assert.False(t, hasChaosType, "chaos-type label should be removed after cleanup")
 }

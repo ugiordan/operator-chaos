@@ -44,6 +44,11 @@ func NewAdminHandler(cfg *FaultConfig) http.Handler {
 		json.NewEncoder(w).Encode(points) //nolint:errcheck
 	})
 
+	mux.HandleFunc("/chaos/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"status": "ok"}) //nolint:errcheck
+	})
+
 	mux.HandleFunc("/chaos/status", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		status := map[string]interface{}{

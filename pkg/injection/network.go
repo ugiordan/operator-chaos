@@ -61,12 +61,9 @@ func (n *NetworkPartitionInjector) Inject(ctx context.Context, spec v1alpha1.Inj
 
 	policy := &networkingv1.NetworkPolicy{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      policyName,
-			Namespace: namespace,
-			Labels: map[string]string{
-				"app.kubernetes.io/managed-by": "odh-chaos",
-				"chaos.opendatahub.io/type":    "network-partition",
-			},
+			Name:        policyName,
+			Namespace:   namespace,
+			Labels:      safety.ChaosLabels(string(v1alpha1.NetworkPartition)),
 			Annotations: annotations,
 		},
 		Spec: networkingv1.NetworkPolicySpec{

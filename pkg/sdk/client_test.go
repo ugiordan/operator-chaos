@@ -82,3 +82,88 @@ func TestChaosClientInactiveFaultsPassthrough(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "test-cm", cm.Name)
 }
+
+func TestChaosClientFaultInjectionOnAllOperations(t *testing.T) {
+	scheme := runtime.NewScheme()
+	require.NoError(t, corev1.AddToScheme(scheme))
+
+	tests := []struct {
+		name     string
+		faultKey string
+		errMsg   string
+		callFn   func(cc *ChaosClient) error
+	}{
+		{
+			name:     "list fault",
+			faultKey: "list",
+			errMsg:   "list chaos fault",
+			callFn: func(cc *ChaosClient) error {
+				return cc.List(context.Background(), &corev1.ConfigMapList{})
+			},
+		},
+		{
+			name:     "create fault",
+			faultKey: "create",
+			errMsg:   "create chaos fault",
+			callFn: func(cc *ChaosClient) error {
+				return cc.Create(context.Background(), &corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{Name: "new-cm", Namespace: "default"},
+				})
+			},
+		},
+		{
+			name:     "update fault",
+			faultKey: "update",
+			errMsg:   "update chaos fault",
+			callFn: func(cc *ChaosClient) error {
+				return cc.Update(context.Background(), &corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{Name: "test-cm", Namespace: "default"},
+				})
+			},
+		},
+		{
+			name:     "delete fault",
+			faultKey: "delete",
+			errMsg:   "delete chaos fault",
+			callFn: func(cc *ChaosClient) error {
+				return cc.Delete(context.Background(), &corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{Name: "test-cm", Namespace: "default"},
+				})
+			},
+		},
+		{
+			name:     "patch fault",
+			faultKey: "patch",
+			errMsg:   "patch chaos fault",
+			callFn: func(cc *ChaosClient) error {
+				return cc.Patch(context.Background(), &corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{Name: "test-cm", Namespace: "default"},
+				}, client.MergeFrom(&corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{Name: "test-cm", Namespace: "default"},
+				}))
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			inner := fake.NewClientBuilder().WithScheme(scheme).WithObjects(
+				&corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{Name: "test-cm", Namespace: "default"},
+				},
+			).Build()
+
+			faults := &FaultConfig{
+				Active: true,
+				Faults: map[string]FaultSpec{
+					tt.faultKey: {ErrorRate: 1.0, Error: tt.errMsg},
+				},
+			}
+
+			cc := NewChaosClient(inner, faults)
+			err := tt.callFn(cc)
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), tt.errMsg)
+		})
+	}
+}

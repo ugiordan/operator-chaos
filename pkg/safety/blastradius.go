@@ -35,8 +35,8 @@ func ValidateBlastRadius(spec v1alpha1.BlastRadiusSpec, targetNamespace string, 
 	return nil
 }
 
-func CheckDangerLevel(level string, allowDangerous bool) error {
-	if level == "high" && !allowDangerous {
+func CheckDangerLevel(level v1alpha1.DangerLevel, allowDangerous bool) error {
+	if level == v1alpha1.DangerLevelHigh && !allowDangerous {
 		return fmt.Errorf("injection with dangerLevel=high requires blastRadius.allowDangerous=true")
 	}
 	return nil

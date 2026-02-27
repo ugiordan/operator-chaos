@@ -53,6 +53,20 @@ func TestAdminEndpointStatus(t *testing.T) {
 	assert.Equal(t, float64(1), status["faultCount"])
 }
 
+func TestAdminEndpointHealth(t *testing.T) {
+	handler := NewAdminHandler(nil)
+	req := httptest.NewRequest("GET", "/chaos/health", nil)
+	w := httptest.NewRecorder()
+	handler.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, "application/json", w.Header().Get("Content-Type"))
+
+	var health map[string]string
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &health))
+	assert.Equal(t, "ok", health["status"])
+}
+
 func TestAdminEndpointNilConfig(t *testing.T) {
 	handler := NewAdminHandler(nil)
 

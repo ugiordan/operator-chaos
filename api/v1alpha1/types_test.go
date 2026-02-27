@@ -97,6 +97,17 @@ func TestInjectionTypes(t *testing.T) {
 	}
 }
 
+func TestPhase3InjectionTypes(t *testing.T) {
+	// Phase 3 injection types (advanced fault categories)
+	phase3Types := []InjectionType{
+		MemoryLeak, MemoryPressure, GoroutineBomb, CPUSpin,
+		FDExhaustion, DiskWriteFailure, DNSFailure, DeadlockInject,
+	}
+	for _, it := range phase3Types {
+		assert.NotEmpty(t, string(it))
+	}
+}
+
 func TestVerdictValues(t *testing.T) {
 	assert.Equal(t, Verdict("Resilient"), Resilient)
 	assert.Equal(t, Verdict("Degraded"), Degraded)

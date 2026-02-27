@@ -2,9 +2,11 @@ package injection
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
+	"github.com/opendatahub-io/odh-platform-chaos/pkg/safety"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -73,6 +75,25 @@ func (r *RBACRevokeInjector) injectClusterRoleBinding(ctx context.Context, bindi
 	originalSubjects := make([]rbacv1.Subject, len(crb.Subjects))
 	copy(originalSubjects, crb.Subjects)
 
+	// Serialize original subjects to JSON for crash-safe rollback
+	rollbackData, err := json.Marshal(originalSubjects)
+	if err != nil {
+		return nil, nil, fmt.Errorf("serializing original subjects for ClusterRoleBinding %q: %w", bindingName, err)
+	}
+
+	// Store rollback annotation and chaos labels
+	if crb.Annotations == nil {
+		crb.Annotations = make(map[string]string)
+	}
+	crb.Annotations[safety.RollbackAnnotationKey] = string(rollbackData)
+
+	if crb.Labels == nil {
+		crb.Labels = make(map[string]string)
+	}
+	for k, v := range safety.ChaosLabels(string(v1alpha1.RBACRevoke)) {
+		crb.Labels[k] = v
+	}
+
 	// Clear subjects
 	crb.Subjects = []rbacv1.Subject{}
 
@@ -90,7 +111,7 @@ func (r *RBACRevokeInjector) injectClusterRoleBinding(ctx context.Context, bindi
 			}),
 	}
 
-	// Cleanup restores original subjects
+	// Cleanup restores original subjects and removes rollback metadata
 	cleanup := func(ctx context.Context) error {
 		current := &rbacv1.ClusterRoleBinding{}
 		if err := r.client.Get(ctx, client.ObjectKey{Name: bindingName}, current); err != nil {
@@ -98,6 +119,15 @@ func (r *RBACRevokeInjector) injectClusterRoleBinding(ctx context.Context, bindi
 		}
 
 		current.Subjects = originalSubjects
+
+		// Remove rollback annotation
+		delete(current.Annotations, safety.RollbackAnnotationKey)
+
+		// Remove chaos labels
+		for k := range safety.ChaosLabels(string(v1alpha1.RBACRevoke)) {
+			delete(current.Labels, k)
+		}
+
 		return r.client.Update(ctx, current)
 	}
 
@@ -115,6 +145,25 @@ func (r *RBACRevokeInjector) injectRoleBinding(ctx context.Context, bindingName,
 	// Save original subjects
 	originalSubjects := make([]rbacv1.Subject, len(rb.Subjects))
 	copy(originalSubjects, rb.Subjects)
+
+	// Serialize original subjects to JSON for crash-safe rollback
+	rollbackData, err := json.Marshal(originalSubjects)
+	if err != nil {
+		return nil, nil, fmt.Errorf("serializing original subjects for RoleBinding %q: %w", bindingName, err)
+	}
+
+	// Store rollback annotation and chaos labels
+	if rb.Annotations == nil {
+		rb.Annotations = make(map[string]string)
+	}
+	rb.Annotations[safety.RollbackAnnotationKey] = string(rollbackData)
+
+	if rb.Labels == nil {
+		rb.Labels = make(map[string]string)
+	}
+	for k, v := range safety.ChaosLabels(string(v1alpha1.RBACRevoke)) {
+		rb.Labels[k] = v
+	}
 
 	// Clear subjects
 	rb.Subjects = []rbacv1.Subject{}
@@ -134,7 +183,7 @@ func (r *RBACRevokeInjector) injectRoleBinding(ctx context.Context, bindingName,
 			}),
 	}
 
-	// Cleanup restores original subjects
+	// Cleanup restores original subjects and removes rollback metadata
 	cleanup := func(ctx context.Context) error {
 		current := &rbacv1.RoleBinding{}
 		if err := r.client.Get(ctx, client.ObjectKey{Name: bindingName, Namespace: namespace}, current); err != nil {
@@ -142,6 +191,15 @@ func (r *RBACRevokeInjector) injectRoleBinding(ctx context.Context, bindingName,
 		}
 
 		current.Subjects = originalSubjects
+
+		// Remove rollback annotation
+		delete(current.Annotations, safety.RollbackAnnotationKey)
+
+		// Remove chaos labels
+		for k := range safety.ChaosLabels(string(v1alpha1.RBACRevoke)) {
+			delete(current.Labels, k)
+		}
+
 		return r.client.Update(ctx, current)
 	}
 

@@ -7,6 +7,20 @@ import (
 	"time"
 )
 
+// Operation represents a client operation that can be fault-injected.
+type Operation string
+
+const (
+	OpGet         Operation = "get"
+	OpList        Operation = "list"
+	OpCreate      Operation = "create"
+	OpUpdate      Operation = "update"
+	OpDelete      Operation = "delete"
+	OpPatch       Operation = "patch"
+	OpDeleteAllOf Operation = "deleteAllOf"
+	OpReconcile   Operation = "reconcile"
+)
+
 // FaultSpec defines a single fault injection point.
 type FaultSpec struct {
 	ErrorRate float64       `json:"errorRate" yaml:"errorRate"`

@@ -2,9 +2,11 @@ package injection
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
+	"github.com/opendatahub-io/odh-platform-chaos/pkg/safety"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	admissionv1 "k8s.io/api/admissionregistration/v1"
@@ -214,6 +216,76 @@ func TestWebhookDisruptInjectMultipleWebhooks(t *testing.T) {
 		require.NotNil(t, wh.FailurePolicy, "webhook %d should have failure policy set", i)
 		assert.Equal(t, admissionv1.Ignore, *wh.FailurePolicy, "webhook %d should be restored to Ignore", i)
 	}
+}
+
+func TestWebhookDisruptInjectStoresRollbackAnnotation(t *testing.T) {
+	scheme := runtime.NewScheme()
+	require.NoError(t, admissionv1.AddToScheme(scheme))
+
+	ignorePolicy := admissionv1.Ignore
+	webhook := &admissionv1.ValidatingWebhookConfiguration{
+		ObjectMeta: metav1.ObjectMeta{Name: "annotated-webhook"},
+		Webhooks: []admissionv1.ValidatingWebhook{
+			{
+				Name:                    "test.webhook.io",
+				FailurePolicy:           &ignorePolicy,
+				ClientConfig:            admissionv1.WebhookClientConfig{URL: strPtr("https://example.com")},
+				SideEffects:             sideEffectPtr(admissionv1.SideEffectClassNone),
+				AdmissionReviewVersions: []string{"v1"},
+			},
+		},
+	}
+
+	fakeClient := fake.NewClientBuilder().WithScheme(scheme).WithObjects(webhook).Build()
+	injector := NewWebhookDisruptInjector(fakeClient)
+
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.WebhookDisrupt,
+		Parameters: map[string]string{
+			"webhookName": "annotated-webhook",
+			"action":      "setFailurePolicy",
+			"value":       "Fail",
+		},
+	}
+
+	ctx := context.Background()
+
+	// Inject
+	cleanup, _, err := injector.Inject(ctx, spec, "default")
+	require.NoError(t, err)
+
+	// Verify the rollback annotation exists with original policy
+	modified := &admissionv1.ValidatingWebhookConfiguration{}
+	require.NoError(t, fakeClient.Get(ctx, client.ObjectKey{Name: "annotated-webhook"}, modified))
+
+	rollbackJSON, ok := modified.Annotations[safety.RollbackAnnotationKey]
+	require.True(t, ok, "rollback annotation should be present after injection")
+
+	var rollbackData map[string]string
+	require.NoError(t, json.Unmarshal([]byte(rollbackJSON), &rollbackData))
+	assert.Equal(t, "Ignore", rollbackData["test.webhook.io"], "rollback data should contain original Ignore policy")
+
+	// Verify chaos labels are present
+	assert.Equal(t, safety.ManagedByValue, modified.Labels[safety.ManagedByLabel])
+	assert.Equal(t, string(v1alpha1.WebhookDisrupt), modified.Labels[safety.ChaosTypeLabel])
+
+	// Cleanup should remove annotation and labels
+	require.NoError(t, cleanup(ctx))
+	restored := &admissionv1.ValidatingWebhookConfiguration{}
+	require.NoError(t, fakeClient.Get(ctx, client.ObjectKey{Name: "annotated-webhook"}, restored))
+
+	_, hasAnnotation := restored.Annotations[safety.RollbackAnnotationKey]
+	assert.False(t, hasAnnotation, "rollback annotation should be removed after cleanup")
+
+	_, hasManagedBy := restored.Labels[safety.ManagedByLabel]
+	assert.False(t, hasManagedBy, "managed-by label should be removed after cleanup")
+
+	_, hasChaosType := restored.Labels[safety.ChaosTypeLabel]
+	assert.False(t, hasChaosType, "chaos-type label should be removed after cleanup")
+
+	// Verify policy was restored
+	require.NotNil(t, restored.Webhooks[0].FailurePolicy)
+	assert.Equal(t, admissionv1.Ignore, *restored.Webhooks[0].FailurePolicy)
 }
 
 func TestWebhookDisruptNotFound(t *testing.T) {

@@ -42,8 +42,17 @@ type SteadyStateDef struct {
 	Timeout Duration           `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 }
 
+// CheckType represents the type of a steady-state check.
+type CheckType string
+
+const (
+	CheckConditionTrue  CheckType = "conditionTrue"
+	CheckResourceExists CheckType = "resourceExists"
+	CheckPrometheusQuery CheckType = "prometheusQuery"
+)
+
 type SteadyStateCheck struct {
-	Type          string `json:"type" yaml:"type"`
+	Type          CheckType `json:"type" yaml:"type"`
 	APIVersion    string `json:"apiVersion,omitempty" yaml:"apiVersion,omitempty"`
 	Kind          string `json:"kind,omitempty" yaml:"kind,omitempty"`
 	Name          string `json:"name,omitempty" yaml:"name,omitempty"`
@@ -61,8 +70,17 @@ type InjectionSpec struct {
 	Duration    Duration          `json:"duration,omitempty" yaml:"duration,omitempty"`
 	Count       int               `json:"count,omitempty" yaml:"count,omitempty"`
 	TTL         Duration          `json:"ttl,omitempty" yaml:"ttl,omitempty"`
-	DangerLevel string            `json:"dangerLevel,omitempty" yaml:"dangerLevel,omitempty"`
+	DangerLevel DangerLevel       `json:"dangerLevel,omitempty" yaml:"dangerLevel,omitempty"`
 }
+
+// DangerLevel represents the risk level of an injection.
+type DangerLevel string
+
+const (
+	DangerLevelLow    DangerLevel = "low"
+	DangerLevelMedium DangerLevel = "medium"
+	DangerLevelHigh   DangerLevel = "high"
+)
 
 type InjectionType string
 
@@ -89,6 +107,18 @@ const (
 	LeaderElectionLoss InjectionType = "LeaderElectionLoss"
 	WebhookTimeout     InjectionType = "WebhookTimeout"
 	WebhookReject      InjectionType = "WebhookReject"
+)
+
+// Phase 3 injection types (advanced fault categories)
+const (
+	MemoryLeak       InjectionType = "MemoryLeak"
+	MemoryPressure   InjectionType = "MemoryPressure"
+	GoroutineBomb    InjectionType = "GoroutineBomb"
+	CPUSpin          InjectionType = "CPUSpin"
+	FDExhaustion     InjectionType = "FDExhaustion"
+	DiskWriteFailure InjectionType = "DiskWriteFailure"
+	DNSFailure       InjectionType = "DNSFailure"
+	DeadlockInject   InjectionType = "DeadlockInject"
 )
 
 type ObservationSpec struct {

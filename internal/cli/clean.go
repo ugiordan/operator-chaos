@@ -2,30 +2,36 @@ package cli
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
+	admissionregv1 "k8s.io/api/admissionregistration/v1"
 	coordinationv1 "k8s.io/api/coordination/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 
+	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
 	"github.com/opendatahub-io/odh-platform-chaos/pkg/safety"
 	"github.com/spf13/cobra"
 )
 
 // cleanSummary tracks what was cleaned per artifact type.
 type cleanSummary struct {
-	NetworkPolicies int
-	Leases          int
-	ClusterRoles    int
-	RoleBindings    int
-	TTLExpired      int
+	NetworkPolicies   int
+	Leases            int
+	ClusterRoles      int
+	RoleBindings      int
+	TTLExpired        int
+	WebhooksRestored  int
+	RBACBindingsFixed int
 }
 
 func (s cleanSummary) total() int {
-	return s.NetworkPolicies + s.Leases + s.ClusterRoles + s.RoleBindings + s.TTLExpired
+	return s.NetworkPolicies + s.Leases + s.ClusterRoles + s.RoleBindings +
+		s.TTLExpired + s.WebhooksRestored + s.RBACBindingsFixed
 }
 
 func (s cleanSummary) print() {
@@ -35,21 +41,27 @@ func (s cleanSummary) print() {
 	}
 	fmt.Println("\n--- Clean Summary ---")
 	if s.NetworkPolicies > 0 {
-		fmt.Printf("  NetworkPolicies removed: %d\n", s.NetworkPolicies)
+		fmt.Printf("  NetworkPolicies removed:    %d\n", s.NetworkPolicies)
 	}
 	if s.Leases > 0 {
-		fmt.Printf("  Leases removed:          %d\n", s.Leases)
+		fmt.Printf("  Leases removed:             %d\n", s.Leases)
 	}
 	if s.ClusterRoles > 0 {
-		fmt.Printf("  ClusterRoles removed:    %d\n", s.ClusterRoles)
+		fmt.Printf("  ClusterRoles removed:       %d\n", s.ClusterRoles)
 	}
 	if s.RoleBindings > 0 {
-		fmt.Printf("  RoleBindings removed:    %d\n", s.RoleBindings)
+		fmt.Printf("  RoleBindings removed:       %d\n", s.RoleBindings)
 	}
 	if s.TTLExpired > 0 {
-		fmt.Printf("  TTL-expired removed:     %d\n", s.TTLExpired)
+		fmt.Printf("  TTL-expired removed:        %d\n", s.TTLExpired)
 	}
-	fmt.Printf("  Total cleaned:           %d\n", s.total())
+	if s.WebhooksRestored > 0 {
+		fmt.Printf("  Webhooks restored:          %d\n", s.WebhooksRestored)
+	}
+	if s.RBACBindingsFixed > 0 {
+		fmt.Printf("  RBAC bindings restored:     %d\n", s.RBACBindingsFixed)
+	}
+	fmt.Printf("  Total cleaned:              %d\n", s.total())
 }
 
 func newCleanCommand() *cobra.Command {
@@ -105,6 +117,12 @@ func runClean(ctx context.Context, k8sClient client.Client, namespace string) cl
 
 	// 5. Scan for TTL-expired NetworkPolicies (belt-and-suspenders)
 	summary.TTLExpired = cleanTTLExpired(ctx, k8sClient, namespace)
+
+	// 6. Restore chaos-modified ValidatingWebhookConfigurations
+	summary.WebhooksRestored = cleanWebhookConfigurations(ctx, k8sClient)
+
+	// 7. Restore chaos-modified RBAC bindings (ClusterRoleBindings + RoleBindings)
+	summary.RBACBindingsFixed = cleanRBACBindings(ctx, k8sClient, namespace)
 
 	return summary
 }
@@ -192,6 +210,160 @@ func cleanRoleBindings(ctx context.Context, k8sClient client.Client, namespace s
 		}
 	}
 	return cleaned
+}
+
+// cleanWebhookConfigurations finds ValidatingWebhookConfigurations that have a
+// rollback annotation (set by the WebhookDisrupt injector), parses the original
+// failure policies from the annotation, restores them, and removes chaos metadata.
+func cleanWebhookConfigurations(ctx context.Context, k8sClient client.Client) int {
+	webhooks := &admissionregv1.ValidatingWebhookConfigurationList{}
+	if err := k8sClient.List(ctx, webhooks); err != nil {
+		fmt.Printf("Warning: listing ValidatingWebhookConfigurations: %v\n", err)
+		return 0
+	}
+
+	restored := 0
+	for i := range webhooks.Items {
+		wc := &webhooks.Items[i]
+		annotations := wc.GetAnnotations()
+		if annotations == nil {
+			continue
+		}
+		rollbackJSON, ok := annotations[safety.RollbackAnnotationKey]
+		if !ok {
+			continue
+		}
+
+		// Parse the original failure policies map
+		var originalPolicies map[string]string
+		if err := json.Unmarshal([]byte(rollbackJSON), &originalPolicies); err != nil {
+			fmt.Printf("Warning: parsing rollback data for ValidatingWebhookConfiguration %q: %v\n", wc.Name, err)
+			continue
+		}
+
+		// Restore original failure policies
+		for j, wh := range wc.Webhooks {
+			if policyStr, found := originalPolicies[wh.Name]; found {
+				if policyStr == "" {
+					wc.Webhooks[j].FailurePolicy = nil
+				} else {
+					p := admissionregv1.FailurePolicyType(policyStr)
+					wc.Webhooks[j].FailurePolicy = &p
+				}
+			}
+		}
+
+		// Remove rollback annotation
+		delete(wc.Annotations, safety.RollbackAnnotationKey)
+
+		// Remove chaos labels
+		for k := range safety.ChaosLabels(string(v1alpha1.WebhookDisrupt)) {
+			delete(wc.Labels, k)
+		}
+
+		fmt.Printf("Restoring ValidatingWebhookConfiguration %q\n", wc.Name)
+		if err := k8sClient.Update(ctx, wc); err != nil {
+			fmt.Printf("  Warning: %v\n", err)
+		} else {
+			restored++
+		}
+	}
+	return restored
+}
+
+// cleanRBACBindings finds ClusterRoleBindings and RoleBindings that have a
+// rollback annotation (set by the RBACRevoke injector), parses the original
+// subjects from the annotation, restores them, and removes chaos metadata.
+func cleanRBACBindings(ctx context.Context, k8sClient client.Client, namespace string) int {
+	restored := 0
+
+	// ClusterRoleBindings (cluster-scoped)
+	crbs := &rbacv1.ClusterRoleBindingList{}
+	if err := k8sClient.List(ctx, crbs); err != nil {
+		fmt.Printf("Warning: listing ClusterRoleBindings: %v\n", err)
+	} else {
+		for i := range crbs.Items {
+			crb := &crbs.Items[i]
+			annotations := crb.GetAnnotations()
+			if annotations == nil {
+				continue
+			}
+			rollbackJSON, ok := annotations[safety.RollbackAnnotationKey]
+			if !ok {
+				continue
+			}
+
+			var originalSubjects []rbacv1.Subject
+			if err := json.Unmarshal([]byte(rollbackJSON), &originalSubjects); err != nil {
+				fmt.Printf("Warning: parsing rollback data for ClusterRoleBinding %q: %v\n", crb.Name, err)
+				continue
+			}
+
+			crb.Subjects = originalSubjects
+
+			// Remove rollback annotation
+			delete(crb.Annotations, safety.RollbackAnnotationKey)
+
+			// Remove chaos labels
+			for k := range safety.ChaosLabels(string(v1alpha1.RBACRevoke)) {
+				delete(crb.Labels, k)
+			}
+
+			fmt.Printf("Restoring ClusterRoleBinding %q\n", crb.Name)
+			if err := k8sClient.Update(ctx, crb); err != nil {
+				fmt.Printf("  Warning: %v\n", err)
+			} else {
+				restored++
+			}
+		}
+	}
+
+	// RoleBindings (namespace-scoped)
+	rbs := &rbacv1.RoleBindingList{}
+	listOpts := []client.ListOption{}
+	if namespace != "" {
+		listOpts = append(listOpts, client.InNamespace(namespace))
+	}
+	if err := k8sClient.List(ctx, rbs, listOpts...); err != nil {
+		fmt.Printf("Warning: listing RoleBindings: %v\n", err)
+	} else {
+		for i := range rbs.Items {
+			rb := &rbs.Items[i]
+			annotations := rb.GetAnnotations()
+			if annotations == nil {
+				continue
+			}
+			rollbackJSON, ok := annotations[safety.RollbackAnnotationKey]
+			if !ok {
+				continue
+			}
+
+			var originalSubjects []rbacv1.Subject
+			if err := json.Unmarshal([]byte(rollbackJSON), &originalSubjects); err != nil {
+				fmt.Printf("Warning: parsing rollback data for RoleBinding %s/%s: %v\n", rb.Namespace, rb.Name, err)
+				continue
+			}
+
+			rb.Subjects = originalSubjects
+
+			// Remove rollback annotation
+			delete(rb.Annotations, safety.RollbackAnnotationKey)
+
+			// Remove chaos labels
+			for k := range safety.ChaosLabels(string(v1alpha1.RBACRevoke)) {
+				delete(rb.Labels, k)
+			}
+
+			fmt.Printf("Restoring RoleBinding %s/%s\n", rb.Namespace, rb.Name)
+			if err := k8sClient.Update(ctx, rb); err != nil {
+				fmt.Printf("  Warning: %v\n", err)
+			} else {
+				restored++
+			}
+		}
+	}
+
+	return restored
 }
 
 // cleanTTLExpired scans all NetworkPolicies in the namespace for those with

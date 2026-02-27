@@ -33,14 +33,14 @@ func (o *KubernetesObserver) CheckSteadyState(ctx context.Context, checks []v1al
 		detail := v1alpha1.CheckDetail{Check: check}
 
 		switch check.Type {
-		case "conditionTrue":
+		case v1alpha1.CheckConditionTrue:
 			passed, value, err := o.checkCondition(ctx, check, namespace)
 			detail.Passed = passed
 			detail.Value = value
 			if err != nil {
 				detail.Error = err.Error()
 			}
-		case "resourceExists":
+		case v1alpha1.CheckResourceExists:
 			passed, err := o.checkResourceExists(ctx, check, namespace)
 			detail.Passed = passed
 			if err != nil {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"time"
 
@@ -29,6 +30,7 @@ type Orchestrator struct {
 	reportDir  string
 	verbose    bool
 	output     io.Writer
+	logger     *slog.Logger
 }
 
 // OrchestratorConfig holds configuration for creating an Orchestrator.
@@ -41,6 +43,7 @@ type OrchestratorConfig struct {
 	Knowledge  *model.OperatorKnowledge
 	ReportDir  string
 	Verbose    bool
+	Logger     *slog.Logger
 }
 
 // ExperimentResult captures the outcome of running a chaos experiment.
@@ -50,12 +53,23 @@ type ExperimentResult struct {
 	Verdict    v1alpha1.Verdict            `json:"verdict,omitempty"`
 	Evaluation *evaluator.EvaluationResult `json:"evaluation,omitempty"`
 	Report     *reporter.ExperimentReport  `json:"report,omitempty"`
-	Error      string                      `json:"error,omitempty"`
+	Error        string                      `json:"error,omitempty"`
+	CleanupError string                      `json:"cleanupError,omitempty"`
 }
 
 // New creates a new Orchestrator with the given configuration.
 func New(config OrchestratorConfig) *Orchestrator {
 	output := io.Writer(os.Stdout)
+
+	logger := config.Logger
+	if logger == nil {
+		if config.Verbose {
+			logger = slog.New(slog.NewTextHandler(output, nil))
+		} else {
+			logger = slog.New(slog.NewTextHandler(io.Discard, nil))
+		}
+	}
+
 	return &Orchestrator{
 		registry:   config.Registry,
 		observer:   config.Observer,
@@ -66,6 +80,7 @@ func New(config OrchestratorConfig) *Orchestrator {
 		reportDir:  config.ReportDir,
 		verbose:    config.Verbose,
 		output:     output,
+		logger:     logger,
 	}
 }
 
@@ -79,7 +94,7 @@ func (o *Orchestrator) Run(ctx context.Context, exp *v1alpha1.ChaosExperiment) (
 	}
 
 	// 1. Validate
-	o.log("Phase: PENDING - validating experiment %s", exp.Metadata.Name)
+	o.logger.Info("phase transition", "phase", "PENDING", "experiment", exp.Metadata.Name, "action", "validating")
 
 	// Determine namespace early (needed for blast radius validation)
 	namespace := exp.Metadata.Namespace
@@ -132,14 +147,14 @@ func (o *Orchestrator) Run(ctx context.Context, exp *v1alpha1.ChaosExperiment) (
 
 	// Dry run check
 	if exp.Spec.BlastRadius.DryRun {
-		o.log("DRY RUN: Would inject %s into %s/%s", exp.Spec.Injection.Type, exp.Spec.Target.Operator, exp.Spec.Target.Component)
+		o.logger.Info("dry run", "injection", exp.Spec.Injection.Type, "operator", exp.Spec.Target.Operator, "component", exp.Spec.Target.Component)
 		result.Phase = v1alpha1.PhaseComplete
 		result.Verdict = v1alpha1.Inconclusive
 		return result, nil
 	}
 
 	// 2. Steady State Pre-Check
-	o.log("Phase: STEADY_STATE_PRE - checking baseline")
+	o.logger.Info("phase transition", "phase", "STEADY_STATE_PRE", "action", "checking baseline")
 	result.Phase = v1alpha1.PhaseSteadyStatePre
 
 	var preCheck *v1alpha1.CheckResult
@@ -156,7 +171,7 @@ func (o *Orchestrator) Run(ctx context.Context, exp *v1alpha1.ChaosExperiment) (
 	}
 
 	if !preCheck.Passed {
-		o.log("Pre-check FAILED: system not in steady state")
+		o.logger.Warn("pre-check failed", "reason", "system not in steady state")
 		evalResult := o.evaluator.Evaluate(preCheck, preCheck, false, 0, 0, exp.Spec.Hypothesis)
 		result.Evaluation = evalResult
 		result.Verdict = evalResult.Verdict
@@ -165,7 +180,7 @@ func (o *Orchestrator) Run(ctx context.Context, exp *v1alpha1.ChaosExperiment) (
 	}
 
 	// 3. Inject
-	o.log("Phase: INJECTING - applying %s", exp.Spec.Injection.Type)
+	o.logger.Info("phase transition", "phase", "INJECTING", "injection", exp.Spec.Injection.Type)
 	result.Phase = v1alpha1.PhaseInjecting
 
 	cleanup, events, err := injector.Inject(ctx, exp.Spec.Injection, namespace)
@@ -178,19 +193,20 @@ func (o *Orchestrator) Run(ctx context.Context, exp *v1alpha1.ChaosExperiment) (
 	// Ensure cleanup runs even if the parent context is cancelled
 	defer func() {
 		if cleanup != nil {
-			o.log("Phase: CLEANUP")
+			o.logger.Info("phase transition", "phase", "CLEANUP")
 			cleanupCtx, cleanupCancel := context.WithTimeout(context.Background(), 30*time.Second)
 			defer cleanupCancel()
 			if cleanErr := cleanup(cleanupCtx); cleanErr != nil {
-				o.log("Cleanup warning: %v", cleanErr)
+				o.logger.Warn("cleanup warning", "error", cleanErr)
+				result.CleanupError = cleanErr.Error()
 			}
 		}
 	}()
 
-	o.log("Injected %d events", len(events))
+	o.logger.Info("injection complete", "events", len(events))
 
 	// 4. Observe
-	o.log("Phase: OBSERVING - waiting for recovery")
+	o.logger.Info("phase transition", "phase", "OBSERVING", "action", "waiting for recovery")
 	result.Phase = v1alpha1.PhaseObserving
 
 	// Wait for observation period or recovery
@@ -207,13 +223,13 @@ func (o *Orchestrator) Run(ctx context.Context, exp *v1alpha1.ChaosExperiment) (
 		if component != nil && o.reconciler != nil {
 			reconciliationResult, err = o.reconciler.CheckReconciliation(ctx, component, namespace, recoveryTimeout)
 			if err != nil {
-				o.log("Reconciliation check error: %v", err)
+				o.logger.Warn("reconciliation check error", "error", err)
 			}
 		}
 	}
 
 	// 5. Steady State Post-Check
-	o.log("Phase: STEADY_STATE_POST - verifying recovery")
+	o.logger.Info("phase transition", "phase", "STEADY_STATE_POST", "action", "verifying recovery")
 	result.Phase = v1alpha1.PhaseSteadyStatePost
 
 	var postCheck *v1alpha1.CheckResult
@@ -221,7 +237,7 @@ func (o *Orchestrator) Run(ctx context.Context, exp *v1alpha1.ChaosExperiment) (
 		var postCheckErr error
 		postCheck, postCheckErr = o.observer.CheckSteadyState(ctx, exp.Spec.SteadyState.Checks, namespace)
 		if postCheckErr != nil {
-			o.log("Post-check error: %v", postCheckErr)
+			o.logger.Warn("post-check error", "error", postCheckErr)
 			postCheck = &v1alpha1.CheckResult{Passed: false, Timestamp: time.Now()}
 		}
 	} else {
@@ -229,7 +245,7 @@ func (o *Orchestrator) Run(ctx context.Context, exp *v1alpha1.ChaosExperiment) (
 	}
 
 	// 6. Evaluate
-	o.log("Phase: EVALUATING")
+	o.logger.Info("phase transition", "phase", "EVALUATING")
 	result.Phase = v1alpha1.PhaseEvaluating
 
 	allReconciled := true
@@ -273,14 +289,9 @@ func (o *Orchestrator) Run(ctx context.Context, exp *v1alpha1.ChaosExperiment) (
 		}
 	}
 
-	o.log("Phase: COMPLETE - Verdict: %s", evalResult.Verdict)
+	o.logger.Info("phase transition", "phase", "COMPLETE", "verdict", evalResult.Verdict)
 	result.Phase = v1alpha1.PhaseComplete
 
 	return result, nil
 }
 
-func (o *Orchestrator) log(format string, args ...interface{}) {
-	if o.verbose {
-		fmt.Fprintf(o.output, format+"\n", args...)
-	}
-}

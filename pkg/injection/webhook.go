@@ -2,9 +2,11 @@ package injection
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
+	"github.com/opendatahub-io/odh-platform-chaos/pkg/safety"
 	admissionv1 "k8s.io/api/admissionregistration/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -66,19 +68,33 @@ func (w *WebhookDisruptInjector) Inject(ctx context.Context, spec v1alpha1.Injec
 		return nil, nil, fmt.Errorf("parsing failure policy value: %w", err)
 	}
 
-	// Save original failure policies for each webhook
-	type originalPolicy struct {
-		index  int
-		policy *admissionv1.FailurePolicyType
-	}
-	originals := make([]originalPolicy, len(webhookConfig.Webhooks))
-	for i, wh := range webhookConfig.Webhooks {
+	// Save original failure policies for each webhook as a map of name -> policy value
+	originalPolicies := make(map[string]string, len(webhookConfig.Webhooks))
+	for _, wh := range webhookConfig.Webhooks {
 		if wh.FailurePolicy != nil {
-			p := *wh.FailurePolicy
-			originals[i] = originalPolicy{index: i, policy: &p}
+			originalPolicies[wh.Name] = string(*wh.FailurePolicy)
 		} else {
-			originals[i] = originalPolicy{index: i, policy: nil}
+			originalPolicies[wh.Name] = ""
 		}
+	}
+
+	// Serialize original policies to JSON for crash-safe rollback
+	rollbackData, err := json.Marshal(originalPolicies)
+	if err != nil {
+		return nil, nil, fmt.Errorf("serializing original policies for ValidatingWebhookConfiguration %q: %w", webhookName, err)
+	}
+
+	// Store rollback annotation and chaos labels
+	if webhookConfig.Annotations == nil {
+		webhookConfig.Annotations = make(map[string]string)
+	}
+	webhookConfig.Annotations[safety.RollbackAnnotationKey] = string(rollbackData)
+
+	if webhookConfig.Labels == nil {
+		webhookConfig.Labels = make(map[string]string)
+	}
+	for k, v := range safety.ChaosLabels(string(v1alpha1.WebhookDisrupt)) {
+		webhookConfig.Labels[k] = v
 	}
 
 	// Modify all webhooks to use the target failure policy
@@ -101,7 +117,7 @@ func (w *WebhookDisruptInjector) Inject(ctx context.Context, spec v1alpha1.Injec
 			}),
 	}
 
-	// Cleanup restores original failure policies
+	// Cleanup restores original failure policies and removes rollback metadata
 	cleanup := func(ctx context.Context) error {
 		// Re-fetch to get current state
 		current := &admissionv1.ValidatingWebhookConfiguration{}
@@ -110,10 +126,23 @@ func (w *WebhookDisruptInjector) Inject(ctx context.Context, spec v1alpha1.Injec
 		}
 
 		// Restore original failure policies
-		for _, orig := range originals {
-			if orig.index < len(current.Webhooks) {
-				current.Webhooks[orig.index].FailurePolicy = orig.policy
+		for i, wh := range current.Webhooks {
+			if policyStr, ok := originalPolicies[wh.Name]; ok {
+				if policyStr == "" {
+					current.Webhooks[i].FailurePolicy = nil
+				} else {
+					p := admissionv1.FailurePolicyType(policyStr)
+					current.Webhooks[i].FailurePolicy = &p
+				}
 			}
+		}
+
+		// Remove rollback annotation
+		delete(current.Annotations, safety.RollbackAnnotationKey)
+
+		// Remove chaos labels
+		for k := range safety.ChaosLabels(string(v1alpha1.WebhookDisrupt)) {
+			delete(current.Labels, k)
 		}
 
 		return w.client.Update(ctx, current)
