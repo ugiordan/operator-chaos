@@ -25,24 +25,21 @@ func TestChaosExperimentYAMLRoundTrip(t *testing.T) {
 				Resource:  "Deployment/odh-dashboard",
 			},
 			Hypothesis: HypothesisSpec{
-				Description:      "Dashboard recovers from pod kill within 60s",
-				ExpectedBehavior: "Deployment controller recreates pod",
-				RecoveryTimeout:  Duration{60 * time.Second},
+				Description:     "Dashboard recovers from pod kill within 60s",
+				RecoveryTimeout: Duration{60 * time.Second},
 			},
 			Injection: InjectionSpec{
-				Type:     PodKill,
-				Count:    1,
-				Duration: Duration{0},
-				TTL:      Duration{300 * time.Second},
+				Type:  PodKill,
+				Count: 1,
+				TTL:   Duration{300 * time.Second},
 				Parameters: map[string]string{
 					"signal":        "SIGKILL",
 					"labelSelector": "app.kubernetes.io/part-of=dashboard",
 				},
 			},
 			BlastRadius: BlastRadiusSpec{
-				MaxPodsAffected:     1,
-				MaxConcurrentFaults: 1,
-				AllowedNamespaces:   []string{"opendatahub"},
+				MaxPodsAffected:   1,
+				AllowedNamespaces: []string{"opendatahub"},
 			},
 		},
 	}
@@ -76,34 +73,11 @@ func TestChaosExperimentLoadFromFile(t *testing.T) {
 }
 
 func TestInjectionTypes(t *testing.T) {
-	// Phase 1 injection types
 	types := []InjectionType{
-		PodKill, PodFailure, NetworkPartition, NetworkLatency,
-		ResourceExhaustion, CRDMutation, ConfigDrift,
-		WebhookDisrupt, RBACRevoke, FinalizerBlock, OwnerRefOrphan,
-		SourceHook,
+		PodKill, NetworkPartition, CRDMutation, ConfigDrift,
+		WebhookDisrupt, RBACRevoke, FinalizerBlock,
 	}
 	for _, it := range types {
-		assert.NotEmpty(t, string(it))
-	}
-
-	// Phase 2 injection types (SDK middleware-based)
-	phase2Types := []InjectionType{
-		ClientThrottle, APIServerError, WatchDisconnect,
-		LeaderElectionLoss, WebhookTimeout, WebhookReject,
-	}
-	for _, it := range phase2Types {
-		assert.NotEmpty(t, string(it))
-	}
-}
-
-func TestPhase3InjectionTypes(t *testing.T) {
-	// Phase 3 injection types (advanced fault categories)
-	phase3Types := []InjectionType{
-		MemoryLeak, MemoryPressure, GoroutineBomb, CPUSpin,
-		FDExhaustion, DiskWriteFailure, DNSFailure, DeadlockInject,
-	}
-	for _, it := range phase3Types {
 		assert.NotEmpty(t, string(it))
 	}
 }

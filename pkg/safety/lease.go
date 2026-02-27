@@ -111,7 +111,9 @@ func (l *LeaseExperimentLock) Release(operator string) {
 			Namespace: l.namespace,
 		},
 	}
-	if err := l.client.Delete(context.Background(), lease); err != nil {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := l.client.Delete(ctx, lease); err != nil {
 		l.logger.Error("failed to release lease",
 			"lease", leaseName,
 			"operator", operator,

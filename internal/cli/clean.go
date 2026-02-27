@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -751,8 +753,8 @@ func cleanCRDMutations(ctx context.Context, k8sClient client.Client, namespace s
 
 // cleanCRDMutationFromResource checks a resource for the CRDMutation rollback
 // signature (rollback JSON containing both "apiVersion" and "kind" keys).
-// If found, it removes the rollback annotation and chaos labels, and logs the
-// rollback data for manual field restoration.
+// If found, it restores the original field value via a merge patch and removes
+// the rollback annotation and chaos labels.
 func cleanCRDMutationFromResource(ctx context.Context, k8sClient client.Client, obj client.Object, name, namespace string) bool {
 	annotations := obj.GetAnnotations()
 	if annotations == nil {
@@ -776,25 +778,44 @@ func cleanCRDMutationFromResource(ctx context.Context, k8sClient client.Client, 
 		return false
 	}
 
-	// Log the rollback data for manual field restoration
-	fmt.Printf("Found CRD mutation on %s/%s — rollback data: %s\n", namespace, name, rollbackJSON)
-	fmt.Printf("  Manual restoration needed: field=%v, originalValue=%v\n",
-		rollbackData["field"], rollbackData["originalValue"])
+	// Log the restoration (avoid leaking sensitive original values to stdout)
+	fmt.Printf("Restoring CRD mutation metadata on %s/%s (field: %v)\n", namespace, name, rollbackData["field"])
 
-	// Remove rollback annotation
-	delete(annotations, safety.RollbackAnnotationKey)
-	obj.SetAnnotations(annotations)
-
-	// Remove chaos labels
-	labels := obj.GetLabels()
-	if labels != nil {
-		for k := range safety.ChaosLabels(string(v1alpha1.CRDMutation)) {
-			delete(labels, k)
-		}
-		obj.SetLabels(labels)
+	// Build a merge patch that restores the field value and removes chaos metadata.
+	// Setting an annotation/label to null in a merge patch removes it.
+	restoreAnnotations := map[string]interface{}{
+		safety.RollbackAnnotationKey: nil,
+	}
+	chaosLabels := safety.ChaosLabels(string(v1alpha1.CRDMutation))
+	restoreLabels := make(map[string]interface{}, len(chaosLabels))
+	for k := range chaosLabels {
+		restoreLabels[k] = nil
 	}
 
-	if err := k8sClient.Update(ctx, obj); err != nil {
+	patchMap := map[string]interface{}{
+		"metadata": map[string]interface{}{
+			"annotations": restoreAnnotations,
+			"labels":      restoreLabels,
+		},
+	}
+
+	// Restore the field value under spec if rollback data contains field info
+	if fieldName, ok := rollbackData["field"]; ok {
+		if fieldStr, ok := fieldName.(string); ok && fieldStr != "" {
+			originalValue := rollbackData["originalValue"]
+			patchMap["spec"] = map[string]interface{}{
+				fieldStr: originalValue,
+			}
+		}
+	}
+
+	patch, err := json.Marshal(patchMap)
+	if err != nil {
+		fmt.Printf("  Warning: building restore patch: %v\n", err)
+		return false
+	}
+
+	if err := k8sClient.Patch(ctx, obj, client.RawPatch(types.MergePatchType, patch)); err != nil {
 		fmt.Printf("  Warning: %v\n", err)
 		return false
 	}

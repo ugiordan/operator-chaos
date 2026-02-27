@@ -60,6 +60,9 @@ func (r *ReconciliationChecker) CheckReconciliation(
 	deadline := startTime.Add(timeout)
 	cycles := 0
 
+	ticker := time.NewTicker(2 * time.Second)
+	defer ticker.Stop()
+
 	for time.Now().Before(deadline) {
 		cycles++
 		allGood := true
@@ -145,7 +148,7 @@ func (r *ReconciliationChecker) CheckReconciliation(
 
 		// Wait for poll interval or context cancellation
 		select {
-		case <-time.After(2 * time.Second):
+		case <-ticker.C:
 			// continue polling
 		case <-ctx.Done():
 			result.AllReconciled = false

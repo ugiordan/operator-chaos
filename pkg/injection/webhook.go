@@ -87,17 +87,7 @@ func (w *WebhookDisruptInjector) Inject(ctx context.Context, spec v1alpha1.Injec
 	}
 
 	// Store rollback annotation and chaos labels
-	if webhookConfig.Annotations == nil {
-		webhookConfig.Annotations = make(map[string]string)
-	}
-	webhookConfig.Annotations[safety.RollbackAnnotationKey] = rollbackStr
-
-	if webhookConfig.Labels == nil {
-		webhookConfig.Labels = make(map[string]string)
-	}
-	for k, v := range safety.ChaosLabels(string(v1alpha1.WebhookDisrupt)) {
-		webhookConfig.Labels[k] = v
-	}
+	safety.ApplyChaosMetadata(webhookConfig, rollbackStr, string(v1alpha1.WebhookDisrupt))
 
 	// Modify all webhooks to use the target failure policy
 	for i := range webhookConfig.Webhooks {
@@ -139,13 +129,8 @@ func (w *WebhookDisruptInjector) Inject(ctx context.Context, spec v1alpha1.Injec
 			}
 		}
 
-		// Remove rollback annotation
-		delete(current.Annotations, safety.RollbackAnnotationKey)
-
-		// Remove chaos labels
-		for k := range safety.ChaosLabels(string(v1alpha1.WebhookDisrupt)) {
-			delete(current.Labels, k)
-		}
+		// Remove rollback annotation and chaos labels
+		safety.RemoveChaosMetadata(current, string(v1alpha1.WebhookDisrupt))
 
 		return w.client.Update(ctx, current)
 	}

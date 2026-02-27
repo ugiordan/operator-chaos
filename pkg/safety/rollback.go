@@ -5,6 +5,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
@@ -39,7 +41,7 @@ type rollbackEnvelope struct {
 
 // WrapRollbackData serializes data with an integrity checksum.
 // The output format is: {"data": {...actual rollback data...}, "checksum": "<sha256 hex>"}
-func WrapRollbackData(data interface{}) (string, error) {
+func WrapRollbackData(data any) (string, error) {
 	raw, err := json.Marshal(data)
 	if err != nil {
 		return "", err
@@ -58,7 +60,7 @@ func WrapRollbackData(data interface{}) (string, error) {
 
 // UnwrapRollbackData deserializes and verifies checksum integrity.
 // Supports legacy format (no envelope) for backward compatibility.
-func UnwrapRollbackData(raw string, target interface{}) error {
+func UnwrapRollbackData(raw string, target any) error {
 	var envelope rollbackEnvelope
 	if err := json.Unmarshal([]byte(raw), &envelope); err != nil {
 		// Cannot parse as envelope at all — treat as legacy format
@@ -74,4 +76,36 @@ func UnwrapRollbackData(raw string, target interface{}) error {
 		return fmt.Errorf("rollback data checksum mismatch: expected %s, got %s", expected, envelope.Checksum)
 	}
 	return json.Unmarshal(envelope.Data, target)
+}
+
+// ApplyChaosMetadata sets the rollback annotation and chaos labels on a resource.
+func ApplyChaosMetadata(obj client.Object, rollbackData string, injectionType string) {
+	annotations := obj.GetAnnotations()
+	if annotations == nil {
+		annotations = make(map[string]string)
+	}
+	annotations[RollbackAnnotationKey] = rollbackData
+	obj.SetAnnotations(annotations)
+
+	labels := obj.GetLabels()
+	if labels == nil {
+		labels = make(map[string]string)
+	}
+	for k, v := range ChaosLabels(injectionType) {
+		labels[k] = v
+	}
+	obj.SetLabels(labels)
+}
+
+// RemoveChaosMetadata removes the rollback annotation and chaos labels from a resource.
+func RemoveChaosMetadata(obj client.Object, injectionType string) {
+	annotations := obj.GetAnnotations()
+	delete(annotations, RollbackAnnotationKey)
+	obj.SetAnnotations(annotations)
+
+	labels := obj.GetLabels()
+	for k := range ChaosLabels(injectionType) {
+		delete(labels, k)
+	}
+	obj.SetLabels(labels)
 }

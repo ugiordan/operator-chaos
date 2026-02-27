@@ -18,6 +18,31 @@ func AnalyzeFile(path string) ([]Finding, error) {
 		return nil, fmt.Errorf("parsing %s: %w", path, err)
 	}
 
+	return inspectAST(fset, path, file), nil
+}
+
+// AnalyzeDirectory parses all Go files in the given directory and
+// returns aggregated findings.
+func AnalyzeDirectory(dir string) ([]Finding, error) {
+	fset := token.NewFileSet()
+	pkgs, err := parser.ParseDir(fset, dir, nil, parser.ParseComments)
+	if err != nil {
+		return nil, fmt.Errorf("parsing directory %s: %w", dir, err)
+	}
+
+	var allFindings []Finding
+	for _, pkg := range pkgs {
+		for filePath, file := range pkg.Files {
+			allFindings = append(allFindings, inspectAST(fset, filePath, file)...)
+		}
+	}
+
+	return allFindings, nil
+}
+
+// inspectAST walks the AST of a single file and collects findings for
+// ignored errors, goroutine launches, and notable call patterns.
+func inspectAST(fset *token.FileSet, path string, file *ast.File) []Finding {
 	var findings []Finding
 
 	ast.Inspect(file, func(n ast.Node) bool {
@@ -41,47 +66,7 @@ func AnalyzeFile(path string) ([]Finding, error) {
 		return true
 	})
 
-	return findings, nil
-}
-
-// AnalyzeDirectory parses all Go files in the given directory and
-// returns aggregated findings.
-func AnalyzeDirectory(dir string) ([]Finding, error) {
-	fset := token.NewFileSet()
-	pkgs, err := parser.ParseDir(fset, dir, nil, parser.ParseComments)
-	if err != nil {
-		return nil, fmt.Errorf("parsing directory %s: %w", dir, err)
-	}
-
-	var allFindings []Finding
-	for _, pkg := range pkgs {
-		for filePath, file := range pkg.Files {
-			var findings []Finding
-			ast.Inspect(file, func(n ast.Node) bool {
-				switch node := n.(type) {
-				case *ast.AssignStmt:
-					findings = append(findings, detectIgnoredErrors(fset, filePath, node)...)
-
-				case *ast.GoStmt:
-					findings = append(findings, Finding{
-						Type:     PatternGoroutineLaunch,
-						File:     filePath,
-						Line:     fset.Position(node.Pos()).Line,
-						Detail:   "goroutine launched",
-						Severity: "info",
-					})
-
-				case *ast.CallExpr:
-					findings = append(findings, detectCallPatterns(fset, filePath, node)...)
-				}
-
-				return true
-			})
-			allFindings = append(allFindings, findings...)
-		}
-	}
-
-	return allFindings, nil
+	return findings
 }
 
 // detectIgnoredErrors checks whether an assignment has any blank
@@ -182,8 +167,10 @@ func isNetworkMethod(method string) bool {
 }
 
 func isDatabaseReceiver(name string) bool {
-	return name == "db" || name == "sql" ||
-		strings.HasSuffix(name, "DB") || strings.HasSuffix(name, "db")
+	if name == "db" || name == "sql" || name == "DB" {
+		return true
+	}
+	return strings.HasSuffix(name, "DB") || strings.HasSuffix(name, "Db")
 }
 
 func isK8sMethod(method string) bool {

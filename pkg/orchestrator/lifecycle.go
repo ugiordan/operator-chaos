@@ -6,6 +6,7 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"time"
 
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
@@ -100,6 +101,7 @@ func (o *Orchestrator) Run(ctx context.Context, exp *v1alpha1.ChaosExperiment) (
 	namespace := exp.Metadata.Namespace
 	if namespace == "" {
 		namespace = "opendatahub"
+		o.logger.Warn("no namespace specified, using default", "namespace", namespace)
 	}
 
 	// Determine target resource for forbidden-resource validation
@@ -284,11 +286,17 @@ func (o *Orchestrator) Run(ctx context.Context, exp *v1alpha1.ChaosExperiment) (
 
 	// Write JSON report if reportDir specified
 	if o.reportDir != "" {
-		reportPath := fmt.Sprintf("%s/%s-%s.json", o.reportDir, exp.Metadata.Name, time.Now().Format("20060102-150405"))
+		reportPath := filepath.Join(o.reportDir, fmt.Sprintf("%s-%s.json", exp.Metadata.Name, time.Now().Format("20060102-150405")))
 		r, err := reporter.NewJSONFileReporter(reportPath)
-		if err == nil {
-			_ = r.Write(report)
-			_ = r.Close()
+		if err != nil {
+			o.logger.Warn("creating report file", "path", reportPath, "error", err)
+		} else {
+			if writeErr := r.Write(report); writeErr != nil {
+				o.logger.Warn("writing report", "path", reportPath, "error", writeErr)
+			}
+			if closeErr := r.Close(); closeErr != nil {
+				o.logger.Warn("closing report file", "path", reportPath, "error", closeErr)
+			}
 		}
 	}
 

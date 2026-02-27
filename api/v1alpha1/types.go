@@ -57,16 +57,11 @@ type SteadyStateCheck struct {
 	Name          string `json:"name,omitempty" yaml:"name,omitempty"`
 	Namespace     string `json:"namespace,omitempty" yaml:"namespace,omitempty"`
 	ConditionType string `json:"conditionType,omitempty" yaml:"conditionType,omitempty"`
-	Query         string `json:"query,omitempty" yaml:"query,omitempty"`
-	Operator      string `json:"operator,omitempty" yaml:"operator,omitempty"`
-	Value         string `json:"value,omitempty" yaml:"value,omitempty"`
-	For           string `json:"for,omitempty" yaml:"for,omitempty"`
 }
 
 type InjectionSpec struct {
 	Type        InjectionType     `json:"type" yaml:"type"`
 	Parameters  map[string]string `json:"parameters,omitempty" yaml:"parameters,omitempty"`
-	Duration    Duration          `json:"duration,omitempty" yaml:"duration,omitempty"`
 	Count       int               `json:"count,omitempty" yaml:"count,omitempty"`
 	TTL         Duration          `json:"ttl,omitempty" yaml:"ttl,omitempty"`
 	DangerLevel DangerLevel       `json:"dangerLevel,omitempty" yaml:"dangerLevel,omitempty"`
@@ -76,48 +71,19 @@ type InjectionSpec struct {
 type DangerLevel string
 
 const (
-	DangerLevelLow    DangerLevel = "low"
-	DangerLevelMedium DangerLevel = "medium"
-	DangerLevelHigh   DangerLevel = "high"
+	DangerLevelHigh DangerLevel = "high"
 )
 
 type InjectionType string
 
 const (
-	PodKill            InjectionType = "PodKill"
-	PodFailure         InjectionType = "PodFailure"
-	NetworkPartition   InjectionType = "NetworkPartition"
-	NetworkLatency     InjectionType = "NetworkLatency"
-	ResourceExhaustion InjectionType = "ResourceExhaustion"
-	CRDMutation        InjectionType = "CRDMutation"
-	ConfigDrift        InjectionType = "ConfigDrift"
-	WebhookDisrupt     InjectionType = "WebhookDisrupt"
-	RBACRevoke         InjectionType = "RBACRevoke"
-	FinalizerBlock     InjectionType = "FinalizerBlock"
-	OwnerRefOrphan     InjectionType = "OwnerRefOrphan"
-	SourceHook         InjectionType = "SourceHook"
-)
-
-// Phase 2 injection types (SDK middleware-based, one-line change)
-const (
-	ClientThrottle     InjectionType = "ClientThrottle"
-	APIServerError     InjectionType = "APIServerError"
-	WatchDisconnect    InjectionType = "WatchDisconnect"
-	LeaderElectionLoss InjectionType = "LeaderElectionLoss"
-	WebhookTimeout     InjectionType = "WebhookTimeout"
-	WebhookReject      InjectionType = "WebhookReject"
-)
-
-// Phase 3 injection types (advanced fault categories)
-const (
-	MemoryLeak       InjectionType = "MemoryLeak"
-	MemoryPressure   InjectionType = "MemoryPressure"
-	GoroutineBomb    InjectionType = "GoroutineBomb"
-	CPUSpin          InjectionType = "CPUSpin"
-	FDExhaustion     InjectionType = "FDExhaustion"
-	DiskWriteFailure InjectionType = "DiskWriteFailure"
-	DNSFailure       InjectionType = "DNSFailure"
-	DeadlockInject   InjectionType = "DeadlockInject"
+	PodKill          InjectionType = "PodKill"
+	NetworkPartition InjectionType = "NetworkPartition"
+	CRDMutation      InjectionType = "CRDMutation"
+	ConfigDrift      InjectionType = "ConfigDrift"
+	WebhookDisrupt   InjectionType = "WebhookDisrupt"
+	RBACRevoke       InjectionType = "RBACRevoke"
+	FinalizerBlock   InjectionType = "FinalizerBlock"
 )
 
 type ObservationSpec struct {
@@ -127,19 +93,16 @@ type ObservationSpec struct {
 }
 
 type BlastRadiusSpec struct {
-	MaxPodsAffected     int      `json:"maxPodsAffected" yaml:"maxPodsAffected"`
-	MaxConcurrentFaults int      `json:"maxConcurrentFaults,omitempty" yaml:"maxConcurrentFaults,omitempty"`
-	AllowedNamespaces   []string `json:"allowedNamespaces" yaml:"allowedNamespaces"`
-	ForbiddenResources  []string `json:"forbiddenResources,omitempty" yaml:"forbiddenResources,omitempty"`
-	RequireLabel        string   `json:"requireLabel,omitempty" yaml:"requireLabel,omitempty"`
+	MaxPodsAffected    int      `json:"maxPodsAffected" yaml:"maxPodsAffected"`
+	AllowedNamespaces  []string `json:"allowedNamespaces" yaml:"allowedNamespaces"`
+	ForbiddenResources []string `json:"forbiddenResources,omitempty" yaml:"forbiddenResources,omitempty"`
 	AllowDangerous      bool     `json:"allowDangerous,omitempty" yaml:"allowDangerous,omitempty"`
 	DryRun              bool     `json:"dryRun,omitempty" yaml:"dryRun,omitempty"`
 }
 
 type HypothesisSpec struct {
-	Description      string   `json:"description" yaml:"description"`
-	ExpectedBehavior string   `json:"expectedBehavior" yaml:"expectedBehavior"`
-	RecoveryTimeout  Duration `json:"recoveryTimeout" yaml:"recoveryTimeout"`
+	Description     string   `json:"description" yaml:"description"`
+	RecoveryTimeout Duration `json:"recoveryTimeout" yaml:"recoveryTimeout"`
 }
 
 // Status types
@@ -164,7 +127,6 @@ const (
 	PhaseObserving       ExperimentPhase = "Observing"
 	PhaseSteadyStatePost ExperimentPhase = "SteadyStatePost"
 	PhaseEvaluating      ExperimentPhase = "Evaluating"
-	PhaseCleanup         ExperimentPhase = "Cleanup"
 	PhaseComplete        ExperimentPhase = "Complete"
 	PhaseAborted         ExperimentPhase = "Aborted"
 )
@@ -202,8 +164,7 @@ type InjectionEvent struct {
 }
 
 type Observation struct {
-	Timestamp time.Time              `json:"timestamp" yaml:"timestamp"`
-	Metrics   map[string]interface{} `json:"metrics,omitempty" yaml:"metrics,omitempty"`
+	Timestamp time.Time `json:"timestamp" yaml:"timestamp"`
 }
 
 // Duration wraps time.Duration for YAML/JSON serialization
@@ -228,11 +189,11 @@ func (d *Duration) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (d Duration) MarshalYAML() (interface{}, error) {
+func (d Duration) MarshalYAML() (any, error) {
 	return d.String(), nil
 }
 
-func (d *Duration) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (d *Duration) UnmarshalYAML(unmarshal func(any) error) error {
 	var s string
 	if err := unmarshal(&s); err != nil {
 		return err

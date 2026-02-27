@@ -84,17 +84,7 @@ func (r *RBACRevokeInjector) injectClusterRoleBinding(ctx context.Context, bindi
 	}
 
 	// Store rollback annotation and chaos labels
-	if crb.Annotations == nil {
-		crb.Annotations = make(map[string]string)
-	}
-	crb.Annotations[safety.RollbackAnnotationKey] = rollbackStr
-
-	if crb.Labels == nil {
-		crb.Labels = make(map[string]string)
-	}
-	for k, v := range safety.ChaosLabels(string(v1alpha1.RBACRevoke)) {
-		crb.Labels[k] = v
-	}
+	safety.ApplyChaosMetadata(crb, rollbackStr, string(v1alpha1.RBACRevoke))
 
 	// Clear subjects
 	crb.Subjects = []rbacv1.Subject{}
@@ -122,13 +112,8 @@ func (r *RBACRevokeInjector) injectClusterRoleBinding(ctx context.Context, bindi
 
 		current.Subjects = originalSubjects
 
-		// Remove rollback annotation
-		delete(current.Annotations, safety.RollbackAnnotationKey)
-
-		// Remove chaos labels
-		for k := range safety.ChaosLabels(string(v1alpha1.RBACRevoke)) {
-			delete(current.Labels, k)
-		}
+		// Remove rollback annotation and chaos labels
+		safety.RemoveChaosMetadata(current, string(v1alpha1.RBACRevoke))
 
 		return r.client.Update(ctx, current)
 	}
@@ -155,17 +140,7 @@ func (r *RBACRevokeInjector) injectRoleBinding(ctx context.Context, bindingName,
 	}
 
 	// Store rollback annotation and chaos labels
-	if rb.Annotations == nil {
-		rb.Annotations = make(map[string]string)
-	}
-	rb.Annotations[safety.RollbackAnnotationKey] = rollbackStr
-
-	if rb.Labels == nil {
-		rb.Labels = make(map[string]string)
-	}
-	for k, v := range safety.ChaosLabels(string(v1alpha1.RBACRevoke)) {
-		rb.Labels[k] = v
-	}
+	safety.ApplyChaosMetadata(rb, rollbackStr, string(v1alpha1.RBACRevoke))
 
 	// Clear subjects
 	rb.Subjects = []rbacv1.Subject{}
@@ -194,13 +169,8 @@ func (r *RBACRevokeInjector) injectRoleBinding(ctx context.Context, bindingName,
 
 		current.Subjects = originalSubjects
 
-		// Remove rollback annotation
-		delete(current.Annotations, safety.RollbackAnnotationKey)
-
-		// Remove chaos labels
-		for k := range safety.ChaosLabels(string(v1alpha1.RBACRevoke)) {
-			delete(current.Labels, k)
-		}
+		// Remove rollback annotation and chaos labels
+		safety.RemoveChaosMetadata(current, string(v1alpha1.RBACRevoke))
 
 		return r.client.Update(ctx, current)
 	}

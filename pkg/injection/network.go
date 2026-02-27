@@ -2,7 +2,11 @@ package injection
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
+	"regexp"
+	"strings"
 
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
 	"github.com/opendatahub-io/odh-platform-chaos/pkg/safety"
@@ -22,8 +26,17 @@ func NewNetworkPartitionInjector(c client.Client) *NetworkPartitionInjector {
 }
 
 func (n *NetworkPartitionInjector) Validate(spec v1alpha1.InjectionSpec, blast v1alpha1.BlastRadiusSpec) error {
-	if _, ok := spec.Parameters["labelSelector"]; !ok {
-		return fmt.Errorf("NetworkPartition requires 'labelSelector' parameter")
+	selector := spec.Parameters["labelSelector"]
+	if selector == "" {
+		return fmt.Errorf("NetworkPartition requires non-empty 'labelSelector' parameter")
+	}
+	parsed, err := labels.Parse(selector)
+	if err != nil {
+		return fmt.Errorf("invalid labelSelector %q: %w", selector, err)
+	}
+	reqs, _ := parsed.Requirements()
+	if len(reqs) == 0 {
+		return fmt.Errorf("labelSelector must have at least one requirement to prevent matching all pods")
 	}
 	return nil
 }
@@ -34,11 +47,7 @@ func (n *NetworkPartitionInjector) Inject(ctx context.Context, spec v1alpha1.Inj
 		return nil, nil, fmt.Errorf("parsing label selector: %w", err)
 	}
 
-	policyName := fmt.Sprintf("odh-chaos-network-partition-%s", spec.Parameters["labelSelector"])
-	// Truncate to K8s name limit
-	if len(policyName) > 63 {
-		policyName = policyName[:63]
-	}
+	policyName := sanitizeK8sName("odh-chaos-np-", spec.Parameters["labelSelector"])
 
 	matchLabels := map[string]string{}
 	reqs, selectable := selector.Requirements()
@@ -95,4 +104,27 @@ func (n *NetworkPartitionInjector) Inject(ctx context.Context, spec v1alpha1.Inj
 	}
 
 	return cleanup, events, nil
+}
+
+// sanitizeK8sName creates a valid Kubernetes resource name from a prefix and input string.
+// It replaces invalid characters with hyphens, truncates if necessary, and appends a hash
+// suffix for uniqueness when truncation is needed.
+func sanitizeK8sName(prefix, input string) string {
+	re := regexp.MustCompile(`[^a-z0-9\-]`)
+	sanitized := re.ReplaceAllString(strings.ToLower(input), "-")
+
+	name := prefix + sanitized
+	if len(name) > 63 {
+		// Truncate and add hash suffix for uniqueness
+		hash := sha256.Sum256([]byte(input))
+		suffix := hex.EncodeToString(hash[:4])
+		name = name[:54] + "-" + suffix
+	}
+	// Ensure name ends with alphanumeric
+	name = strings.TrimRight(name, "-.")
+	if len(name) == 0 {
+		hash := sha256.Sum256([]byte(input))
+		name = prefix + hex.EncodeToString(hash[:8])
+	}
+	return name
 }

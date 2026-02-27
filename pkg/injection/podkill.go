@@ -20,12 +20,25 @@ func NewPodKillInjector(c client.Client) *PodKillInjector {
 }
 
 func (p *PodKillInjector) Validate(spec v1alpha1.InjectionSpec, blast v1alpha1.BlastRadiusSpec) error {
-	if spec.Count > blast.MaxPodsAffected {
-		return fmt.Errorf("pod kill count %d exceeds blast radius %d", spec.Count, blast.MaxPodsAffected)
+	count := spec.Count
+	if count <= 0 {
+		count = 1
+	}
+	if count > blast.MaxPodsAffected {
+		return fmt.Errorf("pod kill count %d exceeds blast radius %d", count, blast.MaxPodsAffected)
 	}
 
-	if _, ok := spec.Parameters["labelSelector"]; !ok {
-		return fmt.Errorf("PodKill requires 'labelSelector' parameter")
+	selector := spec.Parameters["labelSelector"]
+	if selector == "" {
+		return fmt.Errorf("PodKill requires non-empty 'labelSelector' parameter")
+	}
+	parsed, err := labels.Parse(selector)
+	if err != nil {
+		return fmt.Errorf("invalid labelSelector %q: %w", selector, err)
+	}
+	reqs, _ := parsed.Requirements()
+	if len(reqs) == 0 {
+		return fmt.Errorf("labelSelector must have at least one requirement to prevent matching all pods")
 	}
 
 	return nil

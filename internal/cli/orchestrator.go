@@ -39,7 +39,7 @@ func buildOrchestrator(cmd *cobra.Command, knowledgePath string, dryRun bool, re
 
 	// Create report dir if specified
 	if reportDir != "" {
-		if err := os.MkdirAll(reportDir, 0755); err != nil {
+		if err := os.MkdirAll(reportDir, 0750); err != nil {
 			return nil, fmt.Errorf("creating report directory: %w", err)
 		}
 	}

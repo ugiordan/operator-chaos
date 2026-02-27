@@ -1,8 +1,13 @@
 package cli
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 )
+
+// Version is set at build time via ldflags.
+var Version = "dev"
 
 func NewRootCommand() *cobra.Command {
 	cmd := &cobra.Command{
@@ -25,7 +30,19 @@ fault injection, not just that pods restart.`,
 		newAnalyzeCommand(),
 		newSuiteCommand(),
 		newReportCommand(),
+		newVersionCommand(),
+		newTypesCommand(),
 	)
 
 	return cmd
+}
+
+func newVersionCommand() *cobra.Command {
+	return &cobra.Command{
+		Use:   "version",
+		Short: "Print the version",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println("odh-chaos version " + Version)
+		},
+	}
 }

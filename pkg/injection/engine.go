@@ -30,11 +30,10 @@ func (r *Registry) Register(t v1alpha1.InjectionType, i Injector) {
 }
 
 func (r *Registry) Get(t v1alpha1.InjectionType) (Injector, error) {
-	i, ok := r.injectors[t]
-	if !ok {
-		return nil, fmt.Errorf("unknown injection type: %s", t)
+	if inj, ok := r.injectors[t]; ok {
+		return inj, nil
 	}
-	return i, nil
+	return nil, fmt.Errorf("unknown injection type %q; registered types: %v", t, r.ListTypes())
 }
 
 func (r *Registry) ListTypes() []v1alpha1.InjectionType {

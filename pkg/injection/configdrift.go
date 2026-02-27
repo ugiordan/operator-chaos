@@ -33,8 +33,12 @@ func (d *ConfigDriftInjector) Validate(spec v1alpha1.InjectionSpec, blast v1alph
 	if _, ok := spec.Parameters["value"]; !ok {
 		return fmt.Errorf("ConfigDrift requires 'value' parameter (corrupted value)")
 	}
-	// For Secrets, validate that the rollback Secret name won't exceed K8s limit
+	// Validate resourceType if specified
 	resourceType := spec.Parameters["resourceType"]
+	if resourceType != "" && resourceType != "ConfigMap" && resourceType != "Secret" {
+		return fmt.Errorf("ConfigDrift resourceType must be 'ConfigMap' or 'Secret', got %q", resourceType)
+	}
+	// For Secrets, validate that the rollback Secret name won't exceed K8s limit
 	if resourceType == "Secret" {
 		rollbackName := "chaos-rollback-" + spec.Parameters["name"] + "-" + spec.Parameters["key"]
 		if len(rollbackName) > maxNameLength {
@@ -93,17 +97,7 @@ func (d *ConfigDriftInjector) Inject(ctx context.Context, spec v1alpha1.Injectio
 		if err != nil {
 			return nil, nil, fmt.Errorf("serializing rollback data for Secret %s: %w", key, err)
 		}
-		if secret.Annotations == nil {
-			secret.Annotations = make(map[string]string)
-		}
-		secret.Annotations[safety.RollbackAnnotationKey] = rollbackStr
-
-		if secret.Labels == nil {
-			secret.Labels = make(map[string]string)
-		}
-		for k, v := range safety.ChaosLabels(string(v1alpha1.ConfigDrift)) {
-			secret.Labels[k] = v
-		}
+		safety.ApplyChaosMetadata(secret, rollbackStr, string(v1alpha1.ConfigDrift))
 
 		if err := d.client.Update(ctx, secret); err != nil {
 			return nil, nil, fmt.Errorf("updating Secret: %w", err)
@@ -123,10 +117,7 @@ func (d *ConfigDriftInjector) Inject(ctx context.Context, spec v1alpha1.Injectio
 			s.Data[dataKey] = rbSecret.Data[dataKey]
 
 			// Remove rollback annotation and chaos labels
-			delete(s.Annotations, safety.RollbackAnnotationKey)
-			for k := range safety.ChaosLabels(string(v1alpha1.ConfigDrift)) {
-				delete(s.Labels, k)
-			}
+			safety.RemoveChaosMetadata(s, string(v1alpha1.ConfigDrift))
 
 			if err := d.client.Update(ctx, s); err != nil {
 				return err
@@ -161,17 +152,7 @@ func (d *ConfigDriftInjector) Inject(ctx context.Context, spec v1alpha1.Injectio
 	if err != nil {
 		return nil, nil, fmt.Errorf("serializing rollback data for ConfigMap %s: %w", key, err)
 	}
-	if cm.Annotations == nil {
-		cm.Annotations = make(map[string]string)
-	}
-	cm.Annotations[safety.RollbackAnnotationKey] = rollbackStr
-
-	if cm.Labels == nil {
-		cm.Labels = make(map[string]string)
-	}
-	for k, v := range safety.ChaosLabels(string(v1alpha1.ConfigDrift)) {
-		cm.Labels[k] = v
-	}
+	safety.ApplyChaosMetadata(cm, rollbackStr, string(v1alpha1.ConfigDrift))
 
 	if err := d.client.Update(ctx, cm); err != nil {
 		return nil, nil, fmt.Errorf("updating ConfigMap: %w", err)
@@ -185,10 +166,7 @@ func (d *ConfigDriftInjector) Inject(ctx context.Context, spec v1alpha1.Injectio
 		c.Data[dataKey] = originalValue
 
 		// Remove rollback annotation and chaos labels
-		delete(c.Annotations, safety.RollbackAnnotationKey)
-		for k := range safety.ChaosLabels(string(v1alpha1.ConfigDrift)) {
-			delete(c.Labels, k)
-		}
+		safety.RemoveChaosMetadata(c, string(v1alpha1.ConfigDrift))
 
 		return d.client.Update(ctx, c)
 	}

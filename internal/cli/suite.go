@@ -41,6 +41,10 @@ func newSuiteCommand() *cobra.Command {
 		Short: "Run all experiments in a directory",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if parallel < 1 {
+				return fmt.Errorf("--parallel must be >= 1, got %d", parallel)
+			}
+
 			dir := args[0]
 
 			// Find all YAML files

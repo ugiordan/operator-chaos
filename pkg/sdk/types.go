@@ -2,7 +2,7 @@ package sdk
 
 import (
 	"fmt"
-	"math/rand"
+	"math/rand/v2"
 	"sync"
 	"time"
 )
@@ -36,6 +36,45 @@ type FaultConfig struct {
 	mu     sync.RWMutex
 	Active bool                 `json:"active" yaml:"active"`
 	Faults map[Operation]FaultSpec `json:"faults,omitempty" yaml:"faults,omitempty"`
+}
+
+// NewFaultConfig creates a new FaultConfig that is active with the given faults.
+func NewFaultConfig(faults map[Operation]FaultSpec) *FaultConfig {
+	return &FaultConfig{
+		Active: true,
+		Faults: faults,
+	}
+}
+
+// Activate enables fault injection (thread-safe).
+func (f *FaultConfig) Activate() {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.Active = true
+}
+
+// Deactivate disables fault injection (thread-safe).
+func (f *FaultConfig) Deactivate() {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.Active = false
+}
+
+// SetFault adds or replaces a fault spec for the given operation (thread-safe).
+func (f *FaultConfig) SetFault(op Operation, spec FaultSpec) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.Faults == nil {
+		f.Faults = make(map[Operation]FaultSpec)
+	}
+	f.Faults[op] = spec
+}
+
+// RemoveFault removes the fault spec for the given operation (thread-safe).
+func (f *FaultConfig) RemoveFault(op Operation) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	delete(f.Faults, op)
 }
 
 // IsActive returns whether fault injection is currently enabled.
@@ -75,7 +114,7 @@ func (f *FaultConfig) MaybeInject(operation Operation) error {
 	}
 
 	if spec.MaxDelay > 0 {
-		time.Sleep(time.Duration(rand.Int63n(int64(spec.MaxDelay))))
+		time.Sleep(rand.N(spec.MaxDelay))
 	} else if spec.Delay > 0 {
 		time.Sleep(spec.Delay)
 	}

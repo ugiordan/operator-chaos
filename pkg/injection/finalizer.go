@@ -91,22 +91,7 @@ func (f *FinalizerBlockInjector) Inject(ctx context.Context, spec v1alpha1.Injec
 			return nil, nil, fmt.Errorf("serializing rollback data for %s/%s: %w", kind, name, err)
 		}
 
-		annotations := obj.GetAnnotations()
-		if annotations == nil {
-			annotations = make(map[string]string)
-		}
-		annotations[safety.RollbackAnnotationKey] = rollbackStr
-		obj.SetAnnotations(annotations)
-
-		// Add chaos labels
-		labels := obj.GetLabels()
-		if labels == nil {
-			labels = make(map[string]string)
-		}
-		for k, v := range safety.ChaosLabels(string(v1alpha1.FinalizerBlock)) {
-			labels[k] = v
-		}
-		obj.SetLabels(labels)
+		safety.ApplyChaosMetadata(obj, rollbackStr, string(v1alpha1.FinalizerBlock))
 
 		if err := f.client.Update(ctx, obj); err != nil {
 			return nil, nil, fmt.Errorf("adding finalizer to %s/%s: %w", kind, name, err)
@@ -135,27 +120,16 @@ func (f *FinalizerBlockInjector) Inject(ctx context.Context, spec v1alpha1.Injec
 
 		changed := controllerutil.RemoveFinalizer(current, finalizerName)
 
-		// Remove rollback annotation
-		annotations := current.GetAnnotations()
-		if annotations != nil {
-			if _, ok := annotations[safety.RollbackAnnotationKey]; ok {
-				delete(annotations, safety.RollbackAnnotationKey)
-				current.SetAnnotations(annotations)
+		// Remove rollback annotation and chaos labels
+		if _, ok := current.GetAnnotations()[safety.RollbackAnnotationKey]; ok {
+			changed = true
+		}
+		for k := range safety.ChaosLabels(string(v1alpha1.FinalizerBlock)) {
+			if _, ok := current.GetLabels()[k]; ok {
 				changed = true
 			}
 		}
-
-		// Remove chaos labels
-		labels := current.GetLabels()
-		if labels != nil {
-			for k := range safety.ChaosLabels(string(v1alpha1.FinalizerBlock)) {
-				if _, ok := labels[k]; ok {
-					delete(labels, k)
-					changed = true
-				}
-			}
-			current.SetLabels(labels)
-		}
+		safety.RemoveChaosMetadata(current, string(v1alpha1.FinalizerBlock))
 
 		if changed {
 			if err := f.client.Update(ctx, current); err != nil {
