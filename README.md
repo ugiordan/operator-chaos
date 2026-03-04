@@ -48,15 +48,15 @@ odh-chaos run experiment.yaml --knowledge knowledge/odh-model-controller.yaml
 
 | Command | Description |
 |---------|-------------|
-| `run` | Execute a chaos experiment |
+| `run` | Run a chaos experiment |
 | `validate` | Validate experiment YAML without running |
-| `init` | Generate skeleton experiment YAML |
-| `clean` | Emergency removal of chaos artifacts |
-| `analyze` | Scan Go source for fault injection candidates |
+| `init` | Generate a skeleton experiment YAML |
+| `clean` | Remove all chaos artifacts from the cluster (emergency stop) |
+| `analyze` | Analyze Go source code for fault injection candidates |
 | `suite` | Run all experiments in a directory |
-| `report` | Generate summary reports from results |
+| `report` | Generate summary reports from experiment results |
 | `types` | List available injection types |
-| `version` | Print the CLI version |
+| `version` | Print the version |
 
 ### Run
 
