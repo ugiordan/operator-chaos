@@ -29,6 +29,10 @@ spec:
     description: >-
       Controller detects corrupted leader lease holderIdentity and
       re-elects leader within 60s, resuming reconciliation.
+      CLEANUP RISK: The TTL-based cleanup restores the original
+      holderIdentity value, which may overwrite a legitimately
+      re-elected leader and cause a brief second disruption. The
+      controller should recover from this via a second re-election.
     recoveryTimeout: 60s
   blastRadius:
     maxPodsAffected: 1
