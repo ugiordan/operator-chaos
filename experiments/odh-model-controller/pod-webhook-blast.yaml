@@ -1,0 +1,40 @@
+# WARNING: This experiment targets the unscoped pod mutating webhook.
+# When set to Fail, it blocks ALL pod creation cluster-wide, not just in
+# the opendatahub namespace. Use an extremely short TTL and exercise
+# extreme caution when running this experiment.
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: odh-model-controller-pod-webhook-blast
+spec:
+  target:
+    operator: odh-model-controller
+    component: odh-model-controller
+    resource: MutatingWebhookConfiguration/mutating.pod.odh-model-controller.opendatahub.io
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: odh-model-controller
+        namespace: opendatahub
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: WebhookDisrupt
+    dangerLevel: high
+    parameters:
+      webhookName: mutating.pod.odh-model-controller.opendatahub.io
+      action: setFailurePolicy
+      value: Fail
+    ttl: "30s"
+  hypothesis:
+    description: >-
+      Unscoped pod mutating webhook set to Fail blocks ALL pod creation;
+      recovery within 60s after restore.
+    recoveryTimeout: 60s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - opendatahub
+    allowDangerous: true

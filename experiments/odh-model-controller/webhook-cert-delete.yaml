@@ -1,0 +1,37 @@
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: odh-model-controller-webhook-cert-delete
+spec:
+  target:
+    operator: odh-model-controller
+    component: odh-model-controller
+    resource: Secret/odh-model-controller-webhook-cert
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: odh-model-controller
+        namespace: opendatahub
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: ConfigDrift
+    dangerLevel: high
+    parameters:
+      name: odh-model-controller-webhook-cert
+      key: tls.crt
+      value: corrupted
+      resourceType: Secret
+    ttl: "300s"
+  hypothesis:
+    description: >-
+      All 7 webhooks fail after TLS cert corruption; cert-manager or operator
+      restores cert within 120s.
+    recoveryTimeout: 120s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - opendatahub
+    allowDangerous: true
