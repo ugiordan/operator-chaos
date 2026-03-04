@@ -115,10 +115,11 @@ odh-chaos suite experiments/ [flags]
 ```
 
 Run all experiments in a directory:
-- `--parallel N` --- Run up to N experiments concurrently
-- `--report-dir` --- Generate JUnit XML report for CI
-- `--dry-run` --- Validate all experiments without running
-- `--timeout` --- Per-experiment timeout (default 10m)
+- `--knowledge` --- Path to operator knowledge YAML
+- `--parallel N` --- Max concurrent experiments (default 1)
+- `--report-dir` --- Directory for report output
+- `--dry-run` --- Validate without running
+- `--timeout` --- Timeout per experiment (default 10m)
 
 ### Injection Types
 
