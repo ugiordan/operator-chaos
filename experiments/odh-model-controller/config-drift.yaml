@@ -17,6 +17,7 @@ spec:
     timeout: "30s"
   injection:
     type: ConfigDrift
+    dangerLevel: high
     parameters:
       name: inferenceservice-config
       key: deploy
@@ -34,3 +35,4 @@ spec:
     maxPodsAffected: 1
     allowedNamespaces:
       - opendatahub
+    allowDangerous: true
