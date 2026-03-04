@@ -26,8 +26,12 @@ spec:
     ttl: "300s"
   hypothesis:
     description: >-
-      Operator reconciles corrupted ingress configuration back to expected
-      state within 120s.
+      When the ingress key in inferenceservice-config is emptied, the
+      odh-model-controller should detect the invalid configuration and
+      surface error conditions rather than silently failing. The ConfigMap
+      is not owned by this controller, so recovery depends on the
+      DSCI/DSC operator or manual restoration. The chaos framework
+      restores the original value via TTL-based cleanup after 300s.
     recoveryTimeout: 120s
   blastRadius:
     maxPodsAffected: 1
