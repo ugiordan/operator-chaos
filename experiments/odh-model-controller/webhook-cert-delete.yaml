@@ -1,3 +1,6 @@
+# NOTE: The Secret name 'odh-model-controller-webhook-cert' must be verified
+# against the actual deployment. Controller-runtime webhook cert Secrets may
+# follow different naming conventions depending on cert-manager or OLM setup.
 apiVersion: chaos.opendatahub.io/v1alpha1
 kind: ChaosExperiment
 metadata:
@@ -9,12 +12,11 @@ spec:
     resource: Secret/odh-model-controller-webhook-cert
   steadyState:
     checks:
-      - type: conditionTrue
-        apiVersion: apps/v1
-        kind: Deployment
-        name: odh-model-controller
+      - type: resourceExists
+        apiVersion: v1
+        kind: Secret
+        name: odh-model-controller-webhook-cert
         namespace: opendatahub
-        conditionType: Available
     timeout: "30s"
   injection:
     type: ConfigDrift

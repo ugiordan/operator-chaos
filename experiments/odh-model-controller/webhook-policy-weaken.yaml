@@ -1,0 +1,36 @@
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: odh-model-controller-webhook-policy-weaken
+spec:
+  target:
+    operator: odh-model-controller
+    component: odh-model-controller
+    resource: ValidatingWebhookConfiguration/validating.odh-model-controller.opendatahub.io
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: odh-model-controller
+        namespace: opendatahub
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: WebhookDisrupt
+    dangerLevel: high
+    parameters:
+      webhookName: "validating.odh-model-controller.opendatahub.io"
+      action: "setFailurePolicy"
+      value: "Ignore"
+    ttl: "60s"
+  hypothesis:
+    description: >-
+      Operator detects weakened webhook failurePolicy (Ignore instead of
+      Fail) and restores strict validation within 120s.
+    recoveryTimeout: 120s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - opendatahub
+    allowDangerous: true
