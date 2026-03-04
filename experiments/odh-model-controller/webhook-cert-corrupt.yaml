@@ -4,7 +4,7 @@
 apiVersion: chaos.opendatahub.io/v1alpha1
 kind: ChaosExperiment
 metadata:
-  name: odh-model-controller-webhook-cert-delete
+  name: odh-model-controller-webhook-cert-corrupt
 spec:
   target:
     operator: odh-model-controller
