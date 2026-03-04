@@ -310,3 +310,37 @@ func TestFinalizerBlockInjectStoresRollbackAnnotation(t *testing.T) {
 	// Verify finalizer was also removed
 	assert.NotContains(t, restored.Finalizers, "chaos.opendatahub.io/block")
 }
+
+func TestFinalizerBlockRejectsDuplicateFinalizer(t *testing.T) {
+	scheme := runtime.NewScheme()
+	require.NoError(t, corev1.AddToScheme(scheme))
+
+	// Create a ConfigMap that already has the chaos finalizer
+	cm := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:       "already-finalized",
+			Namespace:  "default",
+			Finalizers: []string{"chaos.opendatahub.io/block"},
+		},
+	}
+
+	k8sClient := fake.NewClientBuilder().WithScheme(scheme).WithObjects(cm).Build()
+	injector := NewFinalizerBlockInjector(k8sClient)
+
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.FinalizerBlock,
+		Parameters: map[string]string{
+			"apiVersion": "v1",
+			"kind":       "ConfigMap",
+			"name":       "already-finalized",
+			"finalizer":  "chaos.opendatahub.io/block",
+		},
+	}
+
+	cleanup, events, err := injector.Inject(context.Background(), spec, "default")
+	assert.Nil(t, cleanup, "cleanup should be nil when injection is a no-op")
+	assert.Nil(t, events, "events should be nil when injection is a no-op")
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "already exists")
+	assert.Contains(t, err.Error(), "no-op")
+}

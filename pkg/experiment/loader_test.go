@@ -3,6 +3,7 @@ package experiment
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
@@ -76,6 +77,9 @@ func validExperiment() *v1alpha1.ChaosExperiment {
 			},
 			Injection: v1alpha1.InjectionSpec{
 				Type: v1alpha1.PodKill,
+				Parameters: map[string]string{
+					"labelSelector": "app=test",
+				},
 			},
 			Hypothesis: v1alpha1.HypothesisSpec{
 				Description: "Test hypothesis",
@@ -178,7 +182,7 @@ func TestValidate_ValidWithAllFields(t *testing.T) {
 			Injection: v1alpha1.InjectionSpec{
 				Type: v1alpha1.PodKill,
 				Parameters: map[string]string{
-					"signal": "SIGKILL",
+					"labelSelector": "app=dashboard",
 				},
 				Count: 1,
 			},
@@ -241,6 +245,48 @@ func TestLoad_EmptyFile(t *testing.T) {
 	assert.Len(t, errs, 7, "should report all missing required fields")
 }
 
+func TestValidate_UnknownInjectionType(t *testing.T) {
+	exp := validExperiment()
+	exp.Spec.Injection.Type = "Podkill" // typo: lowercase k
+	errs := Validate(exp)
+	assert.NotEmpty(t, errs)
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e, "unknown injection type") {
+			found = true
+			break
+		}
+	}
+	assert.True(t, found, "expected error about unknown injection type, got: %v", errs)
+}
+
+func TestValidate_InjectionParamsChecked(t *testing.T) {
+	exp := validExperiment()
+	exp.Spec.Injection.Type = v1alpha1.PodKill
+	// PodKill requires a labelSelector parameter
+	exp.Spec.Injection.Parameters = nil
+	errs := Validate(exp)
+	assert.NotEmpty(t, errs)
+	found := false
+	for _, e := range errs {
+		if strings.Contains(e, "labelSelector") {
+			found = true
+			break
+		}
+	}
+	assert.True(t, found, "expected error about labelSelector, got: %v", errs)
+}
+
+func TestValidate_InjectionParamsValid(t *testing.T) {
+	exp := validExperiment()
+	exp.Spec.Injection.Type = v1alpha1.PodKill
+	exp.Spec.Injection.Parameters = map[string]string{
+		"labelSelector": "app=dashboard",
+	}
+	errs := Validate(exp)
+	assert.Empty(t, errs)
+}
+
 func TestLoad_RejectsUnknownFields(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "unknown-field.yaml")
@@ -280,6 +326,8 @@ spec:
     component: my-component
   injection:
     type: PodKill
+    parameters:
+      labelSelector: "app=test"
   hypothesis:
     description: "test hypothesis"
   blastRadius:

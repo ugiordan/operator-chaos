@@ -2,6 +2,8 @@ package v1alpha1
 
 import (
 	"encoding/json"
+	"fmt"
+	"sort"
 	"time"
 )
 
@@ -26,7 +28,6 @@ type ChaosExperimentSpec struct {
 	Target      TargetSpec      `json:"target" yaml:"target"`
 	SteadyState SteadyStateDef  `json:"steadyState,omitempty" yaml:"steadyState,omitempty"`
 	Injection   InjectionSpec   `json:"injection" yaml:"injection"`
-	Observation ObservationSpec `json:"observation,omitempty" yaml:"observation,omitempty"`
 	BlastRadius BlastRadiusSpec `json:"blastRadius" yaml:"blastRadius"`
 	Hypothesis  HypothesisSpec  `json:"hypothesis" yaml:"hypothesis"`
 }
@@ -71,8 +72,40 @@ type InjectionSpec struct {
 type DangerLevel string
 
 const (
-	DangerLevelHigh DangerLevel = "high"
+	DangerLevelLow    DangerLevel = "low"
+	DangerLevelMedium DangerLevel = "medium"
+	DangerLevelHigh   DangerLevel = "high"
 )
+
+var validDangerLevels = map[DangerLevel]bool{
+	DangerLevelLow:    true,
+	DangerLevelMedium: true,
+	DangerLevelHigh:   true,
+}
+
+// ValidDangerLevels returns all valid danger levels in sorted order.
+func ValidDangerLevels() []DangerLevel {
+	levels := make([]DangerLevel, 0, len(validDangerLevels))
+	for l := range validDangerLevels {
+		levels = append(levels, l)
+	}
+	sort.Slice(levels, func(i, j int) bool {
+		return string(levels[i]) < string(levels[j])
+	})
+	return levels
+}
+
+// ValidateDangerLevel returns an error if the given DangerLevel is not one of the known levels.
+// An empty DangerLevel is considered valid (it means "unset").
+func ValidateDangerLevel(d DangerLevel) error {
+	if d == "" {
+		return nil
+	}
+	if !validDangerLevels[d] {
+		return fmt.Errorf("unknown danger level %q; valid levels: %v", d, ValidDangerLevels())
+	}
+	return nil
+}
 
 // DefaultNamespace is the default Kubernetes namespace used by
 // the chaos framework when no namespace is explicitly specified.
@@ -90,10 +123,32 @@ const (
 	FinalizerBlock   InjectionType = "FinalizerBlock"
 )
 
-type ObservationSpec struct {
-	Interval             Duration `json:"interval,omitempty" yaml:"interval,omitempty"`
-	Duration             Duration `json:"duration,omitempty" yaml:"duration,omitempty"`
-	TrackReconcileCycles bool     `json:"trackReconcileCycles,omitempty" yaml:"trackReconcileCycles,omitempty"`
+var validInjectionTypes = map[InjectionType]bool{
+	PodKill:          true,
+	NetworkPartition: true,
+	CRDMutation:      true,
+	ConfigDrift:      true,
+	WebhookDisrupt:   true,
+	RBACRevoke:       true,
+	FinalizerBlock:   true,
+}
+
+func ValidInjectionTypes() []InjectionType {
+	types := make([]InjectionType, 0, len(validInjectionTypes))
+	for t := range validInjectionTypes {
+		types = append(types, t)
+	}
+	sort.Slice(types, func(i, j int) bool {
+		return string(types[i]) < string(types[j])
+	})
+	return types
+}
+
+func ValidateInjectionType(t InjectionType) error {
+	if !validInjectionTypes[t] {
+		return fmt.Errorf("unknown injection type %q; valid types: %v", t, ValidInjectionTypes())
+	}
+	return nil
 }
 
 type BlastRadiusSpec struct {
@@ -118,8 +173,7 @@ type ChaosExperimentStatus struct {
 	EndTime         *time.Time       `json:"endTime,omitempty" yaml:"endTime,omitempty"`
 	SteadyStatePre  *CheckResult     `json:"steadyStatePre,omitempty" yaml:"steadyStatePre,omitempty"`
 	SteadyStatePost *CheckResult     `json:"steadyStatePost,omitempty" yaml:"steadyStatePost,omitempty"`
-	InjectionLog    []InjectionEvent `json:"injectionLog,omitempty" yaml:"injectionLog,omitempty"`
-	Observations    []Observation    `json:"observations,omitempty" yaml:"observations,omitempty"`
+	InjectionLog []InjectionEvent `json:"injectionLog,omitempty" yaml:"injectionLog,omitempty"`
 }
 
 type ExperimentPhase string
@@ -165,10 +219,6 @@ type InjectionEvent struct {
 	Target    string            `json:"target" yaml:"target"`
 	Action    string            `json:"action" yaml:"action"`
 	Details   map[string]string `json:"details,omitempty" yaml:"details,omitempty"`
-}
-
-type Observation struct {
-	Timestamp time.Time `json:"timestamp" yaml:"timestamp"`
 }
 
 // Duration wraps time.Duration for YAML/JSON serialization

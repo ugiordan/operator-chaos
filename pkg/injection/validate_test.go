@@ -56,10 +56,8 @@ func TestValidateK8sName_TooLong(t *testing.T) {
 func TestValidateFieldName_Valid(t *testing.T) {
 	validFields := []string{
 		"replicas",
-		"spec.replicas",
 		"my_field",
 		"fieldName",
-		"a.b.c",
 	}
 
 	for _, field := range validFields {
@@ -79,6 +77,8 @@ func TestValidateFieldName_Invalid(t *testing.T) {
 		{"starts with digit", "123start"},
 		{"leading dot", ".leading-dot"},
 		{"has spaces", "has spaces"},
+		{"dot path", "spec.replicas"},
+		{"nested dots", "a.b.c"},
 	}
 
 	for _, tt := range tests {

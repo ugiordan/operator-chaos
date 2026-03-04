@@ -22,30 +22,8 @@ func NewCRDMutationInjector(c client.Client) *CRDMutationInjector {
 	return &CRDMutationInjector{client: c}
 }
 
-// Validate checks that the injection spec contains the required parameters: apiVersion, kind, name, field, and value.
 func (m *CRDMutationInjector) Validate(spec v1alpha1.InjectionSpec, blast v1alpha1.BlastRadiusSpec) error {
-	if _, ok := spec.Parameters["apiVersion"]; !ok {
-		return fmt.Errorf("CRDMutation requires 'apiVersion' parameter")
-	}
-	if _, ok := spec.Parameters["kind"]; !ok {
-		return fmt.Errorf("CRDMutation requires 'kind' parameter")
-	}
-	if _, ok := spec.Parameters["name"]; !ok {
-		return fmt.Errorf("CRDMutation requires 'name' parameter")
-	}
-	if err := validateK8sName("name", spec.Parameters["name"]); err != nil {
-		return err
-	}
-	if _, ok := spec.Parameters["field"]; !ok {
-		return fmt.Errorf("CRDMutation requires 'field' parameter (JSON path to mutate)")
-	}
-	if err := validateFieldName("field", spec.Parameters["field"]); err != nil {
-		return err
-	}
-	if _, ok := spec.Parameters["value"]; !ok {
-		return fmt.Errorf("CRDMutation requires 'value' parameter (JSON value to set)")
-	}
-	return nil
+	return validateCRDMutationParams(spec)
 }
 
 // Inject mutates a spec field on the target custom resource and returns a cleanup function that restores the original value.
@@ -95,6 +73,11 @@ func (m *CRDMutationInjector) Inject(ctx context.Context, spec v1alpha1.Injectio
 		labelsMap[k] = v
 	}
 
+	// Parse the value with JSON-aware type detection so that numeric and
+	// boolean values are sent with their correct JSON types instead of
+	// always being injected as strings.
+	typedValue := parseTypedValue(spec.Parameters["value"])
+
 	// Apply mutation via merge patch including rollback annotation and chaos labels
 	patchMap := map[string]any{
 		"metadata": map[string]any{
@@ -102,7 +85,7 @@ func (m *CRDMutationInjector) Inject(ctx context.Context, spec v1alpha1.Injectio
 			"labels":      labelsMap,
 		},
 		"spec": map[string]any{
-			fieldName: spec.Parameters["value"],
+			fieldName: typedValue,
 		},
 	}
 	patch, err := json.Marshal(patchMap)
@@ -166,4 +149,25 @@ func (m *CRDMutationInjector) Inject(ctx context.Context, spec v1alpha1.Injectio
 	}
 
 	return cleanup, events, nil
+}
+
+// parseTypedValue attempts to interpret a string as a JSON literal. If the
+// string is valid JSON (number, boolean, null, array, or object) the decoded
+// Go value is returned. Otherwise the original string is returned as-is.
+// This ensures that parameter values like "999" become the integer 999 and
+// "true" becomes the boolean true in the resulting merge patch, matching the
+// types expected by Kubernetes API validation.
+func parseTypedValue(raw string) any {
+	var parsed any
+	if err := json.Unmarshal([]byte(raw), &parsed); err != nil {
+		// Not valid JSON – treat as a plain string.
+		return raw
+	}
+	// json.Unmarshal on a JSON string (e.g. `"hello"`) returns a Go string.
+	// We only want to use the parsed value when it is a *different* type,
+	// because bare words that happen to be valid JSON strings (quoted) are
+	// unlikely in ChaosExperiment parameters. For an unquoted value like
+	// `hello` the Unmarshal above already fails, so we just return parsed
+	// unconditionally here.
+	return parsed
 }

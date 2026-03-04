@@ -957,7 +957,7 @@ func TestRunClean_FullIntegration(t *testing.T) {
 	crdMutationRollback := mustMarshal(t, map[string]interface{}{
 		"apiVersion":    "apps/v1",
 		"kind":          "Deployment",
-		"field":         "spec.replicas",
+		"field":         "replicas",
 		"originalValue": 3,
 	})
 	crdMutationSecret := &corev1.Secret{
@@ -1441,7 +1441,7 @@ func TestCleanCRDMutationFromResource_WithCRDMutationRollback(t *testing.T) {
 	rollbackData := mustMarshal(t, map[string]interface{}{
 		"apiVersion":    "apps/v1",
 		"kind":          "Deployment",
-		"field":         "spec.replicas",
+		"field":         "replicas",
 		"originalValue": 3,
 	})
 
@@ -1596,7 +1596,7 @@ func TestCleanCRDMutations_MultipleResourceTypes(t *testing.T) {
 	rollbackData := mustMarshal(t, map[string]interface{}{
 		"apiVersion":    "apps/v1",
 		"kind":          "Deployment",
-		"field":         "spec.replicas",
+		"field":         "replicas",
 		"originalValue": 3,
 	})
 	labels := chaosLabelsFor(v1alpha1.CRDMutation)
@@ -1780,7 +1780,7 @@ func TestCleanCRDMutationFromResource_WithEnvelopeFormat(t *testing.T) {
 	rollbackStr, err := safety.WrapRollbackData(map[string]interface{}{
 		"apiVersion":    "apps/v1",
 		"kind":          "Deployment",
-		"field":         "spec.replicas",
+		"field":         "replicas",
 		"originalValue": 3,
 	})
 	require.NoError(t, err)

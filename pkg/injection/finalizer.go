@@ -25,25 +25,8 @@ func NewFinalizerBlockInjector(c client.Client) *FinalizerBlockInjector {
 	return &FinalizerBlockInjector{client: c}
 }
 
-// Validate checks that the injection spec contains the required parameters:
-//   - name: the name of the target resource
-//   - kind: the kind of the target resource
-//
-// If "finalizer" is missing, the default "chaos.opendatahub.io/block" is used.
-// If "apiVersion" is missing, it defaults to "v1".
 func (f *FinalizerBlockInjector) Validate(spec v1alpha1.InjectionSpec, blast v1alpha1.BlastRadiusSpec) error {
-	if _, ok := spec.Parameters["kind"]; !ok {
-		return fmt.Errorf("FinalizerBlock requires 'kind' parameter")
-	}
-
-	if _, ok := spec.Parameters["name"]; !ok {
-		return fmt.Errorf("FinalizerBlock requires 'name' parameter")
-	}
-	if err := validateK8sName("name", spec.Parameters["name"]); err != nil {
-		return err
-	}
-
-	return nil
+	return validateFinalizerBlockParams(spec)
 }
 
 // Inject adds a finalizer to the target resource:
@@ -80,22 +63,27 @@ func (f *FinalizerBlockInjector) Inject(ctx context.Context, spec v1alpha1.Injec
 		return nil, nil, fmt.Errorf("getting resource %s/%s: %w", kind, name, err)
 	}
 
-	// Add the finalizer using controller-runtime helper
-	if controllerutil.AddFinalizer(obj, finalizerName) {
-		// Store rollback annotation for crash-safe recovery
-		rollbackData := map[string]string{
-			"finalizer": finalizerName,
-		}
-		rollbackStr, err := safety.WrapRollbackData(rollbackData)
-		if err != nil {
-			return nil, nil, fmt.Errorf("serializing rollback data for %s/%s: %w", kind, name, err)
-		}
+	// Add the finalizer using controller-runtime helper.
+	// If AddFinalizer returns false the finalizer already exists on the
+	// resource and the injection would be a no-op — abort with an error so
+	// the experiment does not silently claim success.
+	if !controllerutil.AddFinalizer(obj, finalizerName) {
+		return nil, nil, fmt.Errorf("finalizer %q already exists on %s/%s; injection would be a no-op", finalizerName, kind, name)
+	}
 
-		safety.ApplyChaosMetadata(obj, rollbackStr, string(v1alpha1.FinalizerBlock))
+	// Store rollback annotation for crash-safe recovery
+	rollbackData := map[string]string{
+		"finalizer": finalizerName,
+	}
+	rollbackStr, err := safety.WrapRollbackData(rollbackData)
+	if err != nil {
+		return nil, nil, fmt.Errorf("serializing rollback data for %s/%s: %w", kind, name, err)
+	}
 
-		if err := f.client.Update(ctx, obj); err != nil {
-			return nil, nil, fmt.Errorf("adding finalizer to %s/%s: %w", kind, name, err)
-		}
+	safety.ApplyChaosMetadata(obj, rollbackStr, string(v1alpha1.FinalizerBlock))
+
+	if err := f.client.Update(ctx, obj); err != nil {
+		return nil, nil, fmt.Errorf("adding finalizer to %s/%s: %w", kind, name, err)
 	}
 
 	events := []v1alpha1.InjectionEvent{

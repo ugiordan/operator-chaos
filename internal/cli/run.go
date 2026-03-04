@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"fmt"
+	"os"
 	"time"
 
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
@@ -36,9 +37,9 @@ func newRunCommand() *cobra.Command {
 
 			// Validate
 			if errs := experiment.Validate(exp); len(errs) > 0 {
-				fmt.Println("Validation errors:")
+				fmt.Fprintln(os.Stderr, "Validation errors:")
 				for _, e := range errs {
-					fmt.Printf("  - %s\n", e)
+					fmt.Fprintf(os.Stderr, "  - %s\n", e)
 				}
 				return fmt.Errorf("%d validation errors", len(errs))
 			}

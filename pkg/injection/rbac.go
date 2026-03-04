@@ -22,27 +22,8 @@ func NewRBACRevokeInjector(c client.Client) *RBACRevokeInjector {
 	return &RBACRevokeInjector{client: c}
 }
 
-// Validate checks that the injection spec contains the required parameters:
-// - bindingName: the name of the binding to revoke
-// - bindingType: must be "ClusterRoleBinding" or "RoleBinding"
 func (r *RBACRevokeInjector) Validate(spec v1alpha1.InjectionSpec, blast v1alpha1.BlastRadiusSpec) error {
-	if _, ok := spec.Parameters["bindingName"]; !ok {
-		return fmt.Errorf("RBACRevoke requires 'bindingName' parameter")
-	}
-	if err := validateK8sName("bindingName", spec.Parameters["bindingName"]); err != nil {
-		return err
-	}
-
-	bindingType, ok := spec.Parameters["bindingType"]
-	if !ok {
-		return fmt.Errorf("RBACRevoke requires 'bindingType' parameter")
-	}
-
-	if bindingType != "ClusterRoleBinding" && bindingType != "RoleBinding" {
-		return fmt.Errorf("RBACRevoke bindingType must be 'ClusterRoleBinding' or 'RoleBinding', got %q", bindingType)
-	}
-
-	return nil
+	return validateRBACRevokeParams(spec)
 }
 
 // Inject performs the RBAC revocation:

@@ -218,7 +218,8 @@ func TestCRDMutationInjectAndCleanup(t *testing.T) {
 	specMap, ok, err := unstructured.NestedMap(current.Object, "spec")
 	require.NoError(t, err)
 	require.True(t, ok)
-	assert.Equal(t, "0", specMap["replicas"])
+	// "0" is parsed as a JSON number, so it becomes float64(0) in the unstructured map
+	assert.Equal(t, int64(0), specMap["replicas"])
 	// Other fields should be preserved
 	assert.Equal(t, "keep-me", specMap["other"])
 
@@ -335,6 +336,145 @@ func TestCRDMutationInjectStoresRollbackAnnotation(t *testing.T) {
 	// Verify value was restored
 	restoredSpec, _, _ := unstructured.NestedMap(restored.Object, "spec")
 	assert.Equal(t, int64(5), restoredSpec["replicas"])
+}
+
+func TestCRDMutationInjectTypedValues(t *testing.T) {
+	scheme := runtime.NewScheme()
+	gvk := schema.GroupVersionKind{Group: "test.example.com", Version: "v1", Kind: "TestResource"}
+	scheme.AddKnownTypeWithName(gvk, &unstructured.Unstructured{})
+	scheme.AddKnownTypeWithName(
+		schema.GroupVersionKind{Group: "test.example.com", Version: "v1", Kind: "TestResourceList"},
+		&unstructured.UnstructuredList{},
+	)
+
+	tests := []struct {
+		name          string
+		paramValue    string
+		originalValue any
+		expectedValue any
+	}{
+		{
+			name:          "integer value is injected as number",
+			paramValue:    "999",
+			originalValue: int64(3),
+			expectedValue: int64(999),
+		},
+		{
+			name:          "zero is injected as number",
+			paramValue:    "0",
+			originalValue: int64(5),
+			expectedValue: int64(0),
+		},
+		{
+			name:          "boolean true is injected as bool",
+			paramValue:    "true",
+			originalValue: false,
+			expectedValue: true,
+		},
+		{
+			name:          "boolean false is injected as bool",
+			paramValue:    "false",
+			originalValue: true,
+			expectedValue: false,
+		},
+		{
+			name:          "plain string stays as string",
+			paramValue:    "some-value",
+			originalValue: "original",
+			expectedValue: "some-value",
+		},
+		{
+			name:          "null is injected as nil",
+			paramValue:    "null",
+			originalValue: "something",
+			expectedValue: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			obj := &unstructured.Unstructured{}
+			obj.SetGroupVersionKind(gvk)
+			obj.SetName("typed-resource")
+			obj.SetNamespace("test-ns")
+			obj.Object["spec"] = map[string]interface{}{
+				"targetField": tt.originalValue,
+			}
+
+			fakeClient := fake.NewClientBuilder().
+				WithScheme(scheme).
+				WithObjects(obj).
+				Build()
+
+			injector := NewCRDMutationInjector(fakeClient)
+			ctx := context.Background()
+
+			spec := v1alpha1.InjectionSpec{
+				Type: v1alpha1.CRDMutation,
+				Parameters: map[string]string{
+					"apiVersion": "test.example.com/v1",
+					"kind":       "TestResource",
+					"name":       "typed-resource",
+					"field":      "targetField",
+					"value":      tt.paramValue,
+				},
+			}
+
+			cleanup, events, err := injector.Inject(ctx, spec, "test-ns")
+			require.NoError(t, err)
+			require.NotNil(t, cleanup)
+			require.Len(t, events, 1)
+
+			// Verify the field was set with the correct type
+			current := &unstructured.Unstructured{}
+			current.SetGroupVersionKind(gvk)
+			require.NoError(t, fakeClient.Get(ctx, client_key("typed-resource", "test-ns"), current))
+			specMap, ok, err := unstructured.NestedMap(current.Object, "spec")
+			require.NoError(t, err)
+			require.True(t, ok)
+			assert.Equal(t, tt.expectedValue, specMap["targetField"],
+				"expected %T(%v), got %T(%v)",
+				tt.expectedValue, tt.expectedValue,
+				specMap["targetField"], specMap["targetField"])
+
+			// Cleanup should restore original
+			require.NoError(t, cleanup(ctx))
+
+			restored := &unstructured.Unstructured{}
+			restored.SetGroupVersionKind(gvk)
+			require.NoError(t, fakeClient.Get(ctx, client_key("typed-resource", "test-ns"), restored))
+			restoredSpec, ok, err := unstructured.NestedMap(restored.Object, "spec")
+			require.NoError(t, err)
+			require.True(t, ok)
+			assert.Equal(t, tt.originalValue, restoredSpec["targetField"])
+		})
+	}
+}
+
+func TestParseTypedValue(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected any
+	}{
+		{name: "integer", input: "42", expected: float64(42)},
+		{name: "negative integer", input: "-1", expected: float64(-1)},
+		{name: "float", input: "3.14", expected: float64(3.14)},
+		{name: "boolean true", input: "true", expected: true},
+		{name: "boolean false", input: "false", expected: false},
+		{name: "null", input: "null", expected: nil},
+		{name: "plain string", input: "hello", expected: "hello"},
+		{name: "string with spaces", input: "hello world", expected: "hello world"},
+		{name: "empty string", input: "", expected: ""},
+		{name: "quoted JSON string", input: `"quoted"`, expected: "quoted"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := parseTypedValue(tt.input)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
 }
 
 // client_key is a helper to create a NamespacedName for client.Get.

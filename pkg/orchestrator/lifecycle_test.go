@@ -555,6 +555,46 @@ func TestOrchestratorLockContention(t *testing.T) {
 	assert.False(t, inj.cleanupCalled, "cleanup should not be called when lock acquisition fails")
 }
 
+// spyLock is a mock ExperimentLock that records whether Acquire was called.
+type spyLock struct {
+	acquireCalled bool
+}
+
+func (l *spyLock) Acquire(_ context.Context, operator, experiment string) error {
+	l.acquireCalled = true
+	return nil
+}
+
+func (l *spyLock) Release(_ string) {}
+
+func TestOrchestratorDryRunSkipsLock(t *testing.T) {
+	obs := &mockObserver{}
+	inj := &mockInjector{}
+	spy := &spyLock{}
+
+	registry := injection.NewRegistry()
+	registry.Register(v1alpha1.PodKill, inj)
+
+	orch := New(OrchestratorConfig{
+		Registry:  registry,
+		Observer:  obs,
+		Evaluator: evaluator.New(10),
+		Lock:      spy,
+		Verbose:   false,
+		Logger:    slog.New(slog.NewTextHandler(io.Discard, nil)),
+	})
+
+	exp := newTestExperiment()
+	exp.Spec.BlastRadius.DryRun = true
+
+	result, err := orch.Run(context.Background(), exp)
+	require.NoError(t, err)
+	assert.Equal(t, v1alpha1.PhaseComplete, result.Phase)
+	assert.Equal(t, v1alpha1.Inconclusive, result.Verdict)
+	assert.False(t, spy.acquireCalled, "dry run should not acquire the experiment lock")
+	assert.False(t, inj.cleanupCalled, "dry run should not inject or clean up")
+}
+
 func TestOrchestratorDefaultLoggerNonVerbose(t *testing.T) {
 	// Verify that when no Logger is provided and Verbose=false, a discard logger is created
 	obs := &mockObserver{result: &v1alpha1.CheckResult{Passed: true, ChecksRun: 1, ChecksPassed: 1, Timestamp: time.Now()}}

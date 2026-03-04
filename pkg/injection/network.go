@@ -30,9 +30,8 @@ func NewNetworkPartitionInjector(c client.Client) *NetworkPartitionInjector {
 	return &NetworkPartitionInjector{client: c}
 }
 
-// Validate checks that the injection spec contains a valid, non-empty labelSelector parameter.
 func (n *NetworkPartitionInjector) Validate(spec v1alpha1.InjectionSpec, blast v1alpha1.BlastRadiusSpec) error {
-	return validateLabelSelector(spec, "NetworkPartition")
+	return validateNetworkPartitionParams(spec)
 }
 
 // Inject creates a deny-all NetworkPolicy targeting the selected pods and returns a cleanup function that deletes it.

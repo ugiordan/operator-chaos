@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/opendatahub-io/odh-platform-chaos/pkg/experiment"
 	"github.com/spf13/cobra"
@@ -20,9 +21,9 @@ func newValidateCommand() *cobra.Command {
 
 			errs := experiment.Validate(exp)
 			if len(errs) > 0 {
-				fmt.Println("Validation FAILED:")
+				fmt.Fprintln(os.Stderr, "Validation FAILED:")
 				for _, e := range errs {
-					fmt.Printf("  - %s\n", e)
+					fmt.Fprintf(os.Stderr, "  - %s\n", e)
 				}
 				return fmt.Errorf("%d validation errors", len(errs))
 			}

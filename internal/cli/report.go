@@ -35,13 +35,13 @@ func newReportCommand() *cobra.Command {
 					path := filepath.Join(dir, entry.Name())
 					data, err := os.ReadFile(path)
 					if err != nil {
-						fmt.Printf("Warning: skipping %s: %v\n", entry.Name(), err)
+						fmt.Fprintf(os.Stderr, "Warning: skipping %s: %v\n", entry.Name(), err)
 						continue
 					}
 
 					var report reporter.ExperimentReport
 					if err := json.Unmarshal(data, &report); err != nil {
-						fmt.Printf("Warning: skipping %s: %v\n", entry.Name(), err)
+						fmt.Fprintf(os.Stderr, "Warning: skipping %s: %v\n", entry.Name(), err)
 						continue
 					}
 
@@ -64,7 +64,7 @@ func newReportCommand() *cobra.Command {
 					}
 					defer f.Close()
 					output = f
-					fmt.Printf("Writing JUnit report to %s\n", outPath)
+					fmt.Fprintf(os.Stderr, "Writing JUnit report to %s\n", outPath)
 				}
 
 				r := reporter.NewJUnitReporter(output)

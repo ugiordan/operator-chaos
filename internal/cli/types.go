@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 
+	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
 	"github.com/spf13/cobra"
 )
 
@@ -14,15 +15,15 @@ func newTypesCommand() *cobra.Command {
 			types := []struct {
 				name   string
 				desc   string
-				danger string
+				danger v1alpha1.DangerLevel
 			}{
-				{"PodKill", "Delete pods matching a label selector", "low"},
-				{"NetworkPartition", "Create deny-all NetworkPolicy", "medium"},
-				{"ConfigDrift", "Modify ConfigMap or Secret data", "medium"},
-				{"CRDMutation", "Mutate a field on any Kubernetes resource", "medium"},
-				{"FinalizerBlock", "Add a blocking finalizer to a resource", "medium"},
-				{"WebhookDisrupt", "Change webhook failure policy", "high"},
-				{"RBACRevoke", "Revoke RBAC binding subjects", "high"},
+				{"PodKill", "Delete pods matching a label selector", v1alpha1.DangerLevelLow},
+				{"NetworkPartition", "Create deny-all NetworkPolicy", v1alpha1.DangerLevelMedium},
+				{"ConfigDrift", "Modify ConfigMap or Secret data", v1alpha1.DangerLevelMedium},
+				{"CRDMutation", "Mutate a field on any Kubernetes resource", v1alpha1.DangerLevelMedium},
+				{"FinalizerBlock", "Add a blocking finalizer to a resource", v1alpha1.DangerLevelMedium},
+				{"WebhookDisrupt", "Change webhook failure policy", v1alpha1.DangerLevelHigh},
+				{"RBACRevoke", "Revoke RBAC binding subjects", v1alpha1.DangerLevelHigh},
 			}
 			fmt.Println("Available injection types:")
 			fmt.Println()

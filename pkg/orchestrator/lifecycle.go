@@ -139,6 +139,14 @@ func (o *Orchestrator) Run(ctx context.Context, exp *v1alpha1.ChaosExperiment) (
 		return result, fmt.Errorf("injection validation: %w", err)
 	}
 
+	// Dry run check — skip lock acquisition since no faults are injected
+	if exp.Spec.BlastRadius.DryRun {
+		o.logger.Info("dry run", "injection", exp.Spec.Injection.Type, "operator", exp.Spec.Target.Operator, "component", exp.Spec.Target.Component)
+		result.Phase = v1alpha1.PhaseComplete
+		result.Verdict = v1alpha1.Inconclusive
+		return result, nil
+	}
+
 	// Acquire experiment lock
 	if err := o.lock.Acquire(ctx, exp.Spec.Target.Operator, exp.Metadata.Name); err != nil {
 		result.Error = fmt.Sprintf("lock acquisition failed: %v", err)
@@ -146,14 +154,6 @@ func (o *Orchestrator) Run(ctx context.Context, exp *v1alpha1.ChaosExperiment) (
 		return result, fmt.Errorf("lock: %w", err)
 	}
 	defer o.lock.Release(exp.Spec.Target.Operator)
-
-	// Dry run check
-	if exp.Spec.BlastRadius.DryRun {
-		o.logger.Info("dry run", "injection", exp.Spec.Injection.Type, "operator", exp.Spec.Target.Operator, "component", exp.Spec.Target.Component)
-		result.Phase = v1alpha1.PhaseComplete
-		result.Verdict = v1alpha1.Inconclusive
-		return result, nil
-	}
 
 	// 2. Steady State Pre-Check
 	o.logger.Info("phase transition", "phase", "STEADY_STATE_PRE", "action", "checking baseline")

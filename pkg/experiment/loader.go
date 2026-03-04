@@ -5,6 +5,7 @@ import (
 	"os"
 
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
+	"github.com/opendatahub-io/odh-platform-chaos/pkg/injection"
 	"sigs.k8s.io/yaml"
 )
 
@@ -49,6 +50,13 @@ func Validate(exp *v1alpha1.ChaosExperiment) []string {
 	}
 	if exp.Spec.Injection.Type == "" {
 		errs = append(errs, "spec.injection.type is required")
+	} else if err := v1alpha1.ValidateInjectionType(exp.Spec.Injection.Type); err != nil {
+		errs = append(errs, err.Error())
+	} else if err := injection.ValidateInjectionParams(exp.Spec.Injection, exp.Spec.BlastRadius); err != nil {
+		errs = append(errs, err.Error())
+	}
+	if err := v1alpha1.ValidateDangerLevel(exp.Spec.Injection.DangerLevel); err != nil {
+		errs = append(errs, err.Error())
 	}
 	if exp.Spec.Hypothesis.Description == "" {
 		errs = append(errs, "spec.hypothesis.description is required")

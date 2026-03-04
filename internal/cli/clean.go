@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"time"
 
 	admissionregv1 "k8s.io/api/admissionregistration/v1"
@@ -115,7 +116,7 @@ func newCleanCommand() *cobra.Command {
 func runClean(ctx context.Context, k8sClient client.Client, namespace string) cleanSummary {
 	var summary cleanSummary
 	if k8sClient == nil {
-		fmt.Println("Warning: no Kubernetes client available, skipping cleanup")
+		fmt.Fprintln(os.Stderr, "Warning: no Kubernetes client available, skipping cleanup")
 		return summary
 	}
 
@@ -160,15 +161,15 @@ func cleanNetworkPolicies(ctx context.Context, k8sClient client.Client, namespac
 		client.InNamespace(namespace),
 		labels,
 	); err != nil {
-		fmt.Printf("Warning: listing chaos NetworkPolicies: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Warning: listing chaos NetworkPolicies: %v\n", err)
 		return 0
 	}
 
 	cleaned := 0
 	for i := range policies.Items {
-		fmt.Printf("Deleting NetworkPolicy %s/%s\n", policies.Items[i].Namespace, policies.Items[i].Name)
+		fmt.Fprintf(os.Stderr, "Deleting NetworkPolicy %s/%s\n", policies.Items[i].Namespace, policies.Items[i].Name)
 		if err := k8sClient.Delete(ctx, &policies.Items[i]); err != nil {
-			fmt.Printf("  Warning: %v\n", err)
+			fmt.Fprintf(os.Stderr, "  Warning: %v\n", err)
 		} else {
 			cleaned++
 		}
@@ -182,15 +183,15 @@ func cleanLeases(ctx context.Context, k8sClient client.Client, namespace string,
 		client.InNamespace(namespace),
 		labels,
 	); err != nil {
-		fmt.Printf("Warning: listing chaos Leases: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Warning: listing chaos Leases: %v\n", err)
 		return 0
 	}
 
 	cleaned := 0
 	for i := range leases.Items {
-		fmt.Printf("Deleting Lease %s/%s\n", leases.Items[i].Namespace, leases.Items[i].Name)
+		fmt.Fprintf(os.Stderr, "Deleting Lease %s/%s\n", leases.Items[i].Namespace, leases.Items[i].Name)
 		if err := k8sClient.Delete(ctx, &leases.Items[i]); err != nil {
-			fmt.Printf("  Warning: %v\n", err)
+			fmt.Fprintf(os.Stderr, "  Warning: %v\n", err)
 		} else {
 			cleaned++
 		}
@@ -201,15 +202,15 @@ func cleanLeases(ctx context.Context, k8sClient client.Client, namespace string,
 func cleanClusterRoles(ctx context.Context, k8sClient client.Client, labels client.MatchingLabels) int {
 	roles := &rbacv1.ClusterRoleList{}
 	if err := k8sClient.List(ctx, roles, labels); err != nil {
-		fmt.Printf("Warning: listing chaos ClusterRoles: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Warning: listing chaos ClusterRoles: %v\n", err)
 		return 0
 	}
 
 	cleaned := 0
 	for i := range roles.Items {
-		fmt.Printf("Deleting ClusterRole %s\n", roles.Items[i].Name)
+		fmt.Fprintf(os.Stderr, "Deleting ClusterRole %s\n", roles.Items[i].Name)
 		if err := k8sClient.Delete(ctx, &roles.Items[i]); err != nil {
-			fmt.Printf("  Warning: %v\n", err)
+			fmt.Fprintf(os.Stderr, "  Warning: %v\n", err)
 		} else {
 			cleaned++
 		}
@@ -223,15 +224,15 @@ func cleanRoleBindings(ctx context.Context, k8sClient client.Client, namespace s
 		client.InNamespace(namespace),
 		labels,
 	); err != nil {
-		fmt.Printf("Warning: listing chaos RoleBindings: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Warning: listing chaos RoleBindings: %v\n", err)
 		return 0
 	}
 
 	cleaned := 0
 	for i := range bindings.Items {
-		fmt.Printf("Deleting RoleBinding %s/%s\n", bindings.Items[i].Namespace, bindings.Items[i].Name)
+		fmt.Fprintf(os.Stderr, "Deleting RoleBinding %s/%s\n", bindings.Items[i].Namespace, bindings.Items[i].Name)
 		if err := k8sClient.Delete(ctx, &bindings.Items[i]); err != nil {
-			fmt.Printf("  Warning: %v\n", err)
+			fmt.Fprintf(os.Stderr, "  Warning: %v\n", err)
 		} else {
 			cleaned++
 		}
@@ -245,7 +246,7 @@ func cleanRoleBindings(ctx context.Context, k8sClient client.Client, namespace s
 func cleanWebhookConfigurations(ctx context.Context, k8sClient client.Client) int {
 	webhooks := &admissionregv1.ValidatingWebhookConfigurationList{}
 	if err := k8sClient.List(ctx, webhooks); err != nil {
-		fmt.Printf("Warning: listing ValidatingWebhookConfigurations: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Warning: listing ValidatingWebhookConfigurations: %v\n", err)
 		return 0
 	}
 
@@ -264,7 +265,7 @@ func cleanWebhookConfigurations(ctx context.Context, k8sClient client.Client) in
 		// Parse the original failure policies map
 		var originalPolicies map[string]string
 		if err := safety.UnwrapRollbackData(rollbackJSON, &originalPolicies); err != nil {
-			fmt.Printf("Warning: parsing rollback data for ValidatingWebhookConfiguration %q: %v\n", wc.Name, err)
+			fmt.Fprintf(os.Stderr, "Warning: parsing rollback data for ValidatingWebhookConfiguration %q: %v\n", wc.Name, err)
 			continue
 		}
 
@@ -283,9 +284,9 @@ func cleanWebhookConfigurations(ctx context.Context, k8sClient client.Client) in
 		// Remove rollback annotation and chaos labels
 		safety.RemoveChaosMetadata(wc, string(v1alpha1.WebhookDisrupt))
 
-		fmt.Printf("Restoring ValidatingWebhookConfiguration %q\n", wc.Name)
+		fmt.Fprintf(os.Stderr, "Restoring ValidatingWebhookConfiguration %q\n", wc.Name)
 		if err := k8sClient.Update(ctx, wc); err != nil {
-			fmt.Printf("  Warning: %v\n", err)
+			fmt.Fprintf(os.Stderr, "  Warning: %v\n", err)
 		} else {
 			restored++
 		}
@@ -302,7 +303,7 @@ func cleanRBACBindings(ctx context.Context, k8sClient client.Client, namespace s
 	// ClusterRoleBindings (cluster-scoped)
 	crbs := &rbacv1.ClusterRoleBindingList{}
 	if err := k8sClient.List(ctx, crbs); err != nil {
-		fmt.Printf("Warning: listing ClusterRoleBindings: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Warning: listing ClusterRoleBindings: %v\n", err)
 	} else {
 		for i := range crbs.Items {
 			crb := &crbs.Items[i]
@@ -317,7 +318,7 @@ func cleanRBACBindings(ctx context.Context, k8sClient client.Client, namespace s
 
 			var originalSubjects []rbacv1.Subject
 			if err := safety.UnwrapRollbackData(rollbackJSON, &originalSubjects); err != nil {
-				fmt.Printf("Warning: parsing rollback data for ClusterRoleBinding %q: %v\n", crb.Name, err)
+				fmt.Fprintf(os.Stderr, "Warning: parsing rollback data for ClusterRoleBinding %q: %v\n", crb.Name, err)
 				continue
 			}
 
@@ -326,9 +327,9 @@ func cleanRBACBindings(ctx context.Context, k8sClient client.Client, namespace s
 			// Remove rollback annotation and chaos labels
 			safety.RemoveChaosMetadata(crb, string(v1alpha1.RBACRevoke))
 
-			fmt.Printf("Restoring ClusterRoleBinding %q\n", crb.Name)
+			fmt.Fprintf(os.Stderr, "Restoring ClusterRoleBinding %q\n", crb.Name)
 			if err := k8sClient.Update(ctx, crb); err != nil {
-				fmt.Printf("  Warning: %v\n", err)
+				fmt.Fprintf(os.Stderr, "  Warning: %v\n", err)
 			} else {
 				restored++
 			}
@@ -342,7 +343,7 @@ func cleanRBACBindings(ctx context.Context, k8sClient client.Client, namespace s
 		listOpts = append(listOpts, client.InNamespace(namespace))
 	}
 	if err := k8sClient.List(ctx, rbs, listOpts...); err != nil {
-		fmt.Printf("Warning: listing RoleBindings: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Warning: listing RoleBindings: %v\n", err)
 	} else {
 		for i := range rbs.Items {
 			rb := &rbs.Items[i]
@@ -357,7 +358,7 @@ func cleanRBACBindings(ctx context.Context, k8sClient client.Client, namespace s
 
 			var originalSubjects []rbacv1.Subject
 			if err := safety.UnwrapRollbackData(rollbackJSON, &originalSubjects); err != nil {
-				fmt.Printf("Warning: parsing rollback data for RoleBinding %s/%s: %v\n", rb.Namespace, rb.Name, err)
+				fmt.Fprintf(os.Stderr, "Warning: parsing rollback data for RoleBinding %s/%s: %v\n", rb.Namespace, rb.Name, err)
 				continue
 			}
 
@@ -366,9 +367,9 @@ func cleanRBACBindings(ctx context.Context, k8sClient client.Client, namespace s
 			// Remove rollback annotation and chaos labels
 			safety.RemoveChaosMetadata(rb, string(v1alpha1.RBACRevoke))
 
-			fmt.Printf("Restoring RoleBinding %s/%s\n", rb.Namespace, rb.Name)
+			fmt.Fprintf(os.Stderr, "Restoring RoleBinding %s/%s\n", rb.Namespace, rb.Name)
 			if err := k8sClient.Update(ctx, rb); err != nil {
-				fmt.Printf("  Warning: %v\n", err)
+				fmt.Fprintf(os.Stderr, "  Warning: %v\n", err)
 			} else {
 				restored++
 			}
@@ -394,7 +395,7 @@ func scanResources(
 	scanLabel string,
 ) int {
 	if err := k8sClient.List(ctx, list, client.InNamespace(namespace)); err != nil {
-		fmt.Printf("Warning: listing %s for %s scan: %v\n", resourceKind, scanLabel, err)
+		fmt.Fprintf(os.Stderr, "Warning: listing %s for %s scan: %v\n", resourceKind, scanLabel, err)
 		return 0
 	}
 
@@ -511,9 +512,9 @@ func cleanFinalizerFromResource(ctx context.Context, k8sClient client.Client, ob
 	// Remove rollback annotation and chaos labels
 	safety.RemoveChaosMetadata(obj, string(v1alpha1.FinalizerBlock))
 
-	fmt.Printf("Removing orphaned finalizer %q from %s/%s\n", finalizerName, namespace, name)
+	fmt.Fprintf(os.Stderr, "Removing orphaned finalizer %q from %s/%s\n", finalizerName, namespace, name)
 	if err := k8sClient.Update(ctx, obj); err != nil {
-		fmt.Printf("  Warning: %v\n", err)
+		fmt.Fprintf(os.Stderr, "  Warning: %v\n", err)
 		return false
 	}
 	return true
@@ -528,7 +529,7 @@ func cleanConfigDrift(ctx context.Context, k8sClient client.Client, namespace st
 	// Scan ConfigMaps
 	configMaps := &corev1.ConfigMapList{}
 	if err := k8sClient.List(ctx, configMaps, client.InNamespace(namespace)); err != nil {
-		fmt.Printf("Warning: listing ConfigMaps for config drift scan: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Warning: listing ConfigMaps for config drift scan: %v\n", err)
 	} else {
 		for i := range configMaps.Items {
 			cm := &configMaps.Items[i]
@@ -560,9 +561,9 @@ func cleanConfigDrift(ctx context.Context, k8sClient client.Client, namespace st
 			// Remove rollback annotation and chaos labels
 			safety.RemoveChaosMetadata(cm, string(v1alpha1.ConfigDrift))
 
-			fmt.Printf("Restoring ConfigMap %s/%s key %q\n", cm.Namespace, cm.Name, dataKey)
+			fmt.Fprintf(os.Stderr, "Restoring ConfigMap %s/%s key %q\n", cm.Namespace, cm.Name, dataKey)
 			if err := k8sClient.Update(ctx, cm); err != nil {
-				fmt.Printf("  Warning: %v\n", err)
+				fmt.Fprintf(os.Stderr, "  Warning: %v\n", err)
 			} else {
 				restored++
 			}
@@ -572,7 +573,7 @@ func cleanConfigDrift(ctx context.Context, k8sClient client.Client, namespace st
 	// Scan Secrets
 	secrets := &corev1.SecretList{}
 	if err := k8sClient.List(ctx, secrets, client.InNamespace(namespace)); err != nil {
-		fmt.Printf("Warning: listing Secrets for config drift scan: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Warning: listing Secrets for config drift scan: %v\n", err)
 	} else {
 		for i := range secrets.Items {
 			s := &secrets.Items[i]
@@ -605,7 +606,7 @@ func cleanConfigDrift(ctx context.Context, k8sClient client.Client, namespace st
 				rbSecret := &corev1.Secret{}
 				rbKey := client.ObjectKey{Name: rollbackSecretRef, Namespace: s.Namespace}
 				if err := k8sClient.Get(ctx, rbKey, rbSecret); err != nil {
-					fmt.Printf("Warning: reading rollback Secret %q for Secret %s/%s: %v\n",
+					fmt.Fprintf(os.Stderr, "Warning: reading rollback Secret %q for Secret %s/%s: %v\n",
 						rollbackSecretRef, s.Namespace, s.Name, err)
 					continue
 				}
@@ -614,16 +615,16 @@ func cleanConfigDrift(ctx context.Context, k8sClient client.Client, namespace st
 				// Remove rollback annotation and chaos labels
 				safety.RemoveChaosMetadata(s, string(v1alpha1.ConfigDrift))
 
-				fmt.Printf("Restoring Secret %s/%s key %q from rollback Secret %q\n",
+				fmt.Fprintf(os.Stderr, "Restoring Secret %s/%s key %q from rollback Secret %q\n",
 					s.Namespace, s.Name, dataKey, rollbackSecretRef)
 				if err := k8sClient.Update(ctx, s); err != nil {
-					fmt.Printf("  Warning: %v\n", err)
+					fmt.Fprintf(os.Stderr, "  Warning: %v\n", err)
 					continue
 				}
 
 				// Delete the rollback Secret
 				if err := k8sClient.Delete(ctx, rbSecret); err != nil {
-					fmt.Printf("  Warning: deleting rollback Secret %q: %v\n", rollbackSecretRef, err)
+					fmt.Fprintf(os.Stderr, "  Warning: deleting rollback Secret %q: %v\n", rollbackSecretRef, err)
 				}
 				restored++
 			} else {
@@ -634,9 +635,9 @@ func cleanConfigDrift(ctx context.Context, k8sClient client.Client, namespace st
 				// Remove rollback annotation and chaos labels
 				safety.RemoveChaosMetadata(s, string(v1alpha1.ConfigDrift))
 
-				fmt.Printf("Restoring Secret %s/%s key %q\n", s.Namespace, s.Name, dataKey)
+				fmt.Fprintf(os.Stderr, "Restoring Secret %s/%s key %q\n", s.Namespace, s.Name, dataKey)
 				if err := k8sClient.Update(ctx, s); err != nil {
-					fmt.Printf("  Warning: %v\n", err)
+					fmt.Fprintf(os.Stderr, "  Warning: %v\n", err)
 				} else {
 					restored++
 				}
@@ -734,8 +735,8 @@ func cleanCRDMutationFromResource(ctx context.Context, k8sClient client.Client, 
 		return false
 	}
 
-	// Log the restoration (avoid leaking sensitive original values to stdout)
-	fmt.Printf("Restoring CRD mutation metadata on %s/%s (field: %v)\n", namespace, name, rollbackData["field"])
+	// Log the restoration to stderr (avoid leaking sensitive original values to stdout)
+	fmt.Fprintf(os.Stderr, "Restoring CRD mutation metadata on %s/%s (field: %v)\n", namespace, name, rollbackData["field"])
 
 	// Build a merge patch that restores the field value and removes chaos metadata.
 	// Setting an annotation/label to null in a merge patch removes it.
@@ -767,12 +768,12 @@ func cleanCRDMutationFromResource(ctx context.Context, k8sClient client.Client, 
 
 	patch, err := json.Marshal(patchMap)
 	if err != nil {
-		fmt.Printf("  Warning: building restore patch: %v\n", err)
+		fmt.Fprintf(os.Stderr, "  Warning: building restore patch: %v\n", err)
 		return false
 	}
 
 	if err := k8sClient.Patch(ctx, obj, client.RawPatch(types.MergePatchType, patch)); err != nil {
-		fmt.Printf("  Warning: %v\n", err)
+		fmt.Fprintf(os.Stderr, "  Warning: %v\n", err)
 		return false
 	}
 	return true
@@ -786,7 +787,7 @@ func cleanTTLExpired(ctx context.Context, k8sClient client.Client, namespace str
 	if err := k8sClient.List(ctx, policies,
 		client.InNamespace(namespace),
 	); err != nil {
-		fmt.Printf("Warning: listing NetworkPolicies for TTL scan: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Warning: listing NetworkPolicies for TTL scan: %v\n", err)
 		return 0
 	}
 
@@ -801,10 +802,10 @@ func cleanTTLExpired(ctx context.Context, k8sClient client.Client, namespace str
 			continue
 		}
 		if safety.IsExpired(expiryStr) {
-			fmt.Printf("Deleting TTL-expired NetworkPolicy %s/%s (expired: %s)\n",
+			fmt.Fprintf(os.Stderr, "Deleting TTL-expired NetworkPolicy %s/%s (expired: %s)\n",
 				policies.Items[i].Namespace, policies.Items[i].Name, expiryStr)
 			if err := k8sClient.Delete(ctx, &policies.Items[i]); err != nil {
-				fmt.Printf("  Warning: %v\n", err)
+				fmt.Fprintf(os.Stderr, "  Warning: %v\n", err)
 			} else {
 				cleaned++
 			}

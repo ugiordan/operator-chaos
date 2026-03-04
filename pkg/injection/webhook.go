@@ -22,28 +22,8 @@ func NewWebhookDisruptInjector(c client.Client) *WebhookDisruptInjector {
 	return &WebhookDisruptInjector{client: c}
 }
 
-// Validate checks that the injection spec contains required parameters:
-// - webhookName: the name of the ValidatingWebhookConfiguration to disrupt
-// - action: the disruption action (currently only "setFailurePolicy" is supported)
-// - value: (optional) the failure policy value to set; defaults to "Fail"
 func (w *WebhookDisruptInjector) Validate(spec v1alpha1.InjectionSpec, blast v1alpha1.BlastRadiusSpec) error {
-	if _, ok := spec.Parameters["webhookName"]; !ok {
-		return fmt.Errorf("WebhookDisrupt requires 'webhookName' parameter")
-	}
-	if err := validateK8sName("webhookName", spec.Parameters["webhookName"]); err != nil {
-		return err
-	}
-
-	action, ok := spec.Parameters["action"]
-	if !ok {
-		return fmt.Errorf("WebhookDisrupt requires 'action' parameter")
-	}
-
-	if action != "setFailurePolicy" {
-		return fmt.Errorf("unsupported action %q; supported actions: setFailurePolicy", action)
-	}
-
-	return nil
+	return validateWebhookDisruptParams(spec)
 }
 
 // Inject performs the webhook disruption:

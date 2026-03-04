@@ -7,6 +7,44 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// injectionParameters returns the YAML fragment for the parameters section,
+// an optional dangerLevel line, and an optional allowDangerous line,
+// based on the injection type.
+func injectionParameters(injType v1alpha1.InjectionType, component string) (params string, dangerLevel string, allowDangerous string) {
+	switch injType {
+	case v1alpha1.NetworkPartition:
+		params = fmt.Sprintf("      labelSelector: \"app.kubernetes.io/part-of=%s\"", component)
+	case v1alpha1.CRDMutation:
+		params = fmt.Sprintf(`      apiVersion: "apps/v1"
+      kind: "Deployment"
+      name: "%s"
+      field: "replicas"
+      value: "0"`, component)
+		dangerLevel = fmt.Sprintf("    dangerLevel: %s", v1alpha1.DangerLevelHigh)
+		allowDangerous = "    allowDangerous: true"
+	case v1alpha1.ConfigDrift:
+		params = fmt.Sprintf(`      name: "%s-config"
+      key: "replace-key"
+      value: "replace-value"`, component)
+	case v1alpha1.WebhookDisrupt:
+		params = fmt.Sprintf(`      webhookName: "%s-webhook"
+      action: "setFailurePolicy"`, component)
+		dangerLevel = fmt.Sprintf("    dangerLevel: %s", v1alpha1.DangerLevelHigh)
+		allowDangerous = "    allowDangerous: true"
+	case v1alpha1.RBACRevoke:
+		params = fmt.Sprintf(`      bindingName: "%s-binding"
+      bindingType: "ClusterRoleBinding"`, component)
+		dangerLevel = fmt.Sprintf("    dangerLevel: %s", v1alpha1.DangerLevelHigh)
+		allowDangerous = "    allowDangerous: true"
+	case v1alpha1.FinalizerBlock:
+		params = fmt.Sprintf(`      kind: "Deployment"
+      name: "%s"`, component)
+	default: // PodKill
+		params = fmt.Sprintf("      labelSelector: \"app.kubernetes.io/part-of=%s\"", component)
+	}
+	return params, dangerLevel, allowDangerous
+}
+
 func newInitCommand() *cobra.Command {
 	var (
 		component     string
@@ -26,6 +64,22 @@ func newInitCommand() *cobra.Command {
 				injectionType = string(v1alpha1.PodKill)
 			}
 
+			injType := v1alpha1.InjectionType(injectionType)
+			if err := v1alpha1.ValidateInjectionType(injType); err != nil {
+				return err
+			}
+			params, dangerLevel, allowDangerous := injectionParameters(injType, component)
+
+			dangerLevelLine := ""
+			if dangerLevel != "" {
+				dangerLevelLine = "\n" + dangerLevel
+			}
+
+			allowDangerousLine := ""
+			if allowDangerous != "" {
+				allowDangerousLine = "\n" + allowDangerous
+			}
+
 			tmpl := `apiVersion: chaos.opendatahub.io/v1alpha1
 kind: ChaosExperiment
 metadata:
@@ -43,37 +97,25 @@ spec:
   injection:
     type: %s
     count: 1
-    ttl: "300s"
+    ttl: "300s"%s
     parameters:
-      labelSelector: "app.kubernetes.io/part-of=%s"
-  observation:
-    interval: "5s"
-    duration: "120s"
-    trackReconcileCycles: true
-  steadyState:
-    checks:
-      - type: conditionTrue
-        apiVersion: apps/v1
-        kind: Deployment
-        name: %s
-        namespace: %s
-        conditionType: Available
-    timeout: "30s"
+%s
   blastRadius:
     maxPodsAffected: 1
     allowedNamespaces:
       - %s
-    dryRun: false
+    dryRun: false%s
 `
-			fmt.Printf(tmpl,
+			fmt.Fprintf(cmd.OutOrStdout(), tmpl,
 				component, injectionType,
 				component,
 				operator, component, component,
 				component, injectionType,
 				injectionType,
-				component,
-				component, namespace,
+				dangerLevelLine,
+				params,
 				namespace,
+				allowDangerousLine,
 			)
 			return nil
 		},

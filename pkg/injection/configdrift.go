@@ -22,33 +22,8 @@ func NewConfigDriftInjector(c client.Client) *ConfigDriftInjector {
 	return &ConfigDriftInjector{client: c}
 }
 
-// Validate checks that the injection spec contains the required parameters: name, key, and value.
 func (d *ConfigDriftInjector) Validate(spec v1alpha1.InjectionSpec, blast v1alpha1.BlastRadiusSpec) error {
-	if _, ok := spec.Parameters["name"]; !ok {
-		return fmt.Errorf("ConfigDrift requires 'name' parameter")
-	}
-	if err := validateK8sName("name", spec.Parameters["name"]); err != nil {
-		return err
-	}
-	if _, ok := spec.Parameters["key"]; !ok {
-		return fmt.Errorf("ConfigDrift requires 'key' parameter (data key to modify)")
-	}
-	if _, ok := spec.Parameters["value"]; !ok {
-		return fmt.Errorf("ConfigDrift requires 'value' parameter (corrupted value)")
-	}
-	// Validate resourceType if specified
-	resourceType := spec.Parameters["resourceType"]
-	if resourceType != "" && resourceType != "ConfigMap" && resourceType != "Secret" {
-		return fmt.Errorf("ConfigDrift resourceType must be 'ConfigMap' or 'Secret', got %q", resourceType)
-	}
-	// For Secrets, validate that the rollback Secret name won't exceed K8s limit
-	if resourceType == "Secret" {
-		rollbackName := "chaos-rollback-" + spec.Parameters["name"] + "-" + spec.Parameters["key"]
-		if len(rollbackName) > maxNameLength {
-			return fmt.Errorf("rollback Secret name %q exceeds %d character limit", rollbackName, maxNameLength)
-		}
-	}
-	return nil
+	return validateConfigDriftParams(spec)
 }
 
 // Inject overwrites a key in the target ConfigMap or Secret and returns a cleanup function that restores the original value.

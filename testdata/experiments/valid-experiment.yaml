@@ -20,10 +20,6 @@ spec:
       labelSelector: "app.kubernetes.io/part-of=dashboard"
     count: 1
     ttl: "300s"
-  observation:
-    interval: "5s"
-    duration: "120s"
-    trackReconcileCycles: true
   steadyState:
     checks:
       - type: conditionTrue

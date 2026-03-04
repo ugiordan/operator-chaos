@@ -3,6 +3,7 @@ package injection
 import (
 	"context"
 	"fmt"
+	"math/rand/v2"
 
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
@@ -21,21 +22,8 @@ func NewPodKillInjector(c client.Client) *PodKillInjector {
 	return &PodKillInjector{client: c}
 }
 
-// Validate checks that the kill count is within blast radius limits and that a valid labelSelector is provided.
 func (p *PodKillInjector) Validate(spec v1alpha1.InjectionSpec, blast v1alpha1.BlastRadiusSpec) error {
-	count := spec.Count
-	if count <= 0 {
-		count = 1
-	}
-	if count > blast.MaxPodsAffected {
-		return fmt.Errorf("pod kill count %d exceeds blast radius %d", count, blast.MaxPodsAffected)
-	}
-
-	if err := validateLabelSelector(spec, "PodKill"); err != nil {
-		return err
-	}
-
-	return nil
+	return validatePodKillParams(spec, blast)
 }
 
 // Inject force-deletes pods matching the label selector and returns a no-op cleanup function.
@@ -64,6 +52,11 @@ func (p *PodKillInjector) Inject(ctx context.Context, spec v1alpha1.InjectionSpe
 	if killCount > len(podList.Items) {
 		killCount = len(podList.Items)
 	}
+
+	// Shuffle pods so selection is random rather than deterministic.
+	rand.Shuffle(len(podList.Items), func(i, j int) {
+		podList.Items[i], podList.Items[j] = podList.Items[j], podList.Items[i]
+	})
 
 	var events []v1alpha1.InjectionEvent
 	gracePeriod := int64(0)

@@ -112,6 +112,78 @@ func TestValidateBlastRadiusForbiddenResources(t *testing.T) {
 	}
 }
 
+func TestValidateBlastRadiusCountZeroDefaultsToOne(t *testing.T) {
+	tests := []struct {
+		name          string
+		spec          v1alpha1.BlastRadiusSpec
+		affectedCount int
+		wantErr       bool
+		errMsg        string
+	}{
+		{
+			name: "count=0 passes when maxPodsAffected >= 1",
+			spec: v1alpha1.BlastRadiusSpec{
+				MaxPodsAffected:   1,
+				AllowedNamespaces: []string{"opendatahub"},
+			},
+			affectedCount: 0,
+			wantErr:       false,
+		},
+		{
+			name: "count=0 is effectively 1 and is rejected when maxPodsAffected would be exceeded",
+			spec: v1alpha1.BlastRadiusSpec{
+				MaxPodsAffected:   0,
+				AllowedNamespaces: []string{"opendatahub"},
+			},
+			affectedCount: 0,
+			wantErr:       true,
+			errMsg:        "maxPodsAffected must be > 0",
+		},
+		{
+			name: "negative count defaults to 1",
+			spec: v1alpha1.BlastRadiusSpec{
+				MaxPodsAffected:   1,
+				AllowedNamespaces: []string{"opendatahub"},
+			},
+			affectedCount: -5,
+			wantErr:       false,
+		},
+		{
+			name: "count=0 defaults to 1 which exceeds maxPodsAffected",
+			spec: v1alpha1.BlastRadiusSpec{
+				MaxPodsAffected:   1,
+				AllowedNamespaces: []string{"opendatahub"},
+			},
+			affectedCount: 0,
+			wantErr:       false,
+		},
+		{
+			name: "explicit count=2 exceeds maxPodsAffected=1",
+			spec: v1alpha1.BlastRadiusSpec{
+				MaxPodsAffected:   1,
+				AllowedNamespaces: []string{"opendatahub"},
+			},
+			affectedCount: 2,
+			wantErr:       true,
+			errMsg:        "blast radius exceeded",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := ValidateBlastRadius(tt.spec, "opendatahub", "Deployment/test", tt.affectedCount)
+			if tt.wantErr {
+				assert.Error(t, err)
+				if tt.errMsg != "" {
+					assert.Contains(t, err.Error(), tt.errMsg)
+				}
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
 func TestCheckDangerLevel(t *testing.T) {
 	err := CheckDangerLevel(v1alpha1.DangerLevelHigh, false)
 	assert.Error(t, err)
@@ -121,4 +193,11 @@ func TestCheckDangerLevel(t *testing.T) {
 
 	err = CheckDangerLevel("", false)
 	assert.NoError(t, err)
+
+	// Low and medium danger levels should not require allowDangerous
+	err = CheckDangerLevel(v1alpha1.DangerLevelLow, false)
+	assert.NoError(t, err, "low danger level should not require allowDangerous")
+
+	err = CheckDangerLevel(v1alpha1.DangerLevelMedium, false)
+	assert.NoError(t, err, "medium danger level should not require allowDangerous")
 }

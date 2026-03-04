@@ -61,11 +61,11 @@ func newSuiteCommand() *cobra.Command {
 			}
 
 			if len(experimentFiles) == 0 {
-				fmt.Printf("No experiment files found in %s\n", dir)
+				fmt.Fprintf(os.Stderr, "No experiment files found in %s\n", dir)
 				return nil
 			}
 
-			fmt.Printf("Found %d experiments in %s\n\n", len(experimentFiles), dir)
+			fmt.Fprintf(os.Stderr, "Found %d experiments in %s\n\n", len(experimentFiles), dir)
 
 			// Build orchestrator once for all experiments (when not dry-run)
 			var deps *orchestratorDeps
@@ -107,7 +107,7 @@ func newSuiteCommand() *cobra.Command {
 			// Generate JUnit report if reportDir is specified
 			if reportDir != "" {
 				if err := writeSuiteJUnitReport(reportDir, dir, results); err != nil {
-					fmt.Printf("Warning: failed to write JUnit report: %v\n", err)
+					fmt.Fprintf(os.Stderr, "Warning: failed to write JUnit report: %v\n", err)
 				}
 			}
 
@@ -252,7 +252,7 @@ func writeSuiteJUnitReport(reportDir, suiteName string, results []suiteResult) e
 		return fmt.Errorf("writing JUnit XML: %w", err)
 	}
 
-	fmt.Printf("JUnit report written to %s\n", outPath)
+	fmt.Fprintf(os.Stderr, "JUnit report written to %s\n", outPath)
 	return nil
 }
 
