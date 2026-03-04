@@ -127,9 +127,9 @@ Run all experiments in a directory:
 
 | Type | Description | Danger |
 |------|-------------|--------|
-| PodKill | Delete pods matching selector | low |
+| PodKill | Delete pods matching a label selector | low |
 | ConfigDrift | Modify ConfigMap or Secret data | medium |
-| NetworkPartition | Block traffic via NetworkPolicy | medium |
+| NetworkPartition | Create deny-all NetworkPolicy | medium |
 | CRDMutation | Mutate a field on any Kubernetes resource | medium |
 | FinalizerBlock | Add a blocking finalizer to a resource | medium |
 | WebhookDisrupt | Change webhook failure policy | high |
@@ -139,7 +139,7 @@ Run all experiments in a directory:
 
 | Type | Description | Danger |
 |------|-------------|--------|
-| ClientThrottle | Slow down API client responses | low |
+| ClientThrottle | Add delay to K8s API calls | low |
 | APIServerError | Return errors from API calls | medium |
 | WatchDisconnect | Disconnect watch streams | medium |
 
