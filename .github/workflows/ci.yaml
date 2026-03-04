@@ -48,12 +48,8 @@ jobs:
         run: go build -o bin/odh-chaos ./cmd/odh-chaos
       - name: Validate experiment and knowledge files
         run: |
-          find knowledge -name '*.yaml' -o -name '*.yml' | while read -r f; do
-            bin/odh-chaos validate "$f" || exit 1
-          done
-          find experiments -name '*.yaml' -o -name '*.yml' | while read -r f; do
-            bin/odh-chaos validate "$f" || exit 1
-          done
+          find knowledge \( -name '*.yaml' -o -name '*.yml' \) -exec bin/odh-chaos validate {} +
+          find experiments \( -name '*.yaml' -o -name '*.yml' \) -exec bin/odh-chaos validate {} +
 
   build:
     runs-on: ubuntu-latest
