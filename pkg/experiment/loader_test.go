@@ -9,6 +9,7 @@ import (
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"sigs.k8s.io/yaml"
 )
 
 func TestLoadExperiment(t *testing.T) {
@@ -348,4 +349,134 @@ spec:
 
 	errs := Validate(exp)
 	assert.Empty(t, errs)
+}
+
+// parseExperimentBytes unmarshals YAML bytes into a ChaosExperiment, bypassing file I/O.
+func parseExperimentBytes(data []byte) (*v1alpha1.ChaosExperiment, error) {
+	var exp v1alpha1.ChaosExperiment
+	if err := yaml.UnmarshalStrict(data, &exp); err != nil {
+		return nil, err
+	}
+	return &exp, nil
+}
+
+func FuzzExperimentParse(f *testing.F) {
+	// Seed: valid experiment YAML
+	f.Add([]byte(`
+metadata:
+  name: fuzz-test
+spec:
+  target:
+    operator: op
+    component: comp
+  injection:
+    type: PodKill
+    parameters:
+      labelSelector: "app=test"
+  hypothesis:
+    description: "test"
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - default
+`))
+	// Seed: NetworkPartition injection type
+	f.Add([]byte(`
+metadata:
+  name: fuzz-netpart
+spec:
+  target:
+    operator: op
+    component: comp
+  injection:
+    type: NetworkPartition
+    parameters:
+      labelSelector: "app=test"
+  hypothesis:
+    description: "test"
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - default
+`))
+	// Seed: ConfigDrift injection type
+	f.Add([]byte(`
+metadata:
+  name: fuzz-configdrift
+spec:
+  target:
+    operator: op
+    component: comp
+  injection:
+    type: ConfigDrift
+    parameters:
+      name: my-configmap
+      key: app.conf
+      value: corrupted
+  hypothesis:
+    description: "test"
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - default
+`))
+	// Seed: WebhookDisrupt injection type
+	f.Add([]byte(`
+metadata:
+  name: fuzz-webhook
+spec:
+  target:
+    operator: op
+    component: comp
+  injection:
+    type: WebhookDisrupt
+    parameters:
+      webhookName: my-webhook
+      action: setFailurePolicy
+  hypothesis:
+    description: "test"
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - default
+`))
+	// Seed: RBACRevoke injection type
+	f.Add([]byte(`
+metadata:
+  name: fuzz-rbac
+spec:
+  target:
+    operator: op
+    component: comp
+  injection:
+    type: RBACRevoke
+    parameters:
+      bindingName: my-binding
+      bindingType: ClusterRoleBinding
+  hypothesis:
+    description: "test"
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - default
+`))
+	// Seed: empty document
+	f.Add([]byte("{}"))
+	// Seed: empty bytes
+	f.Add([]byte(""))
+	// Seed: minimal YAML
+	f.Add([]byte("metadata: {}"))
+
+	f.Fuzz(func(t *testing.T, data []byte) {
+		// Mirror the 1MB file size limit from Load() to prevent YAML bombs.
+		if len(data) > maxExperimentFileSize {
+			return
+		}
+		exp, err := parseExperimentBytes(data)
+		if err != nil {
+			return
+		}
+		// If parsing succeeded, validation must not panic
+		_ = Validate(exp)
+	})
 }

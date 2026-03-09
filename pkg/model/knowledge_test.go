@@ -8,6 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"sigs.k8s.io/yaml"
 )
 
 func TestLoadKnowledge(t *testing.T) {
@@ -67,4 +68,82 @@ func TestManagedResourceExpectedSpec(t *testing.T) {
 	deploy := comp.ManagedResources[0]
 	assert.Equal(t, "Deployment", deploy.Kind)
 	assert.NotNil(t, deploy.ExpectedSpec)
+}
+
+// parseKnowledgeBytes unmarshals YAML bytes into an OperatorKnowledge, bypassing file I/O.
+func parseKnowledgeBytes(data []byte) (*OperatorKnowledge, error) {
+	var k OperatorKnowledge
+	if err := yaml.UnmarshalStrict(data, &k); err != nil {
+		return nil, err
+	}
+	return &k, nil
+}
+
+func FuzzKnowledgeParse(f *testing.F) {
+	// Seed: valid knowledge YAML
+	f.Add([]byte(`
+operator:
+  name: test-operator
+  namespace: test-ns
+components:
+  - name: dashboard
+    controller: dashboard-controller
+    managedResources:
+      - apiVersion: apps/v1
+        kind: Deployment
+        name: odh-dashboard
+recovery:
+  reconcileTimeout: "300s"
+  maxReconcileCycles: 10
+`))
+	// Seed: knowledge with webhooks and dependencies
+	f.Add([]byte(`
+operator:
+  name: test-operator
+  namespace: test-ns
+components:
+  - name: dashboard
+    controller: dashboard-controller
+    managedResources:
+      - apiVersion: apps/v1
+        kind: Deployment
+        name: odh-dashboard
+    webhooks:
+      - name: validating.dashboard
+        type: validating
+        path: /validate
+    dependencies:
+      - model-controller
+  - name: model-controller
+    controller: kserve-controller
+    managedResources:
+      - apiVersion: apps/v1
+        kind: Deployment
+        name: odh-model-controller
+recovery:
+  reconcileTimeout: "300s"
+  maxReconcileCycles: 10
+`))
+	// Seed: empty document
+	f.Add([]byte("{}"))
+	// Seed: empty bytes
+	f.Add([]byte(""))
+	// Seed: minimal
+	f.Add([]byte("operator: {}"))
+
+	f.Fuzz(func(t *testing.T, data []byte) {
+		// Mirror the 1MB file size limit from LoadKnowledge() to prevent YAML bombs.
+		if len(data) > maxModelFileSize {
+			return
+		}
+		k, err := parseKnowledgeBytes(data)
+		if err != nil {
+			return
+		}
+		// If parsing succeeded, exercise accessors and validation without panicking
+		for i := range k.Components {
+			_ = k.GetComponent(k.Components[i].Name)
+		}
+		_ = ValidateKnowledge(k)
+	})
 }

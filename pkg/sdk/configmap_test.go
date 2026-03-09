@@ -53,3 +53,28 @@ func TestConfigMapConstants(t *testing.T) {
 	assert.Equal(t, "odh-chaos-config", ChaosConfigMapName)
 	assert.Equal(t, "config", ChaosConfigKey)
 }
+
+func FuzzParseFaultConfig(f *testing.F) {
+	// Seed: valid config JSON
+	f.Add(`{"active":true,"faults":{"get":{"errorRate":0.5,"error":"timeout"}}}`)
+	// Seed: inactive config
+	f.Add(`{"active":false}`)
+	// Seed: empty JSON object
+	f.Add("{}")
+	// Seed: empty string (triggers missing-key path)
+	f.Add("")
+	// Seed: malformed JSON
+	f.Add("not-json")
+	// Seed: JSON array
+	f.Add("[]")
+
+	f.Fuzz(func(t *testing.T, configJSON string) {
+		data := map[string]string{ChaosConfigKey: configJSON}
+		cfg, err := ParseFaultConfigFromData(data)
+		if err != nil {
+			return
+		}
+		// If parsing succeeded, exercise the config without panicking
+		_ = cfg.IsActive()
+	})
+}

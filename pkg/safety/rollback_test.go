@@ -216,3 +216,25 @@ func TestWrapRollbackData_EmptyMap(t *testing.T) {
 	require.NoError(t, UnwrapRollbackData(wrapped, &result))
 	assert.Empty(t, result)
 }
+
+func FuzzUnwrapRollbackData(f *testing.F) {
+	// Seed: valid envelope format
+	validWrapped, _ := WrapRollbackData(map[string]string{"key": "value"})
+	f.Add(validWrapped)
+	// Seed: legacy JSON format
+	f.Add(`{"resourceType":"ConfigMap","key":"app.conf"}`)
+	// Seed: empty JSON object
+	f.Add("{}")
+	// Seed: empty string
+	f.Add("")
+	// Seed: JSON array (legacy array format)
+	f.Add(`[{"kind":"ServiceAccount","name":"sa"}]`)
+	// Seed: malformed JSON
+	f.Add("{{not-json")
+
+	f.Fuzz(func(t *testing.T, raw string) {
+		var target map[string]interface{}
+		// Must not panic regardless of input
+		_ = UnwrapRollbackData(raw, &target)
+	})
+}
