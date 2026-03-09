@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -164,6 +165,12 @@ func TestHarness_RunPanic(t *testing.T) {
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "panic")
 	assert.Contains(t, err.Error(), "unexpected state")
+}
+
+func TestHarness_SetTimeout(t *testing.T) {
+	h := NewHarness(mockFactory, testScheme(), testRequest(), testConfigMap())
+	h.SetTimeout(10 * time.Second)
+	assert.Equal(t, 10*time.Second, h.timeout)
 }
 
 func TestHarness_InvariantViolation(t *testing.T) {

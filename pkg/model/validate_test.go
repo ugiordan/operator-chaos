@@ -201,6 +201,13 @@ func TestValidateKnowledge_ValidDependency(t *testing.T) {
 	}
 }
 
+func TestValidateKnowledge_SelfReferentialDependency(t *testing.T) {
+	k := validKnowledge()
+	k.Components[0].Dependencies = []string{"dashboard"}
+	errs := ValidateKnowledge(k)
+	assertContains(t, errs, `components[0].dependencies: self-referential dependency "dashboard"`)
+}
+
 func assertContains(t *testing.T, errs []string, expected string) {
 	t.Helper()
 	for _, e := range errs {

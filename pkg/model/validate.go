@@ -81,10 +81,13 @@ func ValidateKnowledge(k *OperatorKnowledge) []string {
 		}
 	}
 
-	// Validate dependency references point to known component names.
+	// Validate dependency references point to known component names
+	// and do not self-reference.
 	for i, comp := range k.Components {
 		for _, dep := range comp.Dependencies {
-			if !componentNames[dep] {
+			if dep == comp.Name {
+				errs = append(errs, fmt.Sprintf("components[%d].dependencies: self-referential dependency %q", i, dep))
+			} else if !componentNames[dep] {
 				errs = append(errs, fmt.Sprintf("components[%d].dependencies references unknown component %q", i, dep))
 			}
 		}
