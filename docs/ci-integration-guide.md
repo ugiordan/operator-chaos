@@ -10,7 +10,7 @@ This guide describes how to integrate `odh-chaos` into continuous integration pi
 |---------|--------|---------------|
 | `odh-chaos preflight --knowledge <path>` | All declared resources found and healthy | Resources missing or unreachable (`%d resources missing, %d resources could not be checked`) |
 | `odh-chaos preflight --knowledge <path> --local` | Knowledge YAML is structurally valid | Validation or cross-reference errors |
-| `odh-chaos run <experiment.yaml>` | Experiment verdict is `Resilient` | Experiment failed (`experiment failed: <err>`) |
+| `odh-chaos run <experiment.yaml>` | Experiment verdict is `Resilient` | Non-Resilient verdict (`experiment verdict: Degraded\|Failed\|Inconclusive`) or infrastructure error |
 | `odh-chaos suite <dir>` | All experiments pass | One or more experiments failed (`%d experiment(s) failed`) |
 | `odh-chaos validate <file.yaml>` | YAML is valid | Validation errors found |
 
@@ -93,6 +93,8 @@ To run a single experiment instead of a full suite:
             --timeout 5m
 ```
 
+> **Note:** The `run` command's `--report-dir` produces JSON result files, not JUnit XML. To convert to JUnit, run `odh-chaos report --format junit --output /tmp/chaos-reports /tmp/chaos-reports` afterward. The `suite` command generates JUnit XML automatically when `--report-dir` is specified.
+
 ### Dry-run validation in PRs
 
 Use `--dry-run` to validate experiment definitions without executing them:
@@ -132,9 +134,6 @@ jobs:
   chaos-gate:
     needs: deploy-staging
     runs-on: ubuntu-latest
-    container:
-      image: quay.io/opendatahub/odh-chaos:latest
-      options: --user 65532:65532
     steps:
       - uses: actions/checkout@v4
 
@@ -143,16 +142,18 @@ jobs:
           kubectl rollout status deployment/my-operator -n opendatahub --timeout=300s
 
       - name: Preflight
-        run: |
-          /odh-chaos preflight \
-            --knowledge knowledge/operator-knowledge.yaml
+        uses: docker://quay.io/opendatahub/odh-chaos:latest
+        with:
+          args: preflight --knowledge knowledge/operator-knowledge.yaml
 
       - name: Run chaos gate suite
-        run: |
-          /odh-chaos suite experiments/ \
-            --knowledge knowledge/operator-knowledge.yaml \
-            --report-dir /tmp/chaos-reports \
-            --timeout 15m \
+        uses: docker://quay.io/opendatahub/odh-chaos:latest
+        with:
+          args: >-
+            suite experiments/
+            --knowledge knowledge/operator-knowledge.yaml
+            --report-dir /tmp/chaos-reports
+            --timeout 15m
             --parallel 2
 
       - name: Upload results
@@ -279,11 +280,12 @@ spec:
       workingDir: $(workspaces.source.path)
       script: |
         #!/bin/sh
-        ARGS="preflight --knowledge $(params.knowledge-path)"
+        set -e
         if [ "$(params.local-only)" = "true" ]; then
-          ARGS="$ARGS --local"
+          /odh-chaos preflight --knowledge "$(params.knowledge-path)" --local
+        else
+          /odh-chaos preflight --knowledge "$(params.knowledge-path)"
         fi
-        /odh-chaos $ARGS
       securityContext:
         runAsUser: 65532
         runAsGroup: 65532
