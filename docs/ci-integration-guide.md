@@ -252,7 +252,7 @@ spec:
 
 ### Preflight-only Task
 
-A lightweight task for validating knowledge files without cluster access:
+A lightweight task for validating operator readiness before running experiments:
 
 ```yaml
 apiVersion: tekton.dev/v1
@@ -265,10 +265,6 @@ spec:
     - name: knowledge-path
       type: string
       description: Path to operator knowledge YAML
-    - name: local-only
-      type: string
-      default: "false"
-      description: Set to "true" to skip cluster checks
     - name: image-tag
       type: string
       default: "latest"
@@ -278,14 +274,10 @@ spec:
     - name: preflight
       image: quay.io/opendatahub/odh-chaos:$(params.image-tag)
       workingDir: $(workspaces.source.path)
-      script: |
-        #!/bin/sh
-        set -e
-        if [ "$(params.local-only)" = "true" ]; then
-          /odh-chaos preflight --knowledge "$(params.knowledge-path)" --local
-        else
-          /odh-chaos preflight --knowledge "$(params.knowledge-path)"
-        fi
+      args:
+        - preflight
+        - --knowledge
+        - $(params.knowledge-path)
       securityContext:
         runAsUser: 65532
         runAsGroup: 65532
@@ -395,7 +387,7 @@ spec:
           workspace: report-workspace
 ```
 
-> **Note:** The `publish-report` task is in the `finally` block so it runs even when the suite fails. The `suite` command writes JUnit XML to `--report-dir` *before* returning a non-zero exit, so the report file exists in the workspace regardless of the outcome. The `publish-report` task is only needed if you want to regenerate reports from raw JSON files.
+> **Note:** The `publish-report` task is in the `finally` block so it runs even when the suite fails. The `suite` command writes JUnit XML to `--report-dir` *before* returning a non-zero exit on experiment failures, so the report file exists in the workspace when experiments were executed. If the suite fails during setup (e.g., bad kubeconfig), no report is generated. The `publish-report` task is only needed if you want to regenerate reports from raw JSON files.
 
 ### Report Generation Task
 
