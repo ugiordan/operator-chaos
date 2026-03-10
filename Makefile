@@ -33,7 +33,7 @@ install: build
 	cp bin/$(BINARY) $(GOPATH)/bin/
 
 container-build:
-	$(CONTAINER_TOOL) build --build-arg VERSION=$(VERSION) -t $(IMAGE) -f Containerfile .
+	$(CONTAINER_TOOL) build --build-arg VERSION=$(VERSION) --build-arg TARGETARCH=$(shell go env GOARCH) -t $(IMAGE) -f Containerfile .
 
-container-push: container-build
+container-push:
 	$(CONTAINER_TOOL) push $(IMAGE)
