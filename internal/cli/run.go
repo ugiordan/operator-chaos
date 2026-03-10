@@ -67,7 +67,17 @@ func newRunCommand() *cobra.Command {
 			// Print summary
 			printExperimentResult(result)
 
-			return nil
+			// Exit non-zero for non-Resilient verdicts so CI pipelines can gate on results
+			switch result.Verdict {
+			case v1alpha1.Resilient:
+				return nil
+			case v1alpha1.Degraded, v1alpha1.Failed:
+				return fmt.Errorf("experiment verdict: %s", result.Verdict)
+			case v1alpha1.Inconclusive:
+				return fmt.Errorf("experiment verdict: Inconclusive")
+			default:
+				return fmt.Errorf("experiment verdict: %s", result.Verdict)
+			}
 		},
 	}
 
