@@ -346,3 +346,207 @@ func TestValidateInjectionParams_RBACRevokeInvalidBindingType(t *testing.T) {
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "bindingType must be")
 }
+
+func TestValidateInjectionParams_ClientFault_Valid(t *testing.T) {
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.ClientFault,
+		Parameters: map[string]string{
+			"faults": `{"get":{"errorRate":0.3,"error":"throttled"}}`,
+		},
+	}
+	blast := v1alpha1.BlastRadiusSpec{
+		MaxPodsAffected:   1,
+		AllowedNamespaces: []string{"test"},
+	}
+	err := ValidateInjectionParams(spec, blast)
+	assert.NoError(t, err)
+}
+
+func TestValidateInjectionParams_ClientFault_MissingFaults(t *testing.T) {
+	spec := v1alpha1.InjectionSpec{
+		Type:       v1alpha1.ClientFault,
+		Parameters: map[string]string{},
+	}
+	blast := v1alpha1.BlastRadiusSpec{
+		MaxPodsAffected:   1,
+		AllowedNamespaces: []string{"test"},
+	}
+	err := ValidateInjectionParams(spec, blast)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "faults")
+}
+
+func TestValidateInjectionParams_ClientFault_InvalidJSON(t *testing.T) {
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.ClientFault,
+		Parameters: map[string]string{
+			"faults": `{not valid json}`,
+		},
+	}
+	blast := v1alpha1.BlastRadiusSpec{
+		MaxPodsAffected:   1,
+		AllowedNamespaces: []string{"test"},
+	}
+	err := ValidateInjectionParams(spec, blast)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "parsing")
+}
+
+func TestValidateInjectionParams_ClientFault_InvalidOperation(t *testing.T) {
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.ClientFault,
+		Parameters: map[string]string{
+			"faults": `{"foobar":{"errorRate":0.5,"error":"bad"}}`,
+		},
+	}
+	blast := v1alpha1.BlastRadiusSpec{
+		MaxPodsAffected:   1,
+		AllowedNamespaces: []string{"test"},
+	}
+	err := ValidateInjectionParams(spec, blast)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "foobar")
+}
+
+func TestValidateInjectionParams_ClientFault_InvalidErrorRate(t *testing.T) {
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.ClientFault,
+		Parameters: map[string]string{
+			"faults": `{"get":{"errorRate":1.5,"error":"too high"}}`,
+		},
+	}
+	blast := v1alpha1.BlastRadiusSpec{
+		MaxPodsAffected:   1,
+		AllowedNamespaces: []string{"test"},
+	}
+	err := ValidateInjectionParams(spec, blast)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "errorRate")
+}
+
+func TestValidateInjectionParams_ClientFault_EmptyFaults(t *testing.T) {
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.ClientFault,
+		Parameters: map[string]string{
+			"faults": `{}`,
+		},
+	}
+	blast := v1alpha1.BlastRadiusSpec{
+		MaxPodsAffected:   1,
+		AllowedNamespaces: []string{"test"},
+	}
+	err := ValidateInjectionParams(spec, blast)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "at least one")
+}
+
+func TestValidateInjectionParams_ClientFault_NegativeErrorRate(t *testing.T) {
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.ClientFault,
+		Parameters: map[string]string{
+			"faults": `{"get":{"errorRate":-0.5,"error":"negative"}}`,
+		},
+	}
+	blast := v1alpha1.BlastRadiusSpec{
+		MaxPodsAffected:   1,
+		AllowedNamespaces: []string{"test"},
+	}
+	err := ValidateInjectionParams(spec, blast)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "errorRate")
+}
+
+func TestValidateInjectionParams_ClientFault_ZeroErrorRate(t *testing.T) {
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.ClientFault,
+		Parameters: map[string]string{
+			"faults": `{"get":{"errorRate":0.0,"error":"no errors"}}`,
+		},
+	}
+	blast := v1alpha1.BlastRadiusSpec{
+		MaxPodsAffected:   1,
+		AllowedNamespaces: []string{"test"},
+	}
+	err := ValidateInjectionParams(spec, blast)
+	assert.NoError(t, err)
+}
+
+func TestValidateInjectionParams_ClientFault_MaxErrorRate(t *testing.T) {
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.ClientFault,
+		Parameters: map[string]string{
+			"faults": `{"get":{"errorRate":1.0,"error":"always fail"}}`,
+		},
+	}
+	blast := v1alpha1.BlastRadiusSpec{
+		MaxPodsAffected:   1,
+		AllowedNamespaces: []string{"test"},
+	}
+	err := ValidateInjectionParams(spec, blast)
+	assert.NoError(t, err)
+}
+
+func TestValidateInjectionParams_ClientFault_InvalidConfigMapName(t *testing.T) {
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.ClientFault,
+		Parameters: map[string]string{
+			"faults":        `{"get":{"errorRate":0.5,"error":"test"}}`,
+			"configMapName": "INVALID NAME!",
+		},
+	}
+	blast := v1alpha1.BlastRadiusSpec{
+		MaxPodsAffected:   1,
+		AllowedNamespaces: []string{"test"},
+	}
+	err := ValidateInjectionParams(spec, blast)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "configMapName")
+}
+
+func TestValidateInjectionParams_ClientFault_ConfigMapNameMissingPrefix(t *testing.T) {
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.ClientFault,
+		Parameters: map[string]string{
+			"faults":        `{"get":{"errorRate":0.5,"error":"test"}}`,
+			"configMapName": "my-custom-config",
+		},
+	}
+	blast := v1alpha1.BlastRadiusSpec{
+		MaxPodsAffected:   1,
+		AllowedNamespaces: []string{"test"},
+	}
+	err := ValidateInjectionParams(spec, blast)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "odh-chaos-")
+}
+
+func TestValidateInjectionParams_ClientFault_ValidDelay(t *testing.T) {
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.ClientFault,
+		Parameters: map[string]string{
+			"faults": `{"get":{"errorRate":0.3,"error":"slow","delay":"500ms","maxDelay":"2s"}}`,
+		},
+	}
+	blast := v1alpha1.BlastRadiusSpec{
+		MaxPodsAffected:   1,
+		AllowedNamespaces: []string{"test"},
+	}
+	err := ValidateInjectionParams(spec, blast)
+	assert.NoError(t, err)
+}
+
+func TestValidateInjectionParams_ClientFault_InvalidDelay(t *testing.T) {
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.ClientFault,
+		Parameters: map[string]string{
+			"faults": `{"get":{"errorRate":0.3,"error":"slow","delay":"not-a-duration"}}`,
+		},
+	}
+	blast := v1alpha1.BlastRadiusSpec{
+		MaxPodsAffected:   1,
+		AllowedNamespaces: []string{"test"},
+	}
+	err := ValidateInjectionParams(spec, blast)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "delay")
+}

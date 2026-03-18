@@ -1,0 +1,36 @@
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: odh-model-controller-sdk-conflict-storm
+spec:
+  target:
+    operator: odh-model-controller
+    component: odh-model-controller
+    resource: Deployment/odh-model-controller
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: odh-model-controller
+        namespace: opendatahub
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: ClientFault
+    dangerLevel: high
+    parameters:
+      faults: '{"update":{"errorRate":0.7,"error":"conflict: the object has been modified"},"patch":{"errorRate":0.5,"error":"conflict: the object has been modified"}}'
+    ttl: "120s"
+  hypothesis:
+    description: >-
+      When 70% of Update and 50% of Patch operations fail with conflict
+      errors, the controller should handle optimistic concurrency failures
+      gracefully, re-read the resource, and retry. The controller must not
+      enter an infinite retry loop or leak goroutines.
+    recoveryTimeout: 180s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - opendatahub
+    allowDangerous: true

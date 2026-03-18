@@ -1,8 +1,11 @@
 package injection
 
 import (
+	"encoding/json"
 	"fmt"
 	"regexp"
+	"strings"
+	"time"
 
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -65,6 +68,8 @@ func ValidateInjectionParams(spec v1alpha1.InjectionSpec, blast v1alpha1.BlastRa
 		return validateRBACRevokeParams(spec)
 	case v1alpha1.FinalizerBlock:
 		return validateFinalizerBlockParams(spec)
+	case v1alpha1.ClientFault:
+		return validateClientFaultParams(spec)
 	}
 	return nil
 }
@@ -179,6 +184,64 @@ func validateFinalizerBlockParams(spec v1alpha1.InjectionSpec) error {
 	if err := validateK8sName("name", spec.Parameters["name"]); err != nil {
 		return err
 	}
+	return nil
+}
+
+// validClientFaultOperations lists all SDK operations that can be fault-injected.
+var validClientFaultOperations = map[string]bool{
+	"get": true, "list": true, "create": true, "update": true,
+	"delete": true, "patch": true, "deleteAllOf": true,
+	"reconcile": true, "apply": true,
+}
+
+func validateClientFaultParams(spec v1alpha1.InjectionSpec) error {
+	faultsJSON, ok := spec.Parameters["faults"]
+	if !ok || faultsJSON == "" {
+		return fmt.Errorf("ClientFault requires 'faults' parameter (JSON map of operation to fault spec)")
+	}
+
+	var faults map[string]struct {
+		ErrorRate float64 `json:"errorRate"`
+		Error     string  `json:"error"`
+		Delay     string  `json:"delay,omitempty"`
+		MaxDelay  string  `json:"maxDelay,omitempty"`
+	}
+	if err := json.Unmarshal([]byte(faultsJSON), &faults); err != nil {
+		return fmt.Errorf("ClientFault: error parsing 'faults' parameter: %w", err)
+	}
+
+	if len(faults) == 0 {
+		return fmt.Errorf("ClientFault 'faults' must contain at least one operation entry")
+	}
+
+	for op, spec := range faults {
+		if !validClientFaultOperations[op] {
+			return fmt.Errorf("ClientFault: unknown operation %q; valid operations: get, list, create, update, delete, patch, deleteAllOf, reconcile, apply", op)
+		}
+		if spec.ErrorRate < 0 || spec.ErrorRate > 1 {
+			return fmt.Errorf("ClientFault: operation %q errorRate must be in [0.0, 1.0], got %f", op, spec.ErrorRate)
+		}
+		if spec.Delay != "" {
+			if _, err := time.ParseDuration(spec.Delay); err != nil {
+				return fmt.Errorf("ClientFault: operation %q has invalid delay %q: %w", op, spec.Delay, err)
+			}
+		}
+		if spec.MaxDelay != "" {
+			if _, err := time.ParseDuration(spec.MaxDelay); err != nil {
+				return fmt.Errorf("ClientFault: operation %q has invalid maxDelay %q: %w", op, spec.MaxDelay, err)
+			}
+		}
+	}
+
+	if name := spec.Parameters["configMapName"]; name != "" {
+		if err := validateK8sName("configMapName", name); err != nil {
+			return err
+		}
+		if !strings.HasPrefix(name, "odh-chaos-") {
+			return fmt.Errorf("ClientFault configMapName must start with 'odh-chaos-' prefix, got %q", name)
+		}
+	}
+
 	return nil
 }
 

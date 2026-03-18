@@ -68,6 +68,7 @@ func buildOrchestrator(knowledgePath string, dryRun bool, reportDir string, dist
 		registry.Register(v1alpha1.WebhookDisrupt, injection.NewWebhookDisruptInjector(k8sClient))
 		registry.Register(v1alpha1.RBACRevoke, injection.NewRBACRevokeInjector(k8sClient))
 		registry.Register(v1alpha1.FinalizerBlock, injection.NewFinalizerBlockInjector(k8sClient))
+		registry.Register(v1alpha1.ClientFault, injection.NewClientFaultInjector(k8sClient))
 	}
 
 	// Build orchestrator config

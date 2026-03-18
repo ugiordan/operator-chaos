@@ -76,7 +76,7 @@ func TestChaosExperimentLoadFromFile(t *testing.T) {
 func TestInjectionTypes(t *testing.T) {
 	types := []InjectionType{
 		PodKill, NetworkPartition, CRDMutation, ConfigDrift,
-		WebhookDisrupt, RBACRevoke, FinalizerBlock,
+		WebhookDisrupt, RBACRevoke, FinalizerBlock, ClientFault,
 	}
 	for _, it := range types {
 		assert.NotEmpty(t, string(it))
@@ -95,6 +95,11 @@ func TestValidateInjectionType_ValidType(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestValidateInjectionType_ClientFault(t *testing.T) {
+	err := ValidateInjectionType(ClientFault)
+	assert.NoError(t, err)
+}
+
 func TestValidateInjectionType_EmptyString(t *testing.T) {
 	err := ValidateInjectionType("")
 	assert.Error(t, err)
@@ -109,7 +114,7 @@ func TestValidateInjectionType_Typo(t *testing.T) {
 
 func TestValidInjectionTypes_Count(t *testing.T) {
 	types := ValidInjectionTypes()
-	assert.Len(t, types, 7)
+	assert.Len(t, types, 8)
 }
 
 func TestValidInjectionTypes_Sorted(t *testing.T) {

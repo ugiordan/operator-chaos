@@ -121,6 +121,7 @@ const (
 	WebhookDisrupt   InjectionType = "WebhookDisrupt"
 	RBACRevoke       InjectionType = "RBACRevoke"
 	FinalizerBlock   InjectionType = "FinalizerBlock"
+	ClientFault      InjectionType = "ClientFault"
 )
 
 var validInjectionTypes = map[InjectionType]bool{
@@ -131,6 +132,7 @@ var validInjectionTypes = map[InjectionType]bool{
 	WebhookDisrupt:   true,
 	RBACRevoke:       true,
 	FinalizerBlock:   true,
+	ClientFault:      true,
 }
 
 func ValidInjectionTypes() []InjectionType {
