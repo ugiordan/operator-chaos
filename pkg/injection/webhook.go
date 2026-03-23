@@ -7,6 +7,7 @@ import (
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
 	"github.com/opendatahub-io/odh-platform-chaos/pkg/safety"
 	admissionv1 "k8s.io/api/admissionregistration/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -89,33 +90,54 @@ func (w *WebhookDisruptInjector) Inject(ctx context.Context, spec v1alpha1.Injec
 			}),
 	}
 
-	// Cleanup restores original failure policies and removes rollback metadata
+	// Cleanup uses the Revert method to restore from annotation data,
+	// avoiding stale closure variables if the webhook is externally modified.
 	cleanup := func(ctx context.Context) error {
-		// Re-fetch to get current state
-		current := &admissionv1.ValidatingWebhookConfiguration{}
-		if err := w.client.Get(ctx, client.ObjectKey{Name: webhookName}, current); err != nil {
-			return fmt.Errorf("re-fetching ValidatingWebhookConfiguration %q for cleanup: %w", webhookName, err)
-		}
-
-		// Restore original failure policies
-		for i, wh := range current.Webhooks {
-			if policyStr, ok := originalPolicies[wh.Name]; ok {
-				if policyStr == "" {
-					current.Webhooks[i].FailurePolicy = nil
-				} else {
-					p := admissionv1.FailurePolicyType(policyStr)
-					current.Webhooks[i].FailurePolicy = &p
-				}
-			}
-		}
-
-		// Remove rollback annotation and chaos labels
-		safety.RemoveChaosMetadata(current, string(v1alpha1.WebhookDisrupt))
-
-		return w.client.Update(ctx, current)
+		return w.Revert(ctx, spec, namespace)
 	}
 
 	return cleanup, events, nil
+}
+
+// Revert restores the original failure policies on the ValidatingWebhookConfiguration.
+// It is idempotent: if no rollback annotation is present, it returns nil.
+func (w *WebhookDisruptInjector) Revert(ctx context.Context, spec v1alpha1.InjectionSpec, namespace string) error {
+	webhookName := spec.Parameters["webhookName"]
+
+	webhookConfig := &admissionv1.ValidatingWebhookConfiguration{}
+	if err := w.client.Get(ctx, client.ObjectKey{Name: webhookName}, webhookConfig); err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil
+		}
+		return fmt.Errorf("getting ValidatingWebhookConfiguration %q for revert: %w", webhookName, err)
+	}
+
+	// Check for rollback annotation — if absent, already reverted
+	rollbackStr, ok := webhookConfig.GetAnnotations()[safety.RollbackAnnotationKey]
+	if !ok {
+		return nil
+	}
+
+	var originalPolicies map[string]string
+	if err := safety.UnwrapRollbackData(rollbackStr, &originalPolicies); err != nil {
+		return fmt.Errorf("unwrapping rollback data for ValidatingWebhookConfiguration %q: %w", webhookName, err)
+	}
+
+	// Restore original failure policies
+	for i, wh := range webhookConfig.Webhooks {
+		if policyStr, ok := originalPolicies[wh.Name]; ok {
+			if policyStr == "" {
+				webhookConfig.Webhooks[i].FailurePolicy = nil
+			} else {
+				p := admissionv1.FailurePolicyType(policyStr)
+				webhookConfig.Webhooks[i].FailurePolicy = &p
+			}
+		}
+	}
+
+	safety.RemoveChaosMetadata(webhookConfig, string(v1alpha1.WebhookDisrupt))
+
+	return w.client.Update(ctx, webhookConfig)
 }
 
 // parseFailurePolicy converts a string to an admissionv1.FailurePolicyType.

@@ -9,13 +9,14 @@ import (
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/yaml"
 )
 
 func TestLoadExperiment(t *testing.T) {
 	exp, err := Load("../../testdata/experiments/valid-experiment.yaml")
 	require.NoError(t, err)
-	assert.Equal(t, "dashboard-pod-kill-recovery", exp.Metadata.Name)
+	assert.Equal(t, "dashboard-pod-kill-recovery", exp.Name)
 }
 
 func TestLoadExperimentFileNotFound(t *testing.T) {
@@ -58,17 +59,18 @@ func TestValidateBlastRadius(t *testing.T) {
 	errs := Validate(exp)
 	assert.Empty(t, errs)
 
-	// Invalid: no allowed namespaces
+	// AllowedNamespaces validated at orchestrator level (injection-type-aware),
+	// not at loader level. Empty is valid for cluster-scoped injections.
 	exp.Spec.BlastRadius.AllowedNamespaces = nil
 	errs = Validate(exp)
-	assert.NotEmpty(t, errs)
+	assert.Empty(t, errs)
 }
 
 // --- New comprehensive validation tests ---
 
 func validExperiment() *v1alpha1.ChaosExperiment {
 	return &v1alpha1.ChaosExperiment{
-		Metadata: v1alpha1.Metadata{
+		ObjectMeta: metav1.ObjectMeta{
 			Name: "test-experiment",
 		},
 		Spec: v1alpha1.ChaosExperimentSpec{
@@ -101,7 +103,7 @@ func TestValidate_ValidExperiment(t *testing.T) {
 
 func TestValidate_MissingName(t *testing.T) {
 	exp := validExperiment()
-	exp.Metadata.Name = ""
+	exp.Name = ""
 	errs := Validate(exp)
 	assert.Contains(t, errs, "metadata.name is required")
 }
@@ -134,20 +136,6 @@ func TestValidate_MissingHypothesis(t *testing.T) {
 	assert.Contains(t, errs, "spec.hypothesis.description is required")
 }
 
-func TestValidate_MissingAllowedNamespaces(t *testing.T) {
-	exp := validExperiment()
-	exp.Spec.BlastRadius.AllowedNamespaces = nil
-	errs := Validate(exp)
-	assert.Contains(t, errs, "spec.blastRadius.allowedNamespaces must not be empty")
-}
-
-func TestValidate_EmptyAllowedNamespaces(t *testing.T) {
-	exp := validExperiment()
-	exp.Spec.BlastRadius.AllowedNamespaces = []string{}
-	errs := Validate(exp)
-	assert.Contains(t, errs, "spec.blastRadius.allowedNamespaces must not be empty")
-}
-
 func TestValidate_MultipleErrors(t *testing.T) {
 	exp := &v1alpha1.ChaosExperiment{}
 	errs := Validate(exp)
@@ -157,16 +145,17 @@ func TestValidate_MultipleErrors(t *testing.T) {
 	assert.Contains(t, errs, "spec.target.component is required")
 	assert.Contains(t, errs, "spec.injection.type is required")
 	assert.Contains(t, errs, "spec.hypothesis.description is required")
-	assert.Contains(t, errs, "spec.blastRadius.allowedNamespaces must not be empty")
 	assert.Contains(t, errs, "spec.blastRadius.maxPodsAffected must be greater than 0")
-	assert.Len(t, errs, 7, "should report exactly 7 validation errors")
+	assert.Len(t, errs, 6, "should report exactly 6 validation errors")
 }
 
 func TestValidate_ValidWithAllFields(t *testing.T) {
 	exp := &v1alpha1.ChaosExperiment{
-		APIVersion: "chaos.opendatahub.io/v1alpha1",
-		Kind:       "ChaosExperiment",
-		Metadata: v1alpha1.Metadata{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "chaos.opendatahub.io/v1alpha1",
+			Kind:       "ChaosExperiment",
+		},
+		ObjectMeta: metav1.ObjectMeta{
 			Name:      "full-experiment",
 			Namespace: "chaos-ns",
 			Labels: map[string]string{
@@ -243,7 +232,7 @@ func TestLoad_EmptyFile(t *testing.T) {
 	// The experiment loads successfully but validation should catch all missing fields
 	errs := Validate(exp)
 	assert.NotEmpty(t, errs, "empty experiment should fail validation")
-	assert.Len(t, errs, 7, "should report all missing required fields")
+	assert.Len(t, errs, 6, "should report all missing required fields")
 }
 
 func TestValidate_UnknownInjectionType(t *testing.T) {
@@ -340,7 +329,7 @@ spec:
 
 	exp, err := Load(path)
 	require.NoError(t, err)
-	assert.Equal(t, "inline-test", exp.Metadata.Name)
+	assert.Equal(t, "inline-test", exp.Name)
 	assert.Equal(t, "my-operator", exp.Spec.Target.Operator)
 	assert.Equal(t, "my-component", exp.Spec.Target.Component)
 	assert.Equal(t, v1alpha1.InjectionType("PodKill"), exp.Spec.Injection.Type)

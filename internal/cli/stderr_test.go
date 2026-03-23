@@ -30,20 +30,20 @@ func TestWarningsGoToStderr_RunCleanNilClient(t *testing.T) {
 	summary := runClean(ctx, nil, "default")
 
 	// Restore stderr/stdout before reading
-	w.Close()
-	wOut.Close()
+	_ = w.Close()
+	_ = wOut.Close()
 	os.Stderr = oldStderr
 	os.Stdout = oldStdout
 
 	var stderrBuf bytes.Buffer
 	_, err = stderrBuf.ReadFrom(r)
 	require.NoError(t, err)
-	r.Close()
+	_ = r.Close()
 
 	var stdoutBuf bytes.Buffer
 	_, err = stdoutBuf.ReadFrom(rOut)
 	require.NoError(t, err)
-	rOut.Close()
+	_ = rOut.Close()
 
 	assert.Equal(t, 0, summary.total(), "nil client should return zero summary")
 

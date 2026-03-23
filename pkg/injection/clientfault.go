@@ -10,7 +10,7 @@ import (
 	"github.com/opendatahub-io/odh-platform-chaos/pkg/safety"
 	"github.com/opendatahub-io/odh-platform-chaos/pkg/sdk"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -59,7 +59,7 @@ func (s *ClientFaultInjector) Inject(ctx context.Context, spec v1alpha1.Injectio
 	existed := false
 
 	if err := s.client.Get(ctx, key, existing); err != nil {
-		if !errors.IsNotFound(err) {
+		if !apierrors.IsNotFound(err) {
 			return nil, nil, fmt.Errorf("getting ConfigMap %s: %w", key, err)
 		}
 	} else {
@@ -72,6 +72,9 @@ func (s *ClientFaultInjector) Inject(ctx context.Context, spec v1alpha1.Injectio
 
 	if existed {
 		// Update existing ConfigMap
+		if existing.Data == nil {
+			existing.Data = make(map[string]string)
+		}
 		existing.Data[sdk.ChaosConfigKey] = string(configJSON)
 		rollbackStr, err := safety.WrapRollbackData(originalData)
 		if err != nil {
@@ -92,7 +95,11 @@ func (s *ClientFaultInjector) Inject(ctx context.Context, spec v1alpha1.Injectio
 				sdk.ChaosConfigKey: string(configJSON),
 			},
 		}
-		safety.ApplyChaosMetadata(cm, "", string(v1alpha1.ClientFault))
+		createdByChaosMarker, err := safety.WrapRollbackData(map[string]string{"chaos.opendatahub.io/created": "true"})
+		if err != nil {
+			return nil, nil, fmt.Errorf("serializing chaos marker: %w", err)
+		}
+		safety.ApplyChaosMetadata(cm, createdByChaosMarker, string(v1alpha1.ClientFault))
 		if err := s.client.Create(ctx, cm); err != nil {
 			return nil, nil, fmt.Errorf("creating ConfigMap %s: %w", key, err)
 		}
@@ -108,7 +115,7 @@ func (s *ClientFaultInjector) Inject(ctx context.Context, spec v1alpha1.Injectio
 					Namespace: namespace,
 				},
 			}
-			if err := s.client.Delete(ctx, cm); err != nil && !errors.IsNotFound(err) {
+			if err := s.client.Delete(ctx, cm); err != nil && !apierrors.IsNotFound(err) {
 				return fmt.Errorf("deleting ConfigMap %s: %w", key, err)
 			}
 			return nil
@@ -117,7 +124,7 @@ func (s *ClientFaultInjector) Inject(ctx context.Context, spec v1alpha1.Injectio
 		// Restore original ConfigMap data
 		cm := &corev1.ConfigMap{}
 		if err := s.client.Get(ctx, key, cm); err != nil {
-			if errors.IsNotFound(err) {
+			if apierrors.IsNotFound(err) {
 				return nil // CM was deleted externally, nothing to restore
 			}
 			return fmt.Errorf("getting ConfigMap %s for restore: %w", key, err)
@@ -136,6 +143,57 @@ func (s *ClientFaultInjector) Inject(ctx context.Context, spec v1alpha1.Injectio
 	}
 
 	return cleanup, events, nil
+}
+
+// Revert restores the original ConfigMap state or deletes the ConfigMap if it was
+// created by the injection. It is idempotent: if no rollback annotation is present
+// or the ConfigMap is gone, it returns nil.
+func (s *ClientFaultInjector) Revert(ctx context.Context, spec v1alpha1.InjectionSpec, namespace string) error {
+	cmName := spec.Parameters["configMapName"]
+	if cmName == "" {
+		cmName = sdk.ChaosConfigMapName
+	}
+
+	key := types.NamespacedName{Name: cmName, Namespace: namespace}
+
+	cm := &corev1.ConfigMap{}
+	if err := s.client.Get(ctx, key, cm); err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil // already gone
+		}
+		return fmt.Errorf("getting ConfigMap %s for revert: %w", key, err)
+	}
+
+	// Check for rollback annotation
+	rollbackStr, ok := cm.GetAnnotations()[safety.RollbackAnnotationKey]
+	if !ok {
+		return nil // no chaos metadata, already reverted
+	}
+
+	if rollbackStr == "" {
+		// No rollback data — nothing to do (idempotent).
+		return nil
+	}
+
+	// Try to unwrap rollback data to determine if CM was created by chaos or pre-existed
+	var rollbackMap map[string]string
+	if err := safety.UnwrapRollbackData(rollbackStr, &rollbackMap); err != nil {
+		return fmt.Errorf("unwrapping rollback data for ConfigMap %s: %w", key, err)
+	}
+
+	// If the marker indicates the CM was created by chaos, delete it
+	if rollbackMap["chaos.opendatahub.io/created"] == "true" {
+		if err := s.client.Delete(ctx, cm); err != nil && !apierrors.IsNotFound(err) {
+			return fmt.Errorf("deleting ConfigMap %s during revert: %w", key, err)
+		}
+		return nil
+	}
+
+	// Non-marker rollback data means the ConfigMap existed before — restore original data
+	cm.Data = rollbackMap
+	safety.RemoveChaosMetadata(cm, string(v1alpha1.ClientFault))
+
+	return s.client.Update(ctx, cm)
 }
 
 // clientFaultSpec mirrors sdk.FaultSpec for JSON marshaling without time.Duration issues.

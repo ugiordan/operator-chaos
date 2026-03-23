@@ -2,6 +2,7 @@ package observer
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
@@ -10,7 +11,9 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
+	"sigs.k8s.io/controller-runtime/pkg/client/interceptor"
 )
 
 func TestNewKubernetesObserver(t *testing.T) {
@@ -23,8 +26,8 @@ func TestCheckSteadyState_EmptyChecks(t *testing.T) {
 	result, err := obs.CheckSteadyState(context.Background(), nil, "test")
 	require.NoError(t, err)
 	assert.True(t, result.Passed, "no checks means all passed")
-	assert.Equal(t, 0, result.ChecksRun)
-	assert.Equal(t, 0, result.ChecksPassed)
+	assert.Equal(t, int32(0), result.ChecksRun)
+	assert.Equal(t, int32(0), result.ChecksPassed)
 	assert.Empty(t, result.Details)
 }
 
@@ -88,8 +91,8 @@ func TestCheckSteadyState_ConditionTrue_Passed(t *testing.T) {
 	result, err := obs.CheckSteadyState(context.Background(), checks, "default")
 	require.NoError(t, err)
 	assert.True(t, result.Passed)
-	assert.Equal(t, 1, result.ChecksRun)
-	assert.Equal(t, 1, result.ChecksPassed)
+	assert.Equal(t, int32(1), result.ChecksRun)
+	assert.Equal(t, int32(1), result.ChecksPassed)
 	require.Len(t, result.Details, 1)
 	assert.True(t, result.Details[0].Passed)
 	assert.Equal(t, "Available=True", result.Details[0].Value)
@@ -114,8 +117,8 @@ func TestCheckSteadyState_ConditionTrue_Failed(t *testing.T) {
 	result, err := obs.CheckSteadyState(context.Background(), checks, "default")
 	require.NoError(t, err)
 	assert.False(t, result.Passed)
-	assert.Equal(t, 1, result.ChecksRun)
-	assert.Equal(t, 0, result.ChecksPassed)
+	assert.Equal(t, int32(1), result.ChecksRun)
+	assert.Equal(t, int32(0), result.ChecksPassed)
 	require.Len(t, result.Details, 1)
 	assert.False(t, result.Details[0].Passed)
 	assert.Equal(t, "Available=False", result.Details[0].Value)
@@ -209,8 +212,8 @@ func TestCheckSteadyState_ResourceExists_Exists(t *testing.T) {
 	result, err := obs.CheckSteadyState(context.Background(), checks, "default")
 	require.NoError(t, err)
 	assert.True(t, result.Passed)
-	assert.Equal(t, 1, result.ChecksRun)
-	assert.Equal(t, 1, result.ChecksPassed)
+	assert.Equal(t, int32(1), result.ChecksRun)
+	assert.Equal(t, int32(1), result.ChecksPassed)
 	require.Len(t, result.Details, 1)
 	assert.True(t, result.Details[0].Passed)
 }
@@ -231,8 +234,8 @@ func TestCheckSteadyState_ResourceExists_NotFound(t *testing.T) {
 	result, err := obs.CheckSteadyState(context.Background(), checks, "default")
 	require.NoError(t, err)
 	assert.False(t, result.Passed)
-	assert.Equal(t, 1, result.ChecksRun)
-	assert.Equal(t, 0, result.ChecksPassed)
+	assert.Equal(t, int32(1), result.ChecksRun)
+	assert.Equal(t, int32(0), result.ChecksPassed)
 	require.Len(t, result.Details, 1)
 	assert.False(t, result.Details[0].Passed)
 }
@@ -294,8 +297,8 @@ func TestCheckSteadyState_MixedChecks(t *testing.T) {
 	result, err := obs.CheckSteadyState(context.Background(), checks, "default")
 	require.NoError(t, err)
 	assert.False(t, result.Passed, "overall should fail because one check failed")
-	assert.Equal(t, 3, result.ChecksRun)
-	assert.Equal(t, 2, result.ChecksPassed)
+	assert.Equal(t, int32(3), result.ChecksRun)
+	assert.Equal(t, int32(2), result.ChecksPassed)
 	require.Len(t, result.Details, 3)
 	assert.True(t, result.Details[0].Passed)
 	assert.True(t, result.Details[1].Passed)
@@ -321,7 +324,7 @@ func TestCheckSteadyState_NamespaceFallback(t *testing.T) {
 	result, err := obs.CheckSteadyState(context.Background(), checks, "fallback-ns")
 	require.NoError(t, err)
 	assert.True(t, result.Passed, "should find resource using fallback namespace")
-	assert.Equal(t, 1, result.ChecksPassed)
+	assert.Equal(t, int32(1), result.ChecksPassed)
 }
 
 func TestCheckSteadyState_NamespaceFallback_ResourceExists(t *testing.T) {
@@ -369,6 +372,38 @@ func TestCheckSteadyState_AllChecksPassed(t *testing.T) {
 	result, err := obs.CheckSteadyState(context.Background(), checks, "default")
 	require.NoError(t, err)
 	assert.True(t, result.Passed)
-	assert.Equal(t, 2, result.ChecksRun)
-	assert.Equal(t, 2, result.ChecksPassed)
+	assert.Equal(t, int32(2), result.ChecksRun)
+	assert.Equal(t, int32(2), result.ChecksPassed)
+}
+
+func TestCheckSteadyState_ResourceExists_NonNotFoundError(t *testing.T) {
+	// Use an interceptor to return a non-NotFound error (simulating RBAC denied).
+	scheme := runtime.NewScheme()
+	fakeClient := fake.NewClientBuilder().
+		WithScheme(scheme).
+		WithInterceptorFuncs(interceptor.Funcs{
+			Get: func(ctx context.Context, client client.WithWatch, key client.ObjectKey, obj client.Object, opts ...client.GetOption) error {
+				return fmt.Errorf("forbidden: user cannot get deployments")
+			},
+		}).
+		Build()
+	obs := NewKubernetesObserver(fakeClient)
+
+	checks := []v1alpha1.SteadyStateCheck{
+		{
+			Type:       v1alpha1.CheckResourceExists,
+			APIVersion: "apps/v1",
+			Kind:       "Deployment",
+			Name:       "test-deploy",
+			Namespace:  "test-ns",
+		},
+	}
+
+	result, err := obs.CheckSteadyState(context.Background(), checks, "default")
+	require.NoError(t, err) // CheckSteadyState wraps check errors in details, not top-level
+	assert.False(t, result.Passed)
+	require.Len(t, result.Details, 1)
+	assert.False(t, result.Details[0].Passed)
+	assert.NotEmpty(t, result.Details[0].Error, "non-NotFound errors should be surfaced in Error field")
+	assert.Contains(t, result.Details[0].Error, "checking")
 }

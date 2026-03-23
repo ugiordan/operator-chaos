@@ -375,7 +375,7 @@ spec:
     timeout: string
   blastRadius:
     maxPodsAffected: int    # required: must be > 0
-    allowedNamespaces: []   # required: must not be empty
+    allowedNamespaces: []   # required for namespace-scoped injections; omit for cluster-scoped
     forbiddenResources: []  # optional: resources that must not be touched
     allowDangerous: bool    # optional: allow high-danger injections
     dryRun: bool            # optional: validate without injecting
@@ -521,6 +521,8 @@ injection:
 | `suite` | Run all experiments in a directory |
 | `report` | Generate summary reports from experiment results |
 | `types` | List available injection types |
+| `preflight` | Pre-flight checks for knowledge models |
+| `controller start` | Start the ChaosExperiment controller |
 | `version` | Print the version |
 
 ### Global Flags
@@ -557,12 +559,12 @@ odh-chaos validate <file.yaml> [flags]
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `--knowledge` | Validate as OperatorKnowledge instead of experiment | `false` |
+| `--knowledge` | Validate an OperatorKnowledge YAML file instead of an experiment | `false` |
 
 ### suite
 
 ```bash
-odh-chaos suite experiments/ [flags]
+odh-chaos suite <experiments-directory> [flags]
 ```
 
 | Flag | Description | Default |
@@ -579,7 +581,7 @@ odh-chaos suite experiments/ [flags]
 ### analyze
 
 ```bash
-odh-chaos analyze /path/to/operator [flags]
+odh-chaos analyze <directory> [flags]
 ```
 
 | Flag | Description | Default |
@@ -596,21 +598,78 @@ Scans Go source code for fault injection candidates:
 ### report
 
 ```bash
-odh-chaos report [flags]
+odh-chaos report <results-directory> [flags]
 ```
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `--format` | Output format (`json` or `junit`) | `json` |
-| `--output-dir` | Directory containing experiment results | |
+| `--format` | Output format (`summary` or `junit`) | `summary` |
+| `--output` | Output directory for report files (JUnit only; summary always writes to stdout) | |
 
-Generates summary reports from experiment results in JSON or JUnit XML format (for CI/CD integration).
+Generates summary reports from experiment results. Summary format writes to stdout. JUnit format writes to stdout by default, or to `<output-dir>/chaos-results.xml` when `--output` is specified.
+
+### preflight
+
+```bash
+odh-chaos preflight [flags]
+```
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--knowledge` | Path to operator knowledge YAML | |
+| `--local` | Local-only validation (no cluster access) | `false` |
+
+Pre-flight checks validate a knowledge model before running experiments. In `--local` mode, validates YAML structure and cross-references (e.g. steady-state checks reference declared managed resources). Without `--local`, also verifies that declared resources exist on the cluster.
+
+### controller start
+
+```bash
+odh-chaos controller start [flags]
+```
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--namespace` | Namespace to watch (required) | |
+| `--metrics-addr` | Metrics bind address | `:8080` |
+| `--health-addr` | Health probe bind address | `:8081` |
+| `--leader-elect` | Enable leader election | `true` |
+| `--knowledge-dir` | Directory of operator knowledge YAMLs | |
+
+Starts a Kubernetes controller that watches ChaosExperiment CRs and drives them through the experiment lifecycle using the phase-per-reconcile pattern.
+
+### init
+
+```bash
+odh-chaos init [flags]
+```
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--component` | Component name (required) | |
+| `--type` | Injection type | `PodKill` |
+| `--operator` | Operator name | `opendatahub-operator` |
+| `--namespace` | Target namespace | `opendatahub` |
+
+Generates a skeleton experiment YAML to stdout. Customize the output for your operator and injection type.
+
+### types
+
+```bash
+odh-chaos types
+```
+
+Lists all available injection types with their descriptions and danger levels.
 
 ### clean
 
 ```bash
 odh-chaos clean [flags]
 ```
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--watch` | Continuously scan and clean chaos artifacts | `false` |
+| `--interval` | Scan interval when --watch is set | `60s` |
 
 Emergency stop: removes all chaos artifacts from the cluster. Finds resources with the `app.kubernetes.io/managed-by: odh-chaos` label and cleans them up. Restores original state from rollback annotations.
 

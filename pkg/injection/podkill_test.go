@@ -169,6 +169,18 @@ func TestPodKillInjectCountExceedsAvailable(t *testing.T) {
 	assert.Len(t, podList.Items, 0, "expected 0 pods remaining after killing the only available pod")
 }
 
+func TestPodKillRevertIsNoop(t *testing.T) {
+	injector := &PodKillInjector{}
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.PodKill,
+		Parameters: map[string]string{
+			"labelSelector": "app=dashboard",
+		},
+	}
+	err := injector.Revert(context.Background(), spec, "test-ns")
+	assert.NoError(t, err)
+}
+
 func TestPodKillSelectsRandomly(t *testing.T) {
 	scheme := runtime.NewScheme()
 	require.NoError(t, corev1.AddToScheme(scheme))

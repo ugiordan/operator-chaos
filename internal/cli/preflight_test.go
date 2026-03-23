@@ -116,7 +116,7 @@ func TestPreflightCrossReferenceCheckSteadyStateRef(t *testing.T) {
 						Name:       "my-deploy",
 					},
 				},
-				SteadyState: v1alpha1.SteadyStateDef{
+				SteadyState: v1alpha1.SteadyStateSpec{
 					Checks: []v1alpha1.SteadyStateCheck{
 						{
 							Type: v1alpha1.CheckConditionTrue,
@@ -151,7 +151,7 @@ func TestPreflightCrossReferenceCheckValid(t *testing.T) {
 						Name:       "my-deploy",
 					},
 				},
-				SteadyState: v1alpha1.SteadyStateDef{
+				SteadyState: v1alpha1.SteadyStateSpec{
 					Checks: []v1alpha1.SteadyStateCheck{
 						{
 							Type: v1alpha1.CheckConditionTrue,
@@ -295,7 +295,8 @@ func TestPreflightClusterScopedKindsMap(t *testing.T) {
 	clusterScoped := []string{
 		"ClusterRole", "ClusterRoleBinding", "CustomResourceDefinition",
 		"ValidatingWebhookConfiguration", "MutatingWebhookConfiguration",
-		"Namespace", "PersistentVolume", "StorageClass", "PriorityClass", "Node",
+		"Namespace", "PersistentVolume", "StorageClass", "IngressClass",
+		"PriorityClass", "APIService", "Node",
 	}
 	for _, kind := range clusterScoped {
 		assert.True(t, clusterScopedKinds[kind], "expected %s to be cluster-scoped", kind)

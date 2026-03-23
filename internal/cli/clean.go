@@ -659,12 +659,16 @@ func cleanConfigDrift(ctx context.Context, k8sClient client.Client, namespace st
 			}
 
 			dataKey := rollbackData["key"]
-			originalValue := rollbackData["originalValue"]
 
-			if cm.Data == nil {
-				cm.Data = make(map[string]string)
+			if rollbackData["keyExists"] == "false" {
+				delete(cm.Data, dataKey)
+			} else {
+				originalValue := rollbackData["originalValue"]
+				if cm.Data == nil {
+					cm.Data = make(map[string]string)
+				}
+				cm.Data[dataKey] = originalValue
 			}
-			cm.Data[dataKey] = originalValue
 
 			// Remove rollback annotation and chaos labels
 			safety.RemoveChaosMetadata(cm, string(v1alpha1.ConfigDrift))
@@ -710,31 +714,61 @@ func cleanConfigDrift(ctx context.Context, k8sClient client.Client, namespace st
 
 			// Check for rollbackSecretRef (new format) vs originalValue (legacy)
 			if rollbackSecretRef, hasRef := rollbackData["rollbackSecretRef"]; hasRef {
-				// Read original value from dedicated rollback Secret
+				if rollbackData["keyExists"] == "false" {
+					// Key did not exist before injection — remove it and clean up rollback Secret
+					delete(s.Data, dataKey)
+					safety.RemoveChaosMetadata(s, string(v1alpha1.ConfigDrift))
+
+					fmt.Fprintf(os.Stderr, "Restoring Secret %s/%s (removing injected key %q)\n", s.Namespace, s.Name, dataKey)
+					if err := k8sClient.Update(ctx, s); err != nil {
+						fmt.Fprintf(os.Stderr, "  Warning: %v\n", err)
+					} else {
+						restored++
+					}
+				} else {
+					// Read original value from dedicated rollback Secret
+					rbSecret := &corev1.Secret{}
+					rbKey := client.ObjectKey{Name: rollbackSecretRef, Namespace: s.Namespace}
+					if err := k8sClient.Get(ctx, rbKey, rbSecret); err != nil {
+						fmt.Fprintf(os.Stderr, "Warning: reading rollback Secret %q for Secret %s/%s: %v\n",
+							rollbackSecretRef, s.Namespace, s.Name, err)
+						continue
+					}
+					s.Data[dataKey] = rbSecret.Data[dataKey]
+
+					// Remove rollback annotation and chaos labels
+					safety.RemoveChaosMetadata(s, string(v1alpha1.ConfigDrift))
+
+					fmt.Fprintf(os.Stderr, "Restoring Secret %s/%s key %q from rollback Secret %q\n",
+						s.Namespace, s.Name, dataKey, rollbackSecretRef)
+					if err := k8sClient.Update(ctx, s); err != nil {
+						fmt.Fprintf(os.Stderr, "  Warning: %v\n", err)
+						continue
+					}
+					restored++
+				}
+
+				// Clean up rollback Secret if it exists
 				rbSecret := &corev1.Secret{}
 				rbKey := client.ObjectKey{Name: rollbackSecretRef, Namespace: s.Namespace}
-				if err := k8sClient.Get(ctx, rbKey, rbSecret); err != nil {
-					fmt.Fprintf(os.Stderr, "Warning: reading rollback Secret %q for Secret %s/%s: %v\n",
-						rollbackSecretRef, s.Namespace, s.Name, err)
-					continue
+				if err := k8sClient.Get(ctx, rbKey, rbSecret); err == nil {
+					if err := k8sClient.Delete(ctx, rbSecret); err != nil {
+						fmt.Fprintf(os.Stderr, "  Warning: deleting rollback Secret %q: %v\n", rollbackSecretRef, err)
+					}
 				}
-				s.Data[dataKey] = rbSecret.Data[dataKey]
+			} else if rollbackData["keyExists"] == "false" {
+				// Key did not exist before injection — remove it
+				delete(s.Data, dataKey)
 
 				// Remove rollback annotation and chaos labels
 				safety.RemoveChaosMetadata(s, string(v1alpha1.ConfigDrift))
 
-				fmt.Fprintf(os.Stderr, "Restoring Secret %s/%s key %q from rollback Secret %q\n",
-					s.Namespace, s.Name, dataKey, rollbackSecretRef)
+				fmt.Fprintf(os.Stderr, "Restoring Secret %s/%s (removing injected key %q)\n", s.Namespace, s.Name, dataKey)
 				if err := k8sClient.Update(ctx, s); err != nil {
 					fmt.Fprintf(os.Stderr, "  Warning: %v\n", err)
-					continue
+				} else {
+					restored++
 				}
-
-				// Delete the rollback Secret
-				if err := k8sClient.Delete(ctx, rbSecret); err != nil {
-					fmt.Fprintf(os.Stderr, "  Warning: deleting rollback Secret %q: %v\n", rollbackSecretRef, err)
-				}
-				restored++
 			} else {
 				// Legacy format: originalValue stored directly
 				originalValue := rollbackData["originalValue"]
@@ -909,7 +943,7 @@ func cleanTTLExpired(ctx context.Context, k8sClient client.Client, namespace str
 		if !ok {
 			continue
 		}
-		if safety.IsExpired(expiryStr) {
+		if safety.IsExpired(time.Now(), expiryStr) {
 			fmt.Fprintf(os.Stderr, "Deleting TTL-expired NetworkPolicy %s/%s (expired: %s)\n",
 				policies.Items[i].Namespace, policies.Items[i].Name, expiryStr)
 			if err := k8sClient.Delete(ctx, &policies.Items[i]); err != nil {

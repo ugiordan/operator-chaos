@@ -39,7 +39,7 @@ func Load(path string) (*v1alpha1.ChaosExperiment, error) {
 func Validate(exp *v1alpha1.ChaosExperiment) []string {
 	var errs []string
 
-	if exp.Metadata.Name == "" {
+	if exp.Name == "" {
 		errs = append(errs, "metadata.name is required")
 	}
 	if exp.Spec.Target.Operator == "" {
@@ -61,11 +61,27 @@ func Validate(exp *v1alpha1.ChaosExperiment) []string {
 	if exp.Spec.Hypothesis.Description == "" {
 		errs = append(errs, "spec.hypothesis.description is required")
 	}
-	if len(exp.Spec.BlastRadius.AllowedNamespaces) == 0 {
-		errs = append(errs, "spec.blastRadius.allowedNamespaces must not be empty")
-	}
 	if exp.Spec.BlastRadius.MaxPodsAffected <= 0 {
 		errs = append(errs, "spec.blastRadius.maxPodsAffected must be greater than 0")
+	}
+
+	// Validate TTL and recoveryTimeout bounds
+	if exp.Spec.Injection.TTL.Duration < 0 {
+		errs = append(errs, "spec.injection.ttl must not be negative")
+	} else if exp.Spec.Injection.TTL.Duration > v1alpha1.MaxInjectionTTL {
+		errs = append(errs, fmt.Sprintf("spec.injection.ttl exceeds maximum of %s", v1alpha1.MaxInjectionTTL))
+	}
+	if exp.Spec.Hypothesis.RecoveryTimeout.Duration < 0 {
+		errs = append(errs, "spec.hypothesis.recoveryTimeout must not be negative")
+	} else if exp.Spec.Hypothesis.RecoveryTimeout.Duration > v1alpha1.MaxRecoveryTimeout {
+		errs = append(errs, fmt.Sprintf("spec.hypothesis.recoveryTimeout exceeds maximum of %s", v1alpha1.MaxRecoveryTimeout))
+	}
+
+	// Validate target spec K8s names
+	if exp.Spec.Target.Operator != "" {
+		if err := injection.ValidateTargetSpec(exp.Spec.Target); err != nil {
+			errs = append(errs, err.Error())
+		}
 	}
 
 	return errs

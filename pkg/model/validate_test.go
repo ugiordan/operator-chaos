@@ -4,7 +4,8 @@ import (
 	"testing"
 	"time"
 
-	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
+	"github.com/stretchr/testify/assert"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func validKnowledge() *OperatorKnowledge {
@@ -27,7 +28,7 @@ func validKnowledge() *OperatorKnowledge {
 			},
 		},
 		Recovery: RecoveryExpectations{
-			ReconcileTimeout:   v1alpha1.Duration{Duration: 300 * time.Second},
+			ReconcileTimeout:   metav1.Duration{Duration: 300 * time.Second},
 			MaxReconcileCycles: 10,
 		},
 	}
@@ -123,7 +124,7 @@ func TestValidateKnowledge_WebhookMissingFields(t *testing.T) {
 
 func TestValidateKnowledge_RecoveryZeroTimeout(t *testing.T) {
 	k := validKnowledge()
-	k.Recovery.ReconcileTimeout = v1alpha1.Duration{}
+	k.Recovery.ReconcileTimeout = metav1.Duration{}
 	errs := ValidateKnowledge(k)
 	assertContains(t, errs, "recovery.reconcileTimeout must be greater than 0")
 }
@@ -179,7 +180,7 @@ func TestValidateKnowledge_Nil(t *testing.T) {
 
 func TestValidateKnowledge_RecoveryNegativeTimeout(t *testing.T) {
 	k := validKnowledge()
-	k.Recovery.ReconcileTimeout = v1alpha1.Duration{Duration: -1 * time.Second}
+	k.Recovery.ReconcileTimeout = metav1.Duration{Duration: -1 * time.Second}
 	errs := ValidateKnowledge(k)
 	assertContains(t, errs, "recovery.reconcileTimeout must be greater than 0")
 }
@@ -191,11 +192,13 @@ func TestValidateKnowledge_RecoveryNegativeCycles(t *testing.T) {
 	assertContains(t, errs, "recovery.maxReconcileCycles must be greater than 0")
 }
 
-func TestValidateKnowledge_UnknownDependency(t *testing.T) {
+func TestValidateKnowledge_CrossOperatorDependency(t *testing.T) {
+	// Cross-operator dependencies (referencing components not in this file)
+	// are allowed since they are resolved at graph-build time.
 	k := validKnowledge()
 	k.Components[0].Dependencies = []string{"nonexistent"}
 	errs := ValidateKnowledge(k)
-	assertContains(t, errs, `components[0].dependencies references unknown component "nonexistent"`)
+	assert.Empty(t, errs, "cross-operator dependencies should be accepted")
 }
 
 func TestValidateKnowledge_ValidDependency(t *testing.T) {

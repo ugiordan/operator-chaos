@@ -1,8 +1,8 @@
+version: "2"
 linters:
   enable:
     - govet
     - errcheck
     - staticcheck
     - unused
-    - gosimple
     - ineffassign

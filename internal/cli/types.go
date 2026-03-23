@@ -24,6 +24,7 @@ func newTypesCommand() *cobra.Command {
 				{"FinalizerBlock", "Add a blocking finalizer to a resource", v1alpha1.DangerLevelMedium},
 				{"WebhookDisrupt", "Change webhook failure policy", v1alpha1.DangerLevelHigh},
 				{"RBACRevoke", "Revoke RBAC binding subjects", v1alpha1.DangerLevelHigh},
+				{"ClientFault", "Inject API-level faults into controller-runtime client", v1alpha1.DangerLevelMedium},
 			}
 			fmt.Println("Available injection types:")
 			fmt.Println()

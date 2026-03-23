@@ -2,9 +2,9 @@ package observer
 
 import (
 	"context"
-	"time"
 
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type SteadyStateContributor struct {
@@ -28,7 +28,7 @@ func (c *SteadyStateContributor) Observe(ctx context.Context, board *Observation
 			Source:  SourceSteadyState,
 			Passed: false,
 			Details: err.Error(),
-			Checks: &v1alpha1.CheckResult{Passed: false, Timestamp: time.Now()},
+			Checks: &v1alpha1.CheckResult{Passed: false, Timestamp: metav1.Now()},
 		})
 		return err
 	}

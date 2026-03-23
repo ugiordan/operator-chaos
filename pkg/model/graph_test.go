@@ -22,7 +22,7 @@ func TestBuildDependencyGraph_IntraOperator(t *testing.T) {
 				{
 					Name:       "primary",
 					Controller: "primary-controller",
-					SteadyState: v1alpha1.SteadyStateDef{
+					SteadyState: v1alpha1.SteadyStateSpec{
 						Checks: []v1alpha1.SteadyStateCheck{
 							{Type: v1alpha1.CheckResourceExists, Kind: "Deployment", Name: "primary-deploy"},
 						},
@@ -32,7 +32,7 @@ func TestBuildDependencyGraph_IntraOperator(t *testing.T) {
 					Name:         "secondary",
 					Controller:   "secondary-controller",
 					Dependencies: []string{"primary"},
-					SteadyState: v1alpha1.SteadyStateDef{
+					SteadyState: v1alpha1.SteadyStateSpec{
 						Checks: []v1alpha1.SteadyStateCheck{
 							{Type: v1alpha1.CheckConditionTrue, Kind: "CustomResource", Name: "secondary-cr"},
 						},
@@ -70,7 +70,7 @@ func TestBuildDependencyGraph_CrossOperator(t *testing.T) {
 				{
 					Name:       "alpha-primary",
 					Controller: "alpha-controller",
-					SteadyState: v1alpha1.SteadyStateDef{
+					SteadyState: v1alpha1.SteadyStateSpec{
 						Checks: []v1alpha1.SteadyStateCheck{
 							{Type: v1alpha1.CheckResourceExists, Kind: "Deployment", Name: "alpha-deploy"},
 						},
@@ -88,7 +88,7 @@ func TestBuildDependencyGraph_CrossOperator(t *testing.T) {
 					Name:         "beta-main",
 					Controller:   "beta-controller",
 					Dependencies: []string{"alpha-operator"},
-					SteadyState: v1alpha1.SteadyStateDef{
+					SteadyState: v1alpha1.SteadyStateSpec{
 						Checks: []v1alpha1.SteadyStateCheck{
 							{Type: v1alpha1.CheckConditionTrue, Kind: "Service", Name: "beta-svc"},
 						},
@@ -124,7 +124,7 @@ func TestBuildDependencyGraph_EmptyDeps(t *testing.T) {
 				{
 					Name:       "standalone-comp",
 					Controller: "standalone-controller",
-					SteadyState: v1alpha1.SteadyStateDef{
+					SteadyState: v1alpha1.SteadyStateSpec{
 						Checks: []v1alpha1.SteadyStateCheck{
 							{Type: v1alpha1.CheckResourceExists, Kind: "Pod", Name: "standalone-pod"},
 						},
@@ -158,7 +158,7 @@ func TestBuildDependencyGraph_UnresolvableDep(t *testing.T) {
 					Name:         "gamma-comp",
 					Controller:   "gamma-controller",
 					Dependencies: []string{"nonexistent"},
-					SteadyState: v1alpha1.SteadyStateDef{
+					SteadyState: v1alpha1.SteadyStateSpec{
 						Checks: []v1alpha1.SteadyStateCheck{
 							{Type: v1alpha1.CheckResourceExists, Kind: "ConfigMap", Name: "gamma-cm"},
 						},
@@ -196,7 +196,7 @@ func TestBuildDependencyGraph_DuplicateDeps(t *testing.T) {
 				{
 					Name:       "primary",
 					Controller: "primary-controller",
-					SteadyState: v1alpha1.SteadyStateDef{
+					SteadyState: v1alpha1.SteadyStateSpec{
 						Checks: []v1alpha1.SteadyStateCheck{
 							{Type: v1alpha1.CheckResourceExists, Kind: "Deployment", Name: "primary-deploy"},
 						},
@@ -206,7 +206,7 @@ func TestBuildDependencyGraph_DuplicateDeps(t *testing.T) {
 					Name:         "secondary",
 					Controller:   "secondary-controller",
 					Dependencies: []string{"primary", "primary"}, // Duplicate dependency
-					SteadyState: v1alpha1.SteadyStateDef{
+					SteadyState: v1alpha1.SteadyStateSpec{
 						Checks: []v1alpha1.SteadyStateCheck{
 							{Type: v1alpha1.CheckConditionTrue, Kind: "Service", Name: "secondary-svc"},
 						},
@@ -257,7 +257,7 @@ func TestBuildDependencyGraph_NoSteadyStateExcluded(t *testing.T) {
 					Name:         "beta-comp",
 					Controller:   "beta-controller",
 					Dependencies: []string{"alpha-operator"},
-					SteadyState: v1alpha1.SteadyStateDef{
+					SteadyState: v1alpha1.SteadyStateSpec{
 						Checks: []v1alpha1.SteadyStateCheck{
 							{Type: v1alpha1.CheckResourceExists, Kind: "Pod", Name: "beta-pod"},
 						},

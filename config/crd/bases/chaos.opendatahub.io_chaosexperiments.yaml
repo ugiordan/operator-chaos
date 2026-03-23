@@ -1,0 +1,475 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.20.1
+  name: chaosexperiments.chaos.opendatahub.io
+spec:
+  group: chaos.opendatahub.io
+  names:
+    kind: ChaosExperiment
+    listKind: ChaosExperimentList
+    plural: chaosexperiments
+    shortNames:
+    - chaos
+    - ce
+    singular: chaosexperiment
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.phase
+      name: Phase
+      type: string
+    - jsonPath: .status.verdict
+      name: Verdict
+      type: string
+    - jsonPath: .spec.injection.type
+      name: Type
+      type: string
+    - jsonPath: .spec.target.component
+      name: Target
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ChaosExperiment defines a chaos engineering experiment.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              blastRadius:
+                properties:
+                  allowDangerous:
+                    type: boolean
+                  allowedNamespaces:
+                    items:
+                      type: string
+                    type: array
+                    x-kubernetes-list-type: set
+                  dryRun:
+                    type: boolean
+                  forbiddenResources:
+                    items:
+                      type: string
+                    type: array
+                    x-kubernetes-list-type: set
+                  maxPodsAffected:
+                    format: int32
+                    minimum: 1
+                    type: integer
+                required:
+                - maxPodsAffected
+                type: object
+              hypothesis:
+                properties:
+                  description:
+                    minLength: 1
+                    type: string
+                  recoveryTimeout:
+                    type: string
+                required:
+                - description
+                type: object
+              injection:
+                properties:
+                  count:
+                    default: 1
+                    description: Count is the number of targets to affect. Defaults
+                      to 1.
+                    format: int32
+                    maximum: 100
+                    minimum: 1
+                    type: integer
+                  dangerLevel:
+                    description: DangerLevel represents the risk level of an injection.
+                    enum:
+                    - ""
+                    - low
+                    - medium
+                    - high
+                    type: string
+                  parameters:
+                    additionalProperties:
+                      type: string
+                    type: object
+                  ttl:
+                    type: string
+                  type:
+                    description: InjectionType represents the type of fault injection.
+                    enum:
+                    - PodKill
+                    - NetworkPartition
+                    - CRDMutation
+                    - ConfigDrift
+                    - WebhookDisrupt
+                    - RBACRevoke
+                    - FinalizerBlock
+                    - ClientFault
+                    type: string
+                required:
+                - type
+                type: object
+              steadyState:
+                properties:
+                  checks:
+                    items:
+                      description: |-
+                        SteadyStateCheck defines a single check for steady-state verification.
+                        Note: APIVersion refers to the target resource's API version (e.g. "apps/v1"),
+                        not the CRD's own TypeMeta API version.
+                      properties:
+                        apiVersion:
+                          type: string
+                        conditionType:
+                          type: string
+                        kind:
+                          type: string
+                        name:
+                          type: string
+                        namespace:
+                          type: string
+                        type:
+                          description: CheckType represents the type of a steady-state
+                            check.
+                          enum:
+                          - conditionTrue
+                          - resourceExists
+                          type: string
+                      required:
+                      - type
+                      type: object
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  timeout:
+                    type: string
+                type: object
+              target:
+                properties:
+                  component:
+                    minLength: 1
+                    type: string
+                  operator:
+                    minLength: 1
+                    type: string
+                  resource:
+                    type: string
+                required:
+                - component
+                - operator
+                type: object
+            required:
+            - blastRadius
+            - hypothesis
+            - injection
+            - target
+            type: object
+          status:
+            properties:
+              cleanupError:
+                type: string
+              conditions:
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              endTime:
+                format: date-time
+                type: string
+              evaluationResult:
+                description: EvaluationSummary is the CRD-embeddable evaluation result.
+                properties:
+                  confidence:
+                    type: string
+                  deviations:
+                    items:
+                      type: string
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  reconcileCycles:
+                    type: integer
+                  recoveryTime:
+                    type: string
+                  verdict:
+                    description: Verdict represents the outcome of a chaos experiment.
+                    enum:
+                    - ""
+                    - Resilient
+                    - Degraded
+                    - Failed
+                    - Inconclusive
+                    type: string
+                required:
+                - verdict
+                type: object
+              injectionLog:
+                items:
+                  properties:
+                    action:
+                      type: string
+                    details:
+                      additionalProperties:
+                        type: string
+                      type: object
+                    target:
+                      type: string
+                    timestamp:
+                      format: date-time
+                      type: string
+                    type:
+                      description: InjectionType represents the type of fault injection.
+                      enum:
+                      - PodKill
+                      - NetworkPartition
+                      - CRDMutation
+                      - ConfigDrift
+                      - WebhookDisrupt
+                      - RBACRevoke
+                      - FinalizerBlock
+                      - ClientFault
+                      type: string
+                  required:
+                  - action
+                  - target
+                  - timestamp
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-type: atomic
+              injectionStartedAt:
+                format: date-time
+                type: string
+              message:
+                description: Message provides a human-readable description of the
+                  current status.
+                type: string
+              observedGeneration:
+                format: int64
+                minimum: 0
+                type: integer
+              phase:
+                description: ExperimentPhase represents the current phase of the experiment.
+                enum:
+                - ""
+                - Pending
+                - SteadyStatePre
+                - Injecting
+                - Observing
+                - SteadyStatePost
+                - Evaluating
+                - Complete
+                - Aborted
+                type: string
+              startTime:
+                format: date-time
+                type: string
+              steadyStatePost:
+                properties:
+                  checksPassed:
+                    format: int32
+                    type: integer
+                  checksRun:
+                    format: int32
+                    type: integer
+                  details:
+                    items:
+                      properties:
+                        check:
+                          description: |-
+                            SteadyStateCheck defines a single check for steady-state verification.
+                            Note: APIVersion refers to the target resource's API version (e.g. "apps/v1"),
+                            not the CRD's own TypeMeta API version.
+                          properties:
+                            apiVersion:
+                              type: string
+                            conditionType:
+                              type: string
+                            kind:
+                              type: string
+                            name:
+                              type: string
+                            namespace:
+                              type: string
+                            type:
+                              description: CheckType represents the type of a steady-state
+                                check.
+                              enum:
+                              - conditionTrue
+                              - resourceExists
+                              type: string
+                          required:
+                          - type
+                          type: object
+                        error:
+                          type: string
+                        passed:
+                          type: boolean
+                        value:
+                          type: string
+                      required:
+                      - check
+                      - passed
+                      type: object
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  passed:
+                    type: boolean
+                  timestamp:
+                    format: date-time
+                    type: string
+                required:
+                - checksPassed
+                - checksRun
+                - passed
+                - timestamp
+                type: object
+              steadyStatePre:
+                properties:
+                  checksPassed:
+                    format: int32
+                    type: integer
+                  checksRun:
+                    format: int32
+                    type: integer
+                  details:
+                    items:
+                      properties:
+                        check:
+                          description: |-
+                            SteadyStateCheck defines a single check for steady-state verification.
+                            Note: APIVersion refers to the target resource's API version (e.g. "apps/v1"),
+                            not the CRD's own TypeMeta API version.
+                          properties:
+                            apiVersion:
+                              type: string
+                            conditionType:
+                              type: string
+                            kind:
+                              type: string
+                            name:
+                              type: string
+                            namespace:
+                              type: string
+                            type:
+                              description: CheckType represents the type of a steady-state
+                                check.
+                              enum:
+                              - conditionTrue
+                              - resourceExists
+                              type: string
+                          required:
+                          - type
+                          type: object
+                        error:
+                          type: string
+                        passed:
+                          type: boolean
+                        value:
+                          type: string
+                      required:
+                      - check
+                      - passed
+                      type: object
+                    type: array
+                    x-kubernetes-list-type: atomic
+                  passed:
+                    type: boolean
+                  timestamp:
+                    format: date-time
+                    type: string
+                required:
+                - checksPassed
+                - checksRun
+                - passed
+                - timestamp
+                type: object
+              verdict:
+                description: Verdict represents the outcome of a chaos experiment.
+                enum:
+                - ""
+                - Resilient
+                - Degraded
+                - Failed
+                - Inconclusive
+                type: string
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

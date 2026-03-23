@@ -1,6 +1,7 @@
 package v1alpha1
 
 import (
+	"encoding/json"
 	"os"
 	"sort"
 	"testing"
@@ -8,12 +9,14 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/yaml"
 )
 
 func TestChaosExperimentYAMLRoundTrip(t *testing.T) {
 	exp := ChaosExperiment{
-		Metadata: Metadata{
+		ObjectMeta: metav1.ObjectMeta{
 			Name: "dashboard-pod-kill",
 			Labels: map[string]string{
 				"component": "dashboard",
@@ -27,12 +30,12 @@ func TestChaosExperimentYAMLRoundTrip(t *testing.T) {
 			},
 			Hypothesis: HypothesisSpec{
 				Description:     "Dashboard recovers from pod kill within 60s",
-				RecoveryTimeout: Duration{60 * time.Second},
+				RecoveryTimeout: metav1.Duration{Duration: 60 * time.Second},
 			},
 			Injection: InjectionSpec{
 				Type:  PodKill,
 				Count: 1,
-				TTL:   Duration{300 * time.Second},
+				TTL:   metav1.Duration{Duration: 300 * time.Second},
 				Parameters: map[string]string{
 					"signal":        "SIGKILL",
 					"labelSelector": "app.kubernetes.io/part-of=dashboard",
@@ -52,7 +55,7 @@ func TestChaosExperimentYAMLRoundTrip(t *testing.T) {
 	err = yaml.Unmarshal(data, &loaded)
 	require.NoError(t, err)
 
-	assert.Equal(t, exp.Metadata.Name, loaded.Metadata.Name)
+	assert.Equal(t, exp.Name, loaded.Name)
 	assert.Equal(t, exp.Spec.Target.Component, loaded.Spec.Target.Component)
 	assert.Equal(t, exp.Spec.Injection.Type, loaded.Spec.Injection.Type)
 	assert.Equal(t, PodKill, loaded.Spec.Injection.Type)
@@ -66,10 +69,10 @@ func TestChaosExperimentLoadFromFile(t *testing.T) {
 	err = yaml.Unmarshal(data, &exp)
 	require.NoError(t, err)
 
-	assert.Equal(t, "dashboard-pod-kill-recovery", exp.Metadata.Name)
+	assert.Equal(t, "dashboard-pod-kill-recovery", exp.Name)
 	assert.Equal(t, PodKill, exp.Spec.Injection.Type)
-	assert.Equal(t, 1, exp.Spec.Injection.Count)
-	assert.Equal(t, 1, exp.Spec.BlastRadius.MaxPodsAffected)
+	assert.Equal(t, int32(1), exp.Spec.Injection.Count)
+	assert.Equal(t, int32(1), exp.Spec.BlastRadius.MaxPodsAffected)
 	assert.NotEmpty(t, exp.Spec.Hypothesis.Description)
 }
 
@@ -167,4 +170,89 @@ func TestValidDangerLevels_Sorted(t *testing.T) {
 		strs[i] = string(l)
 	}
 	assert.True(t, sort.StringsAreSorted(strs), "ValidDangerLevels() should return a sorted slice, got %v", strs)
+}
+
+// --- New CRD-specific tests ---
+
+func TestSchemeRegistration(t *testing.T) {
+	s := runtime.NewScheme()
+	err := AddToScheme(s)
+	require.NoError(t, err)
+
+	gvk := GroupVersion.WithKind("ChaosExperiment")
+	obj, err := s.New(gvk)
+	require.NoError(t, err)
+	assert.IsType(t, &ChaosExperiment{}, obj)
+
+	listGVK := GroupVersion.WithKind("ChaosExperimentList")
+	listObj, err := s.New(listGVK)
+	require.NoError(t, err)
+	assert.IsType(t, &ChaosExperimentList{}, listObj)
+}
+
+func TestDeepCopy(t *testing.T) {
+	original := &ChaosExperiment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-experiment",
+			Namespace: "test-ns",
+			Labels:    map[string]string{"env": "test"},
+		},
+		Spec: ChaosExperimentSpec{
+			Target:    TargetSpec{Operator: "test-operator", Component: "test-component"},
+			Injection: InjectionSpec{Type: PodKill},
+		},
+	}
+	copied := original.DeepCopy()
+	copied.Name = "modified"
+	copied.Labels["env"] = "modified"
+	assert.Equal(t, "test-experiment", original.Name)
+	assert.Equal(t, "test", original.Labels["env"])
+}
+
+func TestExistingExperimentYAMLCompatibility(t *testing.T) {
+	path := "../../experiments/odh-model-controller/pod-kill.yaml"
+	data, err := os.ReadFile(path)
+	if os.IsNotExist(err) {
+		t.Skipf("experiment file not found at %s (expected outside CI)", path)
+	}
+	require.NoError(t, err)
+
+	var exp ChaosExperiment
+	err = yaml.UnmarshalStrict(data, &exp)
+	require.NoError(t, err)
+
+	assert.NotEmpty(t, exp.Name)
+	assert.Equal(t, "chaos.opendatahub.io/v1alpha1", exp.APIVersion)
+	assert.Equal(t, "ChaosExperiment", exp.Kind)
+	assert.NotEmpty(t, exp.Spec.Target.Operator)
+	assert.NotEmpty(t, exp.Spec.Injection.Type)
+}
+
+func TestDurationWireFormatCompatibility(t *testing.T) {
+	tests := []struct {
+		duration time.Duration
+		expected string
+	}{
+		{60 * time.Second, `"1m0s"`},
+		{300 * time.Second, `"5m0s"`},
+		{30 * time.Second, `"30s"`},
+	}
+	for _, tc := range tests {
+		d := metav1.Duration{Duration: tc.duration}
+		data, err := json.Marshal(d)
+		require.NoError(t, err)
+		assert.Equal(t, tc.expected, string(data))
+
+		var parsed metav1.Duration
+		err = json.Unmarshal(data, &parsed)
+		require.NoError(t, err)
+		assert.Equal(t, tc.duration, parsed.Duration)
+	}
+}
+
+func TestConditionTypeConstants(t *testing.T) {
+	assert.NotEmpty(t, ConditionSteadyStateEstablished)
+	assert.NotEmpty(t, ConditionFaultInjected)
+	assert.NotEmpty(t, ConditionRecoveryObserved)
+	assert.NotEmpty(t, ConditionComplete)
 }

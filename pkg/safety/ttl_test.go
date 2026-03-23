@@ -8,11 +8,12 @@ import (
 )
 
 func TestTTLAnnotation(t *testing.T) {
-	expiry := TTLExpiry(5 * time.Minute)
-	assert.False(t, IsExpired(expiry))
+	now := time.Now()
+	expiry := TTLExpiry(now, 5*time.Minute)
+	assert.False(t, IsExpired(now, expiry))
 
-	pastExpiry := time.Now().Add(-1 * time.Minute).Format(time.RFC3339)
-	assert.True(t, IsExpired(pastExpiry))
+	pastExpiry := now.Add(-1 * time.Minute).Format(time.RFC3339)
+	assert.True(t, IsExpired(now, pastExpiry))
 }
 
 func TestTTLAnnotationKey(t *testing.T) {
@@ -20,5 +21,5 @@ func TestTTLAnnotationKey(t *testing.T) {
 }
 
 func TestTTLMalformedExpiry(t *testing.T) {
-	assert.True(t, IsExpired("not-a-date"))
+	assert.True(t, IsExpired(time.Now(), "not-a-date"))
 }

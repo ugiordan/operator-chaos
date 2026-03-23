@@ -45,7 +45,7 @@ func (p *PodKillInjector) Inject(ctx context.Context, spec v1alpha1.InjectionSpe
 		return nil, nil, fmt.Errorf("no pods found matching selector %s in namespace %s", selector.String(), namespace)
 	}
 
-	killCount := spec.Count
+	killCount := int(spec.Count)
 	if killCount <= 0 {
 		killCount = 1
 	}
@@ -85,4 +85,9 @@ func (p *PodKillInjector) Inject(ctx context.Context, spec v1alpha1.InjectionSpe
 	cleanup := func(ctx context.Context) error { return nil }
 
 	return cleanup, events, nil
+}
+
+// Revert is a no-op for PodKill -- killed pods are recreated by the owning controller.
+func (p *PodKillInjector) Revert(_ context.Context, _ v1alpha1.InjectionSpec, _ string) error {
+	return nil
 }

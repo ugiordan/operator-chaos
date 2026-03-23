@@ -116,7 +116,7 @@ func TestValidateBlastRadiusCountZeroDefaultsToOne(t *testing.T) {
 	tests := []struct {
 		name          string
 		spec          v1alpha1.BlastRadiusSpec
-		affectedCount int
+		affectedCount int32
 		wantErr       bool
 		errMsg        string
 	}{

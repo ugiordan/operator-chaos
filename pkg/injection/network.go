@@ -7,10 +7,12 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"time"
 
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
 	"github.com/opendatahub-io/odh-platform-chaos/pkg/safety"
 	networkingv1 "k8s.io/api/networking/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/selection"
@@ -56,10 +58,13 @@ func (n *NetworkPartitionInjector) Inject(ctx context.Context, spec v1alpha1.Inj
 			}
 		}
 	}
+	if len(matchLabels) == 0 {
+		return nil, nil, fmt.Errorf("label selector %q produced no equality-based matches; only equality selectors (=, ==, in with single value) are supported for NetworkPolicy", spec.Parameters["labelSelector"])
+	}
 
 	annotations := map[string]string{}
 	if spec.TTL.Duration > 0 {
-		annotations[safety.TTLAnnotationKey] = safety.TTLExpiry(spec.TTL.Duration)
+		annotations[safety.TTLAnnotationKey] = safety.TTLExpiry(time.Now(), spec.TTL.Duration)
 	}
 
 	policy := &networkingv1.NetworkPolicy{
@@ -82,7 +87,9 @@ func (n *NetworkPartitionInjector) Inject(ctx context.Context, spec v1alpha1.Inj
 	}
 
 	if err := n.client.Create(ctx, policy); err != nil {
-		return nil, nil, fmt.Errorf("creating NetworkPolicy: %w", err)
+		if !apierrors.IsAlreadyExists(err) {
+			return nil, nil, fmt.Errorf("creating NetworkPolicy: %w", err)
+		}
 	}
 
 	events := []v1alpha1.InjectionEvent{
@@ -94,10 +101,32 @@ func (n *NetworkPartitionInjector) Inject(ctx context.Context, spec v1alpha1.Inj
 	}
 
 	cleanup := func(ctx context.Context) error {
-		return n.client.Delete(ctx, policy)
+		if err := n.client.Delete(ctx, policy); err != nil && !apierrors.IsNotFound(err) {
+			return fmt.Errorf("deleting NetworkPolicy %q: %w", policyName, err)
+		}
+		return nil
 	}
 
 	return cleanup, events, nil
+}
+
+// Revert deletes the NetworkPolicy created during injection. The policy name is
+// deterministic so it can be reconstructed from the injection spec.
+func (n *NetworkPartitionInjector) Revert(ctx context.Context, spec v1alpha1.InjectionSpec, namespace string) error {
+	policyName := sanitizeK8sName("odh-chaos-np-", spec.Parameters["labelSelector"])
+
+	policy := &networkingv1.NetworkPolicy{}
+	if err := n.client.Get(ctx, client.ObjectKey{Name: policyName, Namespace: namespace}, policy); err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil // already cleaned up
+		}
+		return fmt.Errorf("getting NetworkPolicy %q for revert: %w", policyName, err)
+	}
+
+	if err := n.client.Delete(ctx, policy); err != nil && !apierrors.IsNotFound(err) {
+		return fmt.Errorf("deleting NetworkPolicy %q during revert: %w", policyName, err)
+	}
+	return nil
 }
 
 // sanitizeK8sName creates a valid Kubernetes resource name from a prefix and input string.

@@ -1,49 +1,74 @@
 package v1alpha1
 
 import (
-	"encoding/json"
 	"fmt"
 	"sort"
 	"time"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+const (
+	// DefaultRecoveryTimeout is the default recovery timeout applied when none is specified.
+	DefaultRecoveryTimeout = 60 * time.Second
+	// MaxRecoveryTimeout is the maximum allowed recovery timeout (1 hour).
+	MaxRecoveryTimeout = 1 * time.Hour
+	// MaxInjectionTTL is the maximum allowed injection TTL (1 hour).
+	MaxInjectionTTL = 1 * time.Hour
+)
+
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+// +kubebuilder:storageversion
+// +kubebuilder:resource:shortName=chaos;ce
+// +kubebuilder:printcolumn:name="Phase",type=string,JSONPath=`.status.phase`
+// +kubebuilder:printcolumn:name="Verdict",type=string,JSONPath=`.status.verdict`
+// +kubebuilder:printcolumn:name="Type",type=string,JSONPath=`.spec.injection.type`
+// +kubebuilder:printcolumn:name="Target",type=string,JSONPath=`.spec.target.component`
+// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
+
 // ChaosExperiment defines a chaos engineering experiment.
-// Designed as CRD-ready: kubebuilder markers will be added
-// when controller mode is implemented.
 type ChaosExperiment struct {
-	APIVersion string                `json:"apiVersion,omitempty" yaml:"apiVersion,omitempty"`
-	Kind       string                `json:"kind,omitempty" yaml:"kind,omitempty"`
-	Metadata   Metadata              `json:"metadata" yaml:"metadata"`
-	Spec       ChaosExperimentSpec   `json:"spec" yaml:"spec"`
-	Status     ChaosExperimentStatus `json:"status,omitempty" yaml:"status,omitempty"`
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	Spec   ChaosExperimentSpec   `json:"spec"`
+	Status ChaosExperimentStatus `json:"status,omitempty"`
 }
 
-type Metadata struct {
-	Name      string            `json:"name" yaml:"name"`
-	Namespace string            `json:"namespace,omitempty" yaml:"namespace,omitempty"`
-	Labels    map[string]string `json:"labels,omitempty" yaml:"labels,omitempty"`
+// +kubebuilder:object:root=true
+
+// ChaosExperimentList contains a list of ChaosExperiment.
+type ChaosExperimentList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
+	Items           []ChaosExperiment `json:"items"`
 }
 
 type ChaosExperimentSpec struct {
-	Target      TargetSpec      `json:"target" yaml:"target"`
-	SteadyState SteadyStateDef  `json:"steadyState,omitempty" yaml:"steadyState,omitempty"`
-	Injection   InjectionSpec   `json:"injection" yaml:"injection"`
-	BlastRadius BlastRadiusSpec `json:"blastRadius" yaml:"blastRadius"`
-	Hypothesis  HypothesisSpec  `json:"hypothesis" yaml:"hypothesis"`
+	Target      TargetSpec      `json:"target"`
+	SteadyState SteadyStateSpec  `json:"steadyState,omitempty"`
+	Injection   InjectionSpec   `json:"injection"`
+	BlastRadius BlastRadiusSpec `json:"blastRadius"`
+	Hypothesis  HypothesisSpec  `json:"hypothesis"`
 }
 
 type TargetSpec struct {
-	Operator  string `json:"operator" yaml:"operator"`
-	Component string `json:"component" yaml:"component"`
-	Resource  string `json:"resource,omitempty" yaml:"resource,omitempty"`
+	// +kubebuilder:validation:MinLength=1
+	Operator  string `json:"operator"`
+	// +kubebuilder:validation:MinLength=1
+	Component string `json:"component"`
+	Resource  string `json:"resource,omitempty"`
 }
 
-type SteadyStateDef struct {
-	Checks  []SteadyStateCheck `json:"checks,omitempty" yaml:"checks,omitempty"`
-	Timeout Duration           `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+type SteadyStateSpec struct {
+	// +listType=atomic
+	Checks  []SteadyStateCheck `json:"checks,omitempty"`
+	Timeout metav1.Duration    `json:"timeout,omitempty"`
 }
 
 // CheckType represents the type of a steady-state check.
+// +kubebuilder:validation:Enum=conditionTrue;resourceExists
 type CheckType string
 
 const (
@@ -51,24 +76,78 @@ const (
 	CheckResourceExists CheckType = "resourceExists"
 )
 
+// SteadyStateCheck defines a single check for steady-state verification.
+// Note: APIVersion refers to the target resource's API version (e.g. "apps/v1"),
+// not the CRD's own TypeMeta API version.
 type SteadyStateCheck struct {
-	Type          CheckType `json:"type" yaml:"type"`
-	APIVersion    string `json:"apiVersion,omitempty" yaml:"apiVersion,omitempty"`
-	Kind          string `json:"kind,omitempty" yaml:"kind,omitempty"`
-	Name          string `json:"name,omitempty" yaml:"name,omitempty"`
-	Namespace     string `json:"namespace,omitempty" yaml:"namespace,omitempty"`
-	ConditionType string `json:"conditionType,omitempty" yaml:"conditionType,omitempty"`
+	Type          CheckType `json:"type"`
+	APIVersion    string    `json:"apiVersion,omitempty"`
+	Kind          string    `json:"kind,omitempty"`
+	Name          string    `json:"name,omitempty"`
+	Namespace     string    `json:"namespace,omitempty"`
+	ConditionType string    `json:"conditionType,omitempty"`
 }
 
 type InjectionSpec struct {
-	Type        InjectionType     `json:"type" yaml:"type"`
-	Parameters  map[string]string `json:"parameters,omitempty" yaml:"parameters,omitempty"`
-	Count       int               `json:"count,omitempty" yaml:"count,omitempty"`
-	TTL         Duration          `json:"ttl,omitempty" yaml:"ttl,omitempty"`
-	DangerLevel DangerLevel       `json:"dangerLevel,omitempty" yaml:"dangerLevel,omitempty"`
+	Type        InjectionType     `json:"type"`
+	Parameters  map[string]string `json:"parameters,omitempty"`
+	// Count is the number of targets to affect. Defaults to 1.
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=100
+	// +kubebuilder:default=1
+	Count       int32             `json:"count,omitempty"`
+	TTL         metav1.Duration   `json:"ttl,omitempty"`
+	DangerLevel DangerLevel       `json:"dangerLevel,omitempty"`
+}
+
+// InjectionType represents the type of fault injection.
+// +kubebuilder:validation:Enum=PodKill;NetworkPartition;CRDMutation;ConfigDrift;WebhookDisrupt;RBACRevoke;FinalizerBlock;ClientFault
+type InjectionType string
+
+const (
+	PodKill          InjectionType = "PodKill"
+	NetworkPartition InjectionType = "NetworkPartition"
+	CRDMutation      InjectionType = "CRDMutation"
+	ConfigDrift      InjectionType = "ConfigDrift"
+	WebhookDisrupt   InjectionType = "WebhookDisrupt"
+	RBACRevoke       InjectionType = "RBACRevoke"
+	FinalizerBlock   InjectionType = "FinalizerBlock"
+	ClientFault      InjectionType = "ClientFault"
+)
+
+var validInjectionTypes = map[InjectionType]bool{
+	PodKill:          true,
+	NetworkPartition: true,
+	CRDMutation:      true,
+	ConfigDrift:      true,
+	WebhookDisrupt:   true,
+	RBACRevoke:       true,
+	FinalizerBlock:   true,
+	ClientFault:      true,
+}
+
+// ValidInjectionTypes returns all valid injection types in sorted order.
+func ValidInjectionTypes() []InjectionType {
+	types := make([]InjectionType, 0, len(validInjectionTypes))
+	for t := range validInjectionTypes {
+		types = append(types, t)
+	}
+	sort.Slice(types, func(i, j int) bool {
+		return string(types[i]) < string(types[j])
+	})
+	return types
+}
+
+// ValidateInjectionType returns an error if the given InjectionType is not one of the known types.
+func ValidateInjectionType(t InjectionType) error {
+	if !validInjectionTypes[t] {
+		return fmt.Errorf("unknown injection type %q; valid types: %v", t, ValidInjectionTypes())
+	}
+	return nil
 }
 
 // DangerLevel represents the risk level of an injection.
+// +kubebuilder:validation:Enum="";low;medium;high
 type DangerLevel string
 
 const (
@@ -107,77 +186,41 @@ func ValidateDangerLevel(d DangerLevel) error {
 	return nil
 }
 
+// ResolvedRecoveryTimeout returns the recovery timeout for the experiment,
+// falling back to DefaultRecoveryTimeout when unset.
+func (e *ChaosExperiment) ResolvedRecoveryTimeout() time.Duration {
+	if e.Spec.Hypothesis.RecoveryTimeout.Duration > 0 {
+		return e.Spec.Hypothesis.RecoveryTimeout.Duration
+	}
+	return DefaultRecoveryTimeout
+}
+
 // DefaultNamespace is the default Kubernetes namespace used by
 // the chaos framework when no namespace is explicitly specified.
 const DefaultNamespace = "opendatahub"
 
-type InjectionType string
-
-const (
-	PodKill          InjectionType = "PodKill"
-	NetworkPartition InjectionType = "NetworkPartition"
-	CRDMutation      InjectionType = "CRDMutation"
-	ConfigDrift      InjectionType = "ConfigDrift"
-	WebhookDisrupt   InjectionType = "WebhookDisrupt"
-	RBACRevoke       InjectionType = "RBACRevoke"
-	FinalizerBlock   InjectionType = "FinalizerBlock"
-	ClientFault      InjectionType = "ClientFault"
-)
-
-var validInjectionTypes = map[InjectionType]bool{
-	PodKill:          true,
-	NetworkPartition: true,
-	CRDMutation:      true,
-	ConfigDrift:      true,
-	WebhookDisrupt:   true,
-	RBACRevoke:       true,
-	FinalizerBlock:   true,
-	ClientFault:      true,
-}
-
-func ValidInjectionTypes() []InjectionType {
-	types := make([]InjectionType, 0, len(validInjectionTypes))
-	for t := range validInjectionTypes {
-		types = append(types, t)
-	}
-	sort.Slice(types, func(i, j int) bool {
-		return string(types[i]) < string(types[j])
-	})
-	return types
-}
-
-func ValidateInjectionType(t InjectionType) error {
-	if !validInjectionTypes[t] {
-		return fmt.Errorf("unknown injection type %q; valid types: %v", t, ValidInjectionTypes())
-	}
-	return nil
-}
-
 type BlastRadiusSpec struct {
-	MaxPodsAffected    int      `json:"maxPodsAffected" yaml:"maxPodsAffected"`
-	AllowedNamespaces  []string `json:"allowedNamespaces" yaml:"allowedNamespaces"`
-	ForbiddenResources []string `json:"forbiddenResources,omitempty" yaml:"forbiddenResources,omitempty"`
-	AllowDangerous      bool     `json:"allowDangerous,omitempty" yaml:"allowDangerous,omitempty"`
-	DryRun              bool     `json:"dryRun,omitempty" yaml:"dryRun,omitempty"`
+	// +kubebuilder:validation:Minimum=1
+	MaxPodsAffected int32 `json:"maxPodsAffected"`
+	// +listType=set
+	AllowedNamespaces []string `json:"allowedNamespaces,omitempty"`
+	// +listType=set
+	ForbiddenResources []string `json:"forbiddenResources,omitempty"`
+	AllowDangerous     bool     `json:"allowDangerous,omitempty"`
+	DryRun             bool     `json:"dryRun,omitempty"`
 }
 
 type HypothesisSpec struct {
-	Description     string   `json:"description" yaml:"description"`
-	RecoveryTimeout Duration `json:"recoveryTimeout" yaml:"recoveryTimeout"`
+	// +kubebuilder:validation:MinLength=1
+	Description     string          `json:"description"`
+	// +optional
+	RecoveryTimeout metav1.Duration `json:"recoveryTimeout,omitempty"`
 }
 
 // Status types
 
-type ChaosExperimentStatus struct {
-	Phase           ExperimentPhase  `json:"phase,omitempty" yaml:"phase,omitempty"`
-	Verdict         Verdict          `json:"verdict,omitempty" yaml:"verdict,omitempty"`
-	StartTime       *time.Time       `json:"startTime,omitempty" yaml:"startTime,omitempty"`
-	EndTime         *time.Time       `json:"endTime,omitempty" yaml:"endTime,omitempty"`
-	SteadyStatePre  *CheckResult     `json:"steadyStatePre,omitempty" yaml:"steadyStatePre,omitempty"`
-	SteadyStatePost *CheckResult     `json:"steadyStatePost,omitempty" yaml:"steadyStatePost,omitempty"`
-	InjectionLog []InjectionEvent `json:"injectionLog,omitempty" yaml:"injectionLog,omitempty"`
-}
-
+// ExperimentPhase represents the current phase of the experiment.
+// +kubebuilder:validation:Enum="";Pending;SteadyStatePre;Injecting;Observing;SteadyStatePost;Evaluating;Complete;Aborted
 type ExperimentPhase string
 
 const (
@@ -191,6 +234,8 @@ const (
 	PhaseAborted         ExperimentPhase = "Aborted"
 )
 
+// Verdict represents the outcome of a chaos experiment.
+// +kubebuilder:validation:Enum="";Resilient;Degraded;Failed;Inconclusive
 type Verdict string
 
 const (
@@ -200,64 +245,66 @@ const (
 	Inconclusive Verdict = "Inconclusive"
 )
 
+// Condition type constants for ChaosExperiment status conditions.
+const (
+	ConditionSteadyStateEstablished = "SteadyStateEstablished"
+	ConditionFaultInjected          = "FaultInjected"
+	ConditionRecoveryObserved       = "RecoveryObserved"
+	ConditionComplete               = "Complete"
+)
+
+type ChaosExperimentStatus struct {
+	Phase              ExperimentPhase    `json:"phase,omitempty"`
+	Verdict            Verdict            `json:"verdict,omitempty"`
+	// +kubebuilder:validation:Minimum=0
+	ObservedGeneration int64              `json:"observedGeneration,omitempty"`
+	// Message provides a human-readable description of the current status.
+	// +optional
+	Message            string             `json:"message,omitempty"`
+	StartTime          *metav1.Time       `json:"startTime,omitempty"`
+	EndTime            *metav1.Time       `json:"endTime,omitempty"`
+	InjectionStartedAt *metav1.Time       `json:"injectionStartedAt,omitempty"`
+	SteadyStatePre     *CheckResult       `json:"steadyStatePre,omitempty"`
+	SteadyStatePost    *CheckResult       `json:"steadyStatePost,omitempty"`
+	// +listType=atomic
+	InjectionLog       []InjectionEvent   `json:"injectionLog,omitempty"`
+	EvaluationResult   *EvaluationSummary `json:"evaluationResult,omitempty"`
+	CleanupError       string             `json:"cleanupError,omitempty"`
+	// +listType=map
+	// +listMapKey=type
+	Conditions []metav1.Condition `json:"conditions,omitempty"`
+}
+
+// EvaluationSummary is the CRD-embeddable evaluation result.
+type EvaluationSummary struct {
+	Verdict         Verdict `json:"verdict"`
+	Confidence      string  `json:"confidence,omitempty"`
+	RecoveryTime    string  `json:"recoveryTime,omitempty"`
+	ReconcileCycles int     `json:"reconcileCycles,omitempty"`
+	// +listType=atomic
+	Deviations []string `json:"deviations,omitempty"`
+}
+
 type CheckResult struct {
-	Passed       bool          `json:"passed" yaml:"passed"`
-	ChecksRun    int           `json:"checksRun" yaml:"checksRun"`
-	ChecksPassed int           `json:"checksPassed" yaml:"checksPassed"`
-	Details      []CheckDetail `json:"details,omitempty" yaml:"details,omitempty"`
-	Timestamp    time.Time     `json:"timestamp" yaml:"timestamp"`
+	Passed       bool          `json:"passed"`
+	ChecksRun    int32         `json:"checksRun"`
+	ChecksPassed int32         `json:"checksPassed"`
+	// +listType=atomic
+	Details      []CheckDetail `json:"details,omitempty"`
+	Timestamp    metav1.Time   `json:"timestamp"`
 }
 
 type CheckDetail struct {
-	Check  SteadyStateCheck `json:"check" yaml:"check"`
-	Passed bool             `json:"passed" yaml:"passed"`
-	Value  string           `json:"value,omitempty" yaml:"value,omitempty"`
-	Error  string           `json:"error,omitempty" yaml:"error,omitempty"`
+	Check  SteadyStateCheck `json:"check"`
+	Passed bool             `json:"passed"`
+	Value  string           `json:"value,omitempty"`
+	Error  string           `json:"error,omitempty"`
 }
 
 type InjectionEvent struct {
-	Timestamp time.Time         `json:"timestamp" yaml:"timestamp"`
-	Type      InjectionType     `json:"type" yaml:"type"`
-	Target    string            `json:"target" yaml:"target"`
-	Action    string            `json:"action" yaml:"action"`
-	Details   map[string]string `json:"details,omitempty" yaml:"details,omitempty"`
-}
-
-// Duration wraps time.Duration for YAML/JSON serialization
-type Duration struct {
-	time.Duration
-}
-
-func (d Duration) MarshalJSON() ([]byte, error) {
-	return json.Marshal(d.String())
-}
-
-func (d *Duration) UnmarshalJSON(b []byte) error {
-	var s string
-	if err := json.Unmarshal(b, &s); err != nil {
-		return err
-	}
-	dur, err := time.ParseDuration(s)
-	if err != nil {
-		return err
-	}
-	d.Duration = dur
-	return nil
-}
-
-func (d Duration) MarshalYAML() (any, error) {
-	return d.String(), nil
-}
-
-func (d *Duration) UnmarshalYAML(unmarshal func(any) error) error {
-	var s string
-	if err := unmarshal(&s); err != nil {
-		return err
-	}
-	dur, err := time.ParseDuration(s)
-	if err != nil {
-		return err
-	}
-	d.Duration = dur
-	return nil
+	Timestamp metav1.Time       `json:"timestamp"`
+	Type      InjectionType     `json:"type"`
+	Target    string            `json:"target"`
+	Action    string            `json:"action"`
+	Details   map[string]string `json:"details,omitempty"`
 }

@@ -4,10 +4,15 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 func TestRollbackAnnotationKey(t *testing.T) {
@@ -88,8 +93,8 @@ func TestUnwrapRollbackData_NewEnvelopeFormat(t *testing.T) {
 	assert.Equal(t, "chaos.opendatahub.io/block", result["finalizer"])
 }
 
-func TestUnwrapRollbackData_LegacyFormat(t *testing.T) {
-	// Legacy format is just raw JSON without envelope
+func TestUnwrapRollbackData_LegacyFormat_Rejected(t *testing.T) {
+	// Legacy format (no integrity envelope) is no longer supported
 	legacy, err := json.Marshal(map[string]string{
 		"resourceType":  "ConfigMap",
 		"key":           "app.conf",
@@ -98,14 +103,13 @@ func TestUnwrapRollbackData_LegacyFormat(t *testing.T) {
 	require.NoError(t, err)
 
 	var result map[string]string
-	require.NoError(t, UnwrapRollbackData(string(legacy), &result))
-	assert.Equal(t, "ConfigMap", result["resourceType"])
-	assert.Equal(t, "app.conf", result["key"])
-	assert.Equal(t, "original-data", result["originalValue"])
+	err = UnwrapRollbackData(string(legacy), &result)
+	require.Error(t, err, "legacy format should be rejected")
+	assert.Contains(t, err.Error(), "legacy format is no longer supported")
 }
 
-func TestUnwrapRollbackData_LegacyArrayFormat(t *testing.T) {
-	// RBAC rollback stores an array of subjects directly
+func TestUnwrapRollbackData_LegacyArrayFormat_Rejected(t *testing.T) {
+	// RBAC rollback stores an array of subjects directly — legacy format rejected
 	type Subject struct {
 		Kind      string `json:"kind"`
 		Name      string `json:"name"`
@@ -120,10 +124,9 @@ func TestUnwrapRollbackData_LegacyArrayFormat(t *testing.T) {
 	require.NoError(t, err)
 
 	var result []Subject
-	require.NoError(t, UnwrapRollbackData(string(legacy), &result))
-	assert.Len(t, result, 2)
-	assert.Equal(t, "my-sa", result[0].Name)
-	assert.Equal(t, "admin", result[1].Name)
+	err = UnwrapRollbackData(string(legacy), &result)
+	require.Error(t, err, "legacy array format should be rejected")
+	assert.Contains(t, err.Error(), "not valid JSON")
 }
 
 func TestUnwrapRollbackData_ChecksumMismatch(t *testing.T) {
@@ -187,15 +190,15 @@ func TestWrapUnwrapRoundTrip_MapStringInterface(t *testing.T) {
 	assert.Equal(t, float64(3), result["originalValue"])
 }
 
-func TestUnwrapRollbackData_LegacyMapWithDataKey(t *testing.T) {
+func TestUnwrapRollbackData_LegacyMapWithDataKey_Rejected(t *testing.T) {
 	// Edge case: legacy format that happens to have a "data" key but no "checksum"
-	// Should be treated as legacy format
+	// Should be rejected since legacy format is no longer supported
 	legacy := `{"data":"some-value","key":"other"}`
 
 	var result map[string]string
-	require.NoError(t, UnwrapRollbackData(legacy, &result))
-	assert.Equal(t, "some-value", result["data"])
-	assert.Equal(t, "other", result["key"])
+	err := UnwrapRollbackData(legacy, &result)
+	require.Error(t, err, "legacy format with data key but no checksum should be rejected")
+	assert.Contains(t, err.Error(), "legacy format is no longer supported")
 }
 
 func TestWrapRollbackData_NilInput(t *testing.T) {
@@ -215,6 +218,111 @@ func TestWrapRollbackData_EmptyMap(t *testing.T) {
 	var result map[string]string
 	require.NoError(t, UnwrapRollbackData(wrapped, &result))
 	assert.Empty(t, result)
+}
+
+func TestApplyChaosMetadataNilMaps(t *testing.T) {
+	obj := &fakeObject{}
+	ApplyChaosMetadata(obj, "rollback-data", "PodKill")
+
+	assert.Equal(t, "rollback-data", obj.GetAnnotations()[RollbackAnnotationKey])
+	assert.Equal(t, ManagedByValue, obj.GetLabels()[ManagedByLabel])
+	assert.Equal(t, "PodKill", obj.GetLabels()[ChaosTypeLabel])
+}
+
+func TestApplyChaosMetadataPreservesExisting(t *testing.T) {
+	obj := &fakeObject{
+		annotations: map[string]string{"existing-annotation": "keep-me"},
+		labels:      map[string]string{"existing-label": "keep-me"},
+	}
+	ApplyChaosMetadata(obj, "rollback-data", "ConfigDrift")
+
+	assert.Equal(t, "keep-me", obj.GetAnnotations()["existing-annotation"])
+	assert.Equal(t, "rollback-data", obj.GetAnnotations()[RollbackAnnotationKey])
+	assert.Equal(t, "keep-me", obj.GetLabels()["existing-label"])
+	assert.Equal(t, ManagedByValue, obj.GetLabels()[ManagedByLabel])
+	assert.Equal(t, "ConfigDrift", obj.GetLabels()[ChaosTypeLabel])
+}
+
+func TestRemoveChaosMetadataPreservesOthers(t *testing.T) {
+	obj := &fakeObject{
+		annotations: map[string]string{
+			"existing-annotation": "keep-me",
+			RollbackAnnotationKey: "data",
+		},
+		labels: map[string]string{
+			"existing-label": "keep-me",
+			ManagedByLabel:   ManagedByValue,
+			ChaosTypeLabel:   "PodKill",
+		},
+	}
+	RemoveChaosMetadata(obj, "PodKill")
+
+	assert.Equal(t, "keep-me", obj.GetAnnotations()["existing-annotation"])
+	_, hasRollback := obj.GetAnnotations()[RollbackAnnotationKey]
+	assert.False(t, hasRollback)
+	assert.Equal(t, "keep-me", obj.GetLabels()["existing-label"])
+	_, hasManagedBy := obj.GetLabels()[ManagedByLabel]
+	assert.False(t, hasManagedBy)
+	_, hasChaosType := obj.GetLabels()[ChaosTypeLabel]
+	assert.False(t, hasChaosType)
+}
+
+func TestRemoveChaosMetadataNilMaps(t *testing.T) {
+	obj := &fakeObject{}
+	// Should be a no-op — no panic
+	RemoveChaosMetadata(obj, "PodKill")
+
+	assert.Nil(t, obj.GetAnnotations())
+	assert.Nil(t, obj.GetLabels())
+}
+
+// fakeObject implements client.Object minimally for testing ApplyChaosMetadata/RemoveChaosMetadata.
+type fakeObject struct {
+	annotations map[string]string
+	labels      map[string]string
+}
+
+func (f *fakeObject) GetAnnotations() map[string]string          { return f.annotations }
+func (f *fakeObject) SetAnnotations(a map[string]string)         { f.annotations = a }
+func (f *fakeObject) GetLabels() map[string]string               { return f.labels }
+func (f *fakeObject) SetLabels(l map[string]string)              { f.labels = l }
+func (f *fakeObject) GetNamespace() string                       { return "" }
+func (f *fakeObject) SetNamespace(string)                        {}
+func (f *fakeObject) GetName() string                            { return "" }
+func (f *fakeObject) SetName(string)                             {}
+func (f *fakeObject) GetGenerateName() string                    { return "" }
+func (f *fakeObject) SetGenerateName(string)                     {}
+func (f *fakeObject) GetUID() types.UID                          { return "" }
+func (f *fakeObject) SetUID(types.UID)                           {}
+func (f *fakeObject) GetResourceVersion() string                 { return "" }
+func (f *fakeObject) SetResourceVersion(string)                  {}
+func (f *fakeObject) GetGeneration() int64                       { return 0 }
+func (f *fakeObject) SetGeneration(int64)                        {}
+func (f *fakeObject) GetSelfLink() string                        { return "" }
+func (f *fakeObject) SetSelfLink(string)                         {}
+func (f *fakeObject) GetCreationTimestamp() metav1.Time          { return metav1.Time{} }
+func (f *fakeObject) SetCreationTimestamp(metav1.Time)           {}
+func (f *fakeObject) GetDeletionTimestamp() *metav1.Time         { return nil }
+func (f *fakeObject) SetDeletionTimestamp(*metav1.Time)          {}
+func (f *fakeObject) GetDeletionGracePeriodSeconds() *int64      { return nil }
+func (f *fakeObject) SetDeletionGracePeriodSeconds(*int64)       {}
+func (f *fakeObject) GetFinalizers() []string                    { return nil }
+func (f *fakeObject) SetFinalizers([]string)                     {}
+func (f *fakeObject) GetOwnerReferences() []metav1.OwnerReference { return nil }
+func (f *fakeObject) SetOwnerReferences([]metav1.OwnerReference)  {}
+func (f *fakeObject) GetManagedFields() []metav1.ManagedFieldsEntry { return nil }
+func (f *fakeObject) SetManagedFields([]metav1.ManagedFieldsEntry)  {}
+func (f *fakeObject) GetObjectKind() schema.ObjectKind            { return schema.EmptyObjectKind }
+func (f *fakeObject) DeepCopyObject() runtime.Object              { return f }
+
+func TestWrapRollbackData_OversizedRejected(t *testing.T) {
+	// Create data that exceeds maxRollbackDataSize (200KB)
+	largeData := map[string]string{
+		"key": strings.Repeat("x", maxRollbackDataSize+1),
+	}
+	_, err := WrapRollbackData(largeData)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "rollback data too large")
 }
 
 func FuzzUnwrapRollbackData(f *testing.F) {

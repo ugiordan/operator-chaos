@@ -6,6 +6,7 @@ import (
 
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
 	"github.com/opendatahub-io/odh-platform-chaos/pkg/safety"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -129,4 +130,61 @@ func (f *FinalizerBlockInjector) Inject(ctx context.Context, spec v1alpha1.Injec
 	}
 
 	return cleanup, events, nil
+}
+
+// Revert removes the injected finalizer and chaos metadata from the target resource.
+// It is idempotent: if no rollback annotation is present, it returns nil.
+func (f *FinalizerBlockInjector) Revert(ctx context.Context, spec v1alpha1.InjectionSpec, namespace string) error {
+	apiVersion := spec.Parameters["apiVersion"]
+	if apiVersion == "" {
+		apiVersion = "v1"
+	}
+	kind := spec.Parameters["kind"]
+	name := spec.Parameters["name"]
+
+	obj := &unstructured.Unstructured{}
+	obj.SetAPIVersion(apiVersion)
+	obj.SetKind(kind)
+
+	key := types.NamespacedName{Name: name, Namespace: namespace}
+
+	if err := f.client.Get(ctx, key, obj); err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil
+		}
+		return fmt.Errorf("getting resource %s/%s for revert: %w", kind, name, err)
+	}
+
+	// Check for rollback annotation — if absent, already reverted
+	rollbackStr, ok := obj.GetAnnotations()[safety.RollbackAnnotationKey]
+	if !ok {
+		return nil
+	}
+
+	var rollbackData map[string]string
+	if err := safety.UnwrapRollbackData(rollbackStr, &rollbackData); err != nil {
+		return fmt.Errorf("unwrapping rollback data for %s/%s: %w", kind, name, err)
+	}
+
+	finalizerName := rollbackData["finalizer"]
+	changed := controllerutil.RemoveFinalizer(obj, finalizerName)
+
+	// Remove chaos metadata
+	if _, hasAnnotation := obj.GetAnnotations()[safety.RollbackAnnotationKey]; hasAnnotation {
+		changed = true
+	}
+	for k := range safety.ChaosLabels(string(v1alpha1.FinalizerBlock)) {
+		if _, ok := obj.GetLabels()[k]; ok {
+			changed = true
+		}
+	}
+	safety.RemoveChaosMetadata(obj, string(v1alpha1.FinalizerBlock))
+
+	if changed {
+		if err := f.client.Update(ctx, obj); err != nil {
+			return fmt.Errorf("removing finalizer from %s/%s during revert: %w", kind, name, err)
+		}
+	}
+
+	return nil
 }

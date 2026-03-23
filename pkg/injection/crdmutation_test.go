@@ -33,11 +33,11 @@ func TestCRDMutationValidate(t *testing.T) {
 			spec: v1alpha1.InjectionSpec{
 				Type: v1alpha1.CRDMutation,
 				Parameters: map[string]string{
-					"apiVersion": "v1",
+					"apiVersion": "datasciencecluster.opendatahub.io/v1",
 					"kind":       "DataScienceCluster",
 					"name":       "default-dsc",
-					"field":      "replicas",
-					"value":      "0",
+					"field":      "managementState",
+					"value":      "Removed",
 				},
 			},
 			wantErr: false,
@@ -336,6 +336,58 @@ func TestCRDMutationInjectStoresRollbackAnnotation(t *testing.T) {
 	// Verify value was restored
 	restoredSpec, _, _ := unstructured.NestedMap(restored.Object, "spec")
 	assert.Equal(t, int64(5), restoredSpec["replicas"])
+}
+
+func TestCRDMutationRevert(t *testing.T) {
+	scheme := runtime.NewScheme()
+	gvk := schema.GroupVersionKind{Group: "test.example.com", Version: "v1", Kind: "TestResource"}
+	scheme.AddKnownTypeWithName(gvk, &unstructured.Unstructured{})
+	scheme.AddKnownTypeWithName(
+		schema.GroupVersionKind{Group: "test.example.com", Version: "v1", Kind: "TestResourceList"},
+		&unstructured.UnstructuredList{},
+	)
+
+	obj := &unstructured.Unstructured{}
+	obj.SetGroupVersionKind(gvk)
+	obj.SetName("revert-resource")
+	obj.SetNamespace("test-ns")
+	obj.Object["spec"] = map[string]interface{}{
+		"replicas": int64(3),
+	}
+
+	fakeClient := fake.NewClientBuilder().WithScheme(scheme).WithObjects(obj).Build()
+	injector := NewCRDMutationInjector(fakeClient)
+	ctx := context.Background()
+
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.CRDMutation,
+		Parameters: map[string]string{
+			"apiVersion": "test.example.com/v1",
+			"kind":       "TestResource",
+			"name":       "revert-resource",
+			"field":      "replicas",
+			"value":      "0",
+		},
+	}
+
+	// Inject
+	_, _, err := injector.Inject(ctx, spec, "test-ns")
+	require.NoError(t, err)
+
+	// Revert
+	err = injector.Revert(ctx, spec, "test-ns")
+	require.NoError(t, err)
+
+	// Verify value restored
+	restored := &unstructured.Unstructured{}
+	restored.SetGroupVersionKind(gvk)
+	require.NoError(t, fakeClient.Get(ctx, client_key("revert-resource", "test-ns"), restored))
+	restoredSpec, _, _ := unstructured.NestedMap(restored.Object, "spec")
+	assert.Equal(t, int64(3), restoredSpec["replicas"])
+
+	// Idempotent
+	err = injector.Revert(ctx, spec, "test-ns")
+	assert.NoError(t, err)
 }
 
 func TestCRDMutationInjectTypedValues(t *testing.T) {

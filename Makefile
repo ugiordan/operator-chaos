@@ -12,12 +12,21 @@ IMAGE_NAME ?= odh-chaos
 IMAGE_TAG ?= $(VERSION)
 IMAGE ?= $(IMAGE_REGISTRY)/$(IMAGE_NAME):$(IMAGE_TAG)
 
-.PHONY: build test test-short lint clean install container-build container-push
+# Code generation tools
+CONTROLLER_GEN ?= go run sigs.k8s.io/controller-tools/cmd/controller-gen
 
-build:
+.PHONY: build test test-short lint clean install container-build container-push generate manifests
+
+generate: ## Generate deepcopy methods
+	$(CONTROLLER_GEN) object paths=./api/...
+
+manifests: ## Generate CRD manifests
+	$(CONTROLLER_GEN) crd paths=./api/... output:crd:dir=config/crd/bases
+
+build: generate
 	go build -ldflags "$(LDFLAGS)" -o bin/$(BINARY) $(CMD)
 
-test:
+test: generate
 	go test -race ./... -v -count=1
 
 test-short:

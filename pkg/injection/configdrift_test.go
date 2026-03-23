@@ -43,7 +43,8 @@ func TestConfigDriftValidate(t *testing.T) {
 		{
 			name: "valid spec with Secret resourceType",
 			spec: v1alpha1.InjectionSpec{
-				Type: v1alpha1.ConfigDrift,
+				Type:        v1alpha1.ConfigDrift,
+				DangerLevel: v1alpha1.DangerLevelHigh,
 				Parameters: map[string]string{
 					"name":         "my-secret",
 					"key":          "password",
@@ -119,7 +120,8 @@ func TestConfigDriftValidate(t *testing.T) {
 					longName[i] = 'a'
 				}
 				return v1alpha1.InjectionSpec{
-					Type: v1alpha1.ConfigDrift,
+					Type:        v1alpha1.ConfigDrift,
+					DangerLevel: v1alpha1.DangerLevelHigh,
 					Parameters: map[string]string{
 						"name":         string(longName),
 						"key":          "my-key-val",
@@ -273,6 +275,98 @@ func TestConfigDriftInjectStoresRollbackAnnotation(t *testing.T) {
 	assert.Equal(t, "original-config", restored.Data["app.conf"])
 }
 
+func TestConfigDriftRevertConfigMap(t *testing.T) {
+	scheme := runtime.NewScheme()
+	require.NoError(t, corev1.AddToScheme(scheme))
+
+	cm := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "revert-cm",
+			Namespace: "test-ns",
+		},
+		Data: map[string]string{
+			"config.yaml": "original-value",
+		},
+	}
+
+	fakeClient := fake.NewClientBuilder().WithScheme(scheme).WithObjects(cm).Build()
+	injector := NewConfigDriftInjector(fakeClient)
+	ctx := context.Background()
+
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.ConfigDrift,
+		Parameters: map[string]string{
+			"name":  "revert-cm",
+			"key":   "config.yaml",
+			"value": "corrupted",
+		},
+	}
+
+	// Inject
+	_, _, err := injector.Inject(ctx, spec, "test-ns")
+	require.NoError(t, err)
+
+	// Revert via Revert() method
+	err = injector.Revert(ctx, spec, "test-ns")
+	require.NoError(t, err)
+
+	// Verify data restored
+	restored := &corev1.ConfigMap{}
+	require.NoError(t, fakeClient.Get(ctx, client.ObjectKey{Name: "revert-cm", Namespace: "test-ns"}, restored))
+	assert.Equal(t, "original-value", restored.Data["config.yaml"])
+
+	// Verify idempotent — second Revert is a no-op
+	err = injector.Revert(ctx, spec, "test-ns")
+	assert.NoError(t, err)
+}
+
+func TestConfigDriftRevertSecret(t *testing.T) {
+	scheme := runtime.NewScheme()
+	require.NoError(t, corev1.AddToScheme(scheme))
+
+	secret := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "revert-secret",
+			Namespace: "test-ns",
+		},
+		Data: map[string][]byte{
+			"password": []byte("original-password"),
+		},
+	}
+
+	fakeClient := fake.NewClientBuilder().WithScheme(scheme).WithObjects(secret).Build()
+	injector := NewConfigDriftInjector(fakeClient)
+	ctx := context.Background()
+
+	spec := v1alpha1.InjectionSpec{
+		Type:        v1alpha1.ConfigDrift,
+		DangerLevel: v1alpha1.DangerLevelHigh,
+		Parameters: map[string]string{
+			"name":         "revert-secret",
+			"key":          "password",
+			"value":        "corrupted-pw",
+			"resourceType": "Secret",
+		},
+	}
+
+	// Inject
+	_, _, err := injector.Inject(ctx, spec, "test-ns")
+	require.NoError(t, err)
+
+	// Revert
+	err = injector.Revert(ctx, spec, "test-ns")
+	require.NoError(t, err)
+
+	// Verify data restored
+	restored := &corev1.Secret{}
+	require.NoError(t, fakeClient.Get(ctx, client.ObjectKey{Name: "revert-secret", Namespace: "test-ns"}, restored))
+	assert.Equal(t, "original-password", string(restored.Data["password"]))
+
+	// Verify idempotent
+	err = injector.Revert(ctx, spec, "test-ns")
+	assert.NoError(t, err)
+}
+
 func TestConfigDriftInjectSecretAndCleanup(t *testing.T) {
 	scheme := runtime.NewScheme()
 	require.NoError(t, corev1.AddToScheme(scheme))
@@ -296,7 +390,8 @@ func TestConfigDriftInjectSecretAndCleanup(t *testing.T) {
 	ctx := context.Background()
 
 	spec := v1alpha1.InjectionSpec{
-		Type: v1alpha1.ConfigDrift,
+		Type:        v1alpha1.ConfigDrift,
+		DangerLevel: v1alpha1.DangerLevelHigh,
 		Parameters: map[string]string{
 			"name":         "my-secret",
 			"key":          "password",

@@ -299,6 +299,57 @@ func TestWebhookDisruptInjectStoresRollbackAnnotation(t *testing.T) {
 	assert.Equal(t, admissionv1.Ignore, *restored.Webhooks[0].FailurePolicy)
 }
 
+func TestWebhookDisruptRevert(t *testing.T) {
+	scheme := runtime.NewScheme()
+	require.NoError(t, admissionv1.AddToScheme(scheme))
+
+	ignorePolicy := admissionv1.Ignore
+	webhook := &admissionv1.ValidatingWebhookConfiguration{
+		ObjectMeta: metav1.ObjectMeta{Name: "revert-webhook"},
+		Webhooks: []admissionv1.ValidatingWebhook{
+			{
+				Name:                    "test.webhook.io",
+				FailurePolicy:           &ignorePolicy,
+				ClientConfig:            admissionv1.WebhookClientConfig{URL: strPtr("https://example.com")},
+				SideEffects:             sideEffectPtr(admissionv1.SideEffectClassNone),
+				AdmissionReviewVersions: []string{"v1"},
+			},
+		},
+	}
+
+	fakeClient := fake.NewClientBuilder().WithScheme(scheme).WithObjects(webhook).Build()
+	injector := NewWebhookDisruptInjector(fakeClient)
+
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.WebhookDisrupt,
+		Parameters: map[string]string{
+			"webhookName": "revert-webhook",
+			"action":      "setFailurePolicy",
+			"value":       "Fail",
+		},
+	}
+
+	ctx := context.Background()
+
+	// Inject
+	_, _, err := injector.Inject(ctx, spec, "default")
+	require.NoError(t, err)
+
+	// Revert
+	err = injector.Revert(ctx, spec, "default")
+	require.NoError(t, err)
+
+	// Verify policy restored
+	restored := &admissionv1.ValidatingWebhookConfiguration{}
+	require.NoError(t, fakeClient.Get(ctx, client.ObjectKey{Name: "revert-webhook"}, restored))
+	require.NotNil(t, restored.Webhooks[0].FailurePolicy)
+	assert.Equal(t, admissionv1.Ignore, *restored.Webhooks[0].FailurePolicy)
+
+	// Idempotent
+	err = injector.Revert(ctx, spec, "default")
+	assert.NoError(t, err)
+}
+
 func TestWebhookDisruptNotFound(t *testing.T) {
 	scheme := runtime.NewScheme()
 	require.NoError(t, admissionv1.AddToScheme(scheme))

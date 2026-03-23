@@ -83,14 +83,13 @@ func ValidateKnowledge(k *OperatorKnowledge) []string {
 		}
 	}
 
-	// Validate dependency references point to known component names
-	// and do not self-reference.
+	// Validate dependency references: reject self-references. Cross-operator
+	// dependencies (referencing components not in this file) are allowed since
+	// they are resolved at graph-build time across multiple knowledge files.
 	for i, comp := range k.Components {
 		for _, dep := range comp.Dependencies {
 			if dep == comp.Name {
 				errs = append(errs, fmt.Sprintf("components[%d].dependencies: self-referential dependency %q", i, dep))
-			} else if !componentNames[dep] {
-				errs = append(errs, fmt.Sprintf("components[%d].dependencies references unknown component %q", i, dep))
 			}
 		}
 	}

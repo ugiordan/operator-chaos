@@ -109,17 +109,16 @@ func buildOrchestrator(knowledgePaths []string, knowledgeDir string, dryRun bool
 	}
 
 	orch := orchestrator.New(orchestrator.OrchestratorConfig{
-		Registry:        registry,
-		Observer:        observer.NewKubernetesObserver(k8sClient),
-		Reconciler:      observer.NewReconciliationChecker(k8sClient),
-		Evaluator:       evaluator.New(maxCycles),
-		Lock:            lock,
-		Knowledge:       knowledge,
-		K8sClient:       k8sClient,
-		ReportDir:       reportDir,
-		Verbose:         verbose,
-		DepGraph:        depGraph,
-		KnowledgeModels: allModels,
+		Registry:   registry,
+		Observer:   observer.NewKubernetesObserver(k8sClient),
+		Reconciler: observer.NewReconciliationChecker(k8sClient),
+		Evaluator:  evaluator.New(maxCycles),
+		Lock:       lock,
+		Knowledge:  knowledge,
+		K8sClient:  k8sClient,
+		ReportDir:  reportDir,
+		Verbose:    verbose,
+		DepGraph:   depGraph,
 	})
 
 	return &orchestratorDeps{

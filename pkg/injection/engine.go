@@ -3,18 +3,24 @@ package injection
 import (
 	"context"
 	"fmt"
-	"time"
 
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // CleanupFunc is a function that reverses a fault injection when called.
 type CleanupFunc func(ctx context.Context) error
 
 // Injector defines the interface for fault injection strategies.
+//
+// The CleanupFunc returned by Inject is only valid for immediate use (e.g., in
+// standalone orchestrator mode) and MUST NOT be stored across process restarts.
+// Controller-based callers should discard it and use Revert() for stateless
+// cleanup, as all injectors persist rollback data in annotations/Secrets.
 type Injector interface {
 	Validate(spec v1alpha1.InjectionSpec, blast v1alpha1.BlastRadiusSpec) error
 	Inject(ctx context.Context, spec v1alpha1.InjectionSpec, namespace string) (CleanupFunc, []v1alpha1.InjectionEvent, error)
+	Revert(ctx context.Context, spec v1alpha1.InjectionSpec, namespace string) error
 }
 
 // Registry maps injection types to their corresponding Injector implementations.
@@ -54,7 +60,7 @@ func (r *Registry) ListTypes() []v1alpha1.InjectionType {
 // NewEvent creates an InjectionEvent with the current timestamp.
 func NewEvent(t v1alpha1.InjectionType, target string, action string, details map[string]string) v1alpha1.InjectionEvent {
 	return v1alpha1.InjectionEvent{
-		Timestamp: time.Now(),
+		Timestamp: metav1.Now(),
 		Type:      t,
 		Target:    target,
 		Action:    action,

@@ -243,6 +243,91 @@ func TestClientFaultInjectWithCustomConfigMapName(t *testing.T) {
 	require.NoError(t, cleanup(ctx))
 }
 
+func TestClientFaultRevertDeletesCreatedCM(t *testing.T) {
+	scheme := runtime.NewScheme()
+	require.NoError(t, corev1.AddToScheme(scheme))
+
+	fakeClient := fake.NewClientBuilder().WithScheme(scheme).Build()
+	injector := NewClientFaultInjector(fakeClient)
+	ctx := context.Background()
+
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.ClientFault,
+		Parameters: map[string]string{
+			"faults": `{"get":{"errorRate":0.5,"error":"test"}}`,
+		},
+	}
+
+	// Inject when no CM exists — should create it
+	_, _, err := injector.Inject(ctx, spec, "opendatahub")
+	require.NoError(t, err)
+
+	// Verify CM exists
+	cm := &corev1.ConfigMap{}
+	require.NoError(t, fakeClient.Get(ctx, client.ObjectKey{
+		Name: sdk.ChaosConfigMapName, Namespace: "opendatahub",
+	}, cm))
+
+	// Revert should delete the CM
+	err = injector.Revert(ctx, spec, "opendatahub")
+	require.NoError(t, err)
+
+	// Verify CM is gone
+	err = fakeClient.Get(ctx, client.ObjectKey{
+		Name: sdk.ChaosConfigMapName, Namespace: "opendatahub",
+	}, cm)
+	assert.Error(t, err, "CM should be deleted after revert")
+
+	// Idempotent — second revert when CM is already gone
+	err = injector.Revert(ctx, spec, "opendatahub")
+	assert.NoError(t, err)
+}
+
+func TestClientFaultRevertRestoresExistingCM(t *testing.T) {
+	scheme := runtime.NewScheme()
+	require.NoError(t, corev1.AddToScheme(scheme))
+
+	existingCM := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      sdk.ChaosConfigMapName,
+			Namespace: "opendatahub",
+		},
+		Data: map[string]string{
+			sdk.ChaosConfigKey: `{"active":false,"faults":{}}`,
+		},
+	}
+
+	fakeClient := fake.NewClientBuilder().WithScheme(scheme).WithObjects(existingCM).Build()
+	injector := NewClientFaultInjector(fakeClient)
+	ctx := context.Background()
+
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.ClientFault,
+		Parameters: map[string]string{
+			"faults": `{"get":{"errorRate":0.5,"error":"injected"}}`,
+		},
+	}
+
+	// Inject
+	_, _, err := injector.Inject(ctx, spec, "opendatahub")
+	require.NoError(t, err)
+
+	// Revert
+	err = injector.Revert(ctx, spec, "opendatahub")
+	require.NoError(t, err)
+
+	// Verify data restored
+	cm := &corev1.ConfigMap{}
+	require.NoError(t, fakeClient.Get(ctx, client.ObjectKey{
+		Name: sdk.ChaosConfigMapName, Namespace: "opendatahub",
+	}, cm))
+	assert.Equal(t, `{"active":false,"faults":{}}`, cm.Data[sdk.ChaosConfigKey])
+
+	// Idempotent
+	err = injector.Revert(ctx, spec, "opendatahub")
+	assert.NoError(t, err)
+}
+
 func TestClientFaultCleanupWhenCMDeletedExternally(t *testing.T) {
 	scheme := runtime.NewScheme()
 	require.NoError(t, corev1.AddToScheme(scheme))

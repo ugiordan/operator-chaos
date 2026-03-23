@@ -39,12 +39,20 @@ type rollbackEnvelope struct {
 	Checksum string          `json:"checksum"`
 }
 
+// maxRollbackDataSize is the maximum size of serialized rollback data.
+// Kubernetes annotations have a 256KB total limit; we cap at 200KB to leave
+// room for the integrity envelope and other annotations on the object.
+const maxRollbackDataSize = 200000
+
 // WrapRollbackData serializes data with an integrity checksum.
 // The output format is: {"data": {...actual rollback data...}, "checksum": "<sha256 hex>"}
 func WrapRollbackData(data any) (string, error) {
 	raw, err := json.Marshal(data)
 	if err != nil {
 		return "", err
+	}
+	if len(raw) > maxRollbackDataSize {
+		return "", fmt.Errorf("rollback data too large (%d bytes, max %d); reduce target resource complexity", len(raw), maxRollbackDataSize)
 	}
 	hash := sha256.Sum256(raw)
 	envelope := rollbackEnvelope{
@@ -59,16 +67,15 @@ func WrapRollbackData(data any) (string, error) {
 }
 
 // UnwrapRollbackData deserializes and verifies checksum integrity.
-// Supports legacy format (no envelope) for backward compatibility.
+// Data must be in the integrity envelope format produced by WrapRollbackData.
+// Legacy format (no envelope) is rejected — re-run the experiment to upgrade.
 func UnwrapRollbackData(raw string, target any) error {
 	var envelope rollbackEnvelope
 	if err := json.Unmarshal([]byte(raw), &envelope); err != nil {
-		// Cannot parse as envelope at all — treat as legacy format
-		return json.Unmarshal([]byte(raw), target)
+		return fmt.Errorf("rollback data is not valid JSON: %w", err)
 	}
 	if envelope.Data == nil || envelope.Checksum == "" {
-		// Legacy format: valid JSON but no envelope structure
-		return json.Unmarshal([]byte(raw), target)
+		return fmt.Errorf("rollback data missing integrity envelope (legacy format is no longer supported; re-run the experiment to upgrade)")
 	}
 	hash := sha256.Sum256(envelope.Data)
 	expected := hex.EncodeToString(hash[:])

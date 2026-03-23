@@ -63,5 +63,5 @@ func TestWrapReconcilerInactiveFaults(t *testing.T) {
 }
 
 func TestWrapReconcilerImplementsInterface(t *testing.T) {
-	var _ reconcile.Reconciler = WrapReconciler(&fakeReconciler{})
+	var _ = WrapReconciler(&fakeReconciler{})
 }

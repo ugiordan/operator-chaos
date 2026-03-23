@@ -109,6 +109,45 @@ func TestNetworkPartitionInjectUsesChaosLabels(t *testing.T) {
 		"chaos-type label should match injection type")
 }
 
+func TestNetworkPartitionRevert(t *testing.T) {
+	scheme := runtime.NewScheme()
+	require.NoError(t, networkingv1.AddToScheme(scheme))
+
+	fakeClient := fake.NewClientBuilder().WithScheme(scheme).Build()
+	injector := NewNetworkPartitionInjector(fakeClient)
+
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.NetworkPartition,
+		Parameters: map[string]string{
+			"labelSelector": "app=dashboard",
+		},
+	}
+
+	ctx := context.Background()
+
+	// Inject
+	_, _, err := injector.Inject(ctx, spec, "test-ns")
+	require.NoError(t, err)
+
+	// Verify policy exists
+	policies := &networkingv1.NetworkPolicyList{}
+	require.NoError(t, fakeClient.List(ctx, policies, client.InNamespace("test-ns")))
+	require.Len(t, policies.Items, 1)
+
+	// Revert
+	err = injector.Revert(ctx, spec, "test-ns")
+	require.NoError(t, err)
+
+	// Verify policy deleted
+	policies = &networkingv1.NetworkPolicyList{}
+	require.NoError(t, fakeClient.List(ctx, policies, client.InNamespace("test-ns")))
+	assert.Len(t, policies.Items, 0)
+
+	// Idempotent
+	err = injector.Revert(ctx, spec, "test-ns")
+	assert.NoError(t, err)
+}
+
 func TestNetworkPartitionInjectAndCleanup(t *testing.T) {
 	scheme := runtime.NewScheme()
 	require.NoError(t, networkingv1.AddToScheme(scheme))

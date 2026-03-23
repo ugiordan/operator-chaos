@@ -83,8 +83,51 @@ func TestValidateInjectionParams_NetworkPartitionMissingSelector(t *testing.T) {
 }
 
 func TestValidateInjectionParams_CRDMutation(t *testing.T) {
+	// CRD (non-core) type should pass without dangerLevel: high
 	spec := v1alpha1.InjectionSpec{
 		Type: v1alpha1.CRDMutation,
+		Parameters: map[string]string{
+			"apiVersion": "datasciencecluster.opendatahub.io/v1",
+			"kind":       "DataScienceCluster",
+			"name":       "my-cluster",
+			"field":      "managementState",
+			"value":      "Removed",
+		},
+	}
+	blast := v1alpha1.BlastRadiusSpec{
+		MaxPodsAffected:   1,
+		AllowedNamespaces: []string{"test"},
+	}
+	err := ValidateInjectionParams(spec, blast)
+	assert.NoError(t, err)
+}
+
+func TestValidateInjectionParams_CRDMutation_CoreTypeRequiresDangerHigh(t *testing.T) {
+	// Core K8s type without dangerLevel: high should be rejected
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.CRDMutation,
+		Parameters: map[string]string{
+			"apiVersion": "v1",
+			"kind":       "ConfigMap",
+			"name":       "my-config",
+			"field":      "replicas",
+			"value":      "0",
+		},
+	}
+	blast := v1alpha1.BlastRadiusSpec{
+		MaxPodsAffected:   1,
+		AllowedNamespaces: []string{"test"},
+	}
+	err := ValidateInjectionParams(spec, blast)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "dangerLevel: high")
+}
+
+func TestValidateInjectionParams_CRDMutation_CoreTypeWithDangerHigh(t *testing.T) {
+	// Core K8s type with dangerLevel: high should pass
+	spec := v1alpha1.InjectionSpec{
+		Type:        v1alpha1.CRDMutation,
+		DangerLevel: v1alpha1.DangerLevelHigh,
 		Parameters: map[string]string{
 			"apiVersion": "v1",
 			"kind":       "ConfigMap",
@@ -251,7 +294,8 @@ func TestValidateInjectionParams_RBACRevokeMissingBindingName(t *testing.T) {
 
 func TestValidateInjectionParams_FinalizerBlock(t *testing.T) {
 	spec := v1alpha1.InjectionSpec{
-		Type: v1alpha1.FinalizerBlock,
+		Type:        v1alpha1.FinalizerBlock,
+		DangerLevel: v1alpha1.DangerLevelHigh,
 		Parameters: map[string]string{
 			"kind": "ConfigMap",
 			"name": "my-config",
@@ -535,6 +579,131 @@ func TestValidateInjectionParams_ClientFault_ValidDelay(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestValidateInjectionParams_ConfigDrift_SystemCritical(t *testing.T) {
+	for _, name := range []string{"kube-root-ca.crt", "coredns", "kube-proxy", "cluster-info", "extension-apiserver-authentication"} {
+		t.Run(name, func(t *testing.T) {
+			spec := v1alpha1.InjectionSpec{
+				Type: v1alpha1.ConfigDrift,
+				Parameters: map[string]string{
+					"name":  name,
+					"key":   "settings.json",
+					"value": "corrupted",
+				},
+			}
+			blast := v1alpha1.BlastRadiusSpec{
+				MaxPodsAffected:   1,
+				AllowedNamespaces: []string{"test"},
+			}
+			err := ValidateInjectionParams(spec, blast)
+			assert.Error(t, err)
+			assert.Contains(t, err.Error(), "system-critical")
+		})
+	}
+}
+
+func TestValidateInjectionParams_RBACRevoke_RoleBindingSystemPrefix(t *testing.T) {
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.RBACRevoke,
+		Parameters: map[string]string{
+			"bindingName": "system:controller:token-cleaner",
+			"bindingType": "RoleBinding",
+		},
+	}
+	blast := v1alpha1.BlastRadiusSpec{
+		MaxPodsAffected:   1,
+		AllowedNamespaces: []string{"test"},
+	}
+	err := ValidateInjectionParams(spec, blast)
+	assert.Error(t, err)
+	// Deny-list checks run before name validation, so "system:" prefix is caught first.
+	assert.Contains(t, err.Error(), "targeting system binding")
+}
+
+func TestValidateInjectionParams_WebhookDisrupt_OpenshiftPrefix(t *testing.T) {
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.WebhookDisrupt,
+		Parameters: map[string]string{
+			"webhookName": "openshift-apiserver-webhook",
+			"action":      "setFailurePolicy",
+		},
+	}
+	blast := v1alpha1.BlastRadiusSpec{
+		MaxPodsAffected:   1,
+		AllowedNamespaces: []string{"test"},
+	}
+	err := ValidateInjectionParams(spec, blast)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "OpenShift webhook")
+}
+
+func TestValidateInjectionParams_WebhookDisrupt_CertManager(t *testing.T) {
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.WebhookDisrupt,
+		Parameters: map[string]string{
+			"webhookName": "cert-manager-webhook",
+			"action":      "setFailurePolicy",
+		},
+	}
+	blast := v1alpha1.BlastRadiusSpec{
+		MaxPodsAffected:   1,
+		AllowedNamespaces: []string{"test"},
+	}
+	err := ValidateInjectionParams(spec, blast)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "system-critical webhook")
+}
+
+func TestValidateInjectionParams_WebhookDisrupt_IstioSidecar(t *testing.T) {
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.WebhookDisrupt,
+		Parameters: map[string]string{
+			"webhookName": "istio-sidecar-injector",
+			"action":      "setFailurePolicy",
+		},
+	}
+	blast := v1alpha1.BlastRadiusSpec{
+		MaxPodsAffected:   1,
+		AllowedNamespaces: []string{"test"},
+	}
+	err := ValidateInjectionParams(spec, blast)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "system-critical webhook")
+}
+
+func TestValidateInjectionParams_FinalizerBlock_Namespace(t *testing.T) {
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.FinalizerBlock,
+		Parameters: map[string]string{
+			"kind": "Namespace",
+			"name": "my-ns",
+		},
+	}
+	blast := v1alpha1.BlastRadiusSpec{
+		MaxPodsAffected:   1,
+		AllowedNamespaces: []string{"test"},
+	}
+	err := ValidateInjectionParams(spec, blast)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "not allowed")
+}
+
+func TestValidateInjectionParams_FinalizerBlock_Node(t *testing.T) {
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.FinalizerBlock,
+		Parameters: map[string]string{
+			"kind": "Node",
+			"name": "my-node",
+		},
+	}
+	blast := v1alpha1.BlastRadiusSpec{
+		MaxPodsAffected:   1,
+		AllowedNamespaces: []string{"test"},
+	}
+	err := ValidateInjectionParams(spec, blast)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "not allowed")
+}
+
 func TestValidateInjectionParams_ClientFault_InvalidDelay(t *testing.T) {
 	spec := v1alpha1.InjectionSpec{
 		Type: v1alpha1.ClientFault,
@@ -549,4 +718,80 @@ func TestValidateInjectionParams_ClientFault_InvalidDelay(t *testing.T) {
 	err := ValidateInjectionParams(spec, blast)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "delay")
+}
+
+func TestValidateInjectionParams_NilParametersMap(t *testing.T) {
+	blast := v1alpha1.BlastRadiusSpec{
+		MaxPodsAffected:   1,
+		AllowedNamespaces: []string{"test"},
+	}
+	for _, injType := range v1alpha1.ValidInjectionTypes() {
+		t.Run(string(injType), func(t *testing.T) {
+			spec := v1alpha1.InjectionSpec{
+				Type:       injType,
+				Count:      1,
+				Parameters: nil,
+			}
+			err := ValidateInjectionParams(spec, blast)
+			assert.Error(t, err, "nil parameters should be rejected for type %s", injType)
+		})
+	}
+}
+
+func TestValidateInjectionParams_CRDMutation_EmptyApiVersion(t *testing.T) {
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.CRDMutation,
+		Parameters: map[string]string{
+			"apiVersion": "",
+			"kind":       "MyResource",
+			"name":       "my-resource",
+			"field":      "replicas",
+			"value":      "3",
+		},
+	}
+	blast := v1alpha1.BlastRadiusSpec{
+		MaxPodsAffected:   1,
+		AllowedNamespaces: []string{"test"},
+	}
+	err := ValidateInjectionParams(spec, blast)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "apiVersion")
+}
+
+func TestValidateInjectionParams_CRDMutation_EmptyKind(t *testing.T) {
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.CRDMutation,
+		Parameters: map[string]string{
+			"apiVersion": "apps/v1",
+			"kind":       "",
+			"name":       "my-resource",
+			"field":      "replicas",
+			"value":      "3",
+		},
+		DangerLevel: v1alpha1.DangerLevelHigh,
+	}
+	blast := v1alpha1.BlastRadiusSpec{
+		MaxPodsAffected:   1,
+		AllowedNamespaces: []string{"test"},
+	}
+	err := ValidateInjectionParams(spec, blast)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "kind")
+}
+
+func TestValidateInjectionParams_FinalizerBlock_EmptyKind(t *testing.T) {
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.FinalizerBlock,
+		Parameters: map[string]string{
+			"kind": "",
+			"name": "my-resource",
+		},
+	}
+	blast := v1alpha1.BlastRadiusSpec{
+		MaxPodsAffected:   1,
+		AllowedNamespaces: []string{"test"},
+	}
+	err := ValidateInjectionParams(spec, blast)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "kind")
 }

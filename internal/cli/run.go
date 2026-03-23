@@ -23,7 +23,7 @@ func newRunCommand() *cobra.Command {
 	)
 
 	cmd := &cobra.Command{
-		Use:   "run [experiment.yaml]",
+		Use:   "run <experiment.yaml>",
 		Short: "Run a chaos experiment",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

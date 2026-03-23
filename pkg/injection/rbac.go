@@ -7,6 +7,7 @@ import (
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
 	"github.com/opendatahub-io/odh-platform-chaos/pkg/safety"
 	rbacv1 "k8s.io/api/rbac/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -84,19 +85,10 @@ func (r *RBACRevokeInjector) injectClusterRoleBinding(ctx context.Context, bindi
 			}),
 	}
 
-	// Cleanup restores original subjects and removes rollback metadata
+	// Cleanup uses the Revert method to restore from annotation data,
+	// avoiding stale closure variables if the binding is externally modified.
 	cleanup := func(ctx context.Context) error {
-		current := &rbacv1.ClusterRoleBinding{}
-		if err := r.client.Get(ctx, client.ObjectKey{Name: bindingName}, current); err != nil {
-			return fmt.Errorf("re-fetching ClusterRoleBinding %q for cleanup: %w", bindingName, err)
-		}
-
-		current.Subjects = originalSubjects
-
-		// Remove rollback annotation and chaos labels
-		safety.RemoveChaosMetadata(current, string(v1alpha1.RBACRevoke))
-
-		return r.client.Update(ctx, current)
+		return r.revertClusterRoleBinding(ctx, bindingName)
 	}
 
 	return cleanup, events, nil
@@ -141,20 +133,77 @@ func (r *RBACRevokeInjector) injectRoleBinding(ctx context.Context, bindingName,
 			}),
 	}
 
-	// Cleanup restores original subjects and removes rollback metadata
+	// Cleanup uses the Revert method to restore from annotation data,
+	// avoiding stale closure variables if the binding is externally modified.
 	cleanup := func(ctx context.Context) error {
-		current := &rbacv1.RoleBinding{}
-		if err := r.client.Get(ctx, client.ObjectKey{Name: bindingName, Namespace: namespace}, current); err != nil {
-			return fmt.Errorf("re-fetching RoleBinding %q in namespace %q for cleanup: %w", bindingName, namespace, err)
-		}
-
-		current.Subjects = originalSubjects
-
-		// Remove rollback annotation and chaos labels
-		safety.RemoveChaosMetadata(current, string(v1alpha1.RBACRevoke))
-
-		return r.client.Update(ctx, current)
+		return r.revertRoleBinding(ctx, bindingName, namespace)
 	}
 
 	return cleanup, events, nil
+}
+
+// Revert restores the original subjects on the ClusterRoleBinding or RoleBinding.
+// It is idempotent: if no rollback annotation is present, it returns nil.
+func (r *RBACRevokeInjector) Revert(ctx context.Context, spec v1alpha1.InjectionSpec, namespace string) error {
+	bindingName := spec.Parameters["bindingName"]
+	bindingType := spec.Parameters["bindingType"]
+
+	switch bindingType {
+	case "ClusterRoleBinding":
+		return r.revertClusterRoleBinding(ctx, bindingName)
+	case "RoleBinding":
+		return r.revertRoleBinding(ctx, bindingName, namespace)
+	default:
+		return fmt.Errorf("unsupported bindingType %q for revert", bindingType)
+	}
+}
+
+func (r *RBACRevokeInjector) revertClusterRoleBinding(ctx context.Context, bindingName string) error {
+	crb := &rbacv1.ClusterRoleBinding{}
+	if err := r.client.Get(ctx, client.ObjectKey{Name: bindingName}, crb); err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil
+		}
+		return fmt.Errorf("getting ClusterRoleBinding %q for revert: %w", bindingName, err)
+	}
+
+	rollbackStr, ok := crb.GetAnnotations()[safety.RollbackAnnotationKey]
+	if !ok {
+		return nil
+	}
+
+	var originalSubjects []rbacv1.Subject
+	if err := safety.UnwrapRollbackData(rollbackStr, &originalSubjects); err != nil {
+		return fmt.Errorf("unwrapping rollback data for ClusterRoleBinding %q: %w", bindingName, err)
+	}
+
+	crb.Subjects = originalSubjects
+	safety.RemoveChaosMetadata(crb, string(v1alpha1.RBACRevoke))
+
+	return r.client.Update(ctx, crb)
+}
+
+func (r *RBACRevokeInjector) revertRoleBinding(ctx context.Context, bindingName, namespace string) error {
+	rb := &rbacv1.RoleBinding{}
+	if err := r.client.Get(ctx, client.ObjectKey{Name: bindingName, Namespace: namespace}, rb); err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil
+		}
+		return fmt.Errorf("getting RoleBinding %q for revert: %w", bindingName, err)
+	}
+
+	rollbackStr, ok := rb.GetAnnotations()[safety.RollbackAnnotationKey]
+	if !ok {
+		return nil
+	}
+
+	var originalSubjects []rbacv1.Subject
+	if err := safety.UnwrapRollbackData(rollbackStr, &originalSubjects); err != nil {
+		return fmt.Errorf("unwrapping rollback data for RoleBinding %q: %w", bindingName, err)
+	}
+
+	rb.Subjects = originalSubjects
+	safety.RemoveChaosMetadata(rb, string(v1alpha1.RBACRevoke))
+
+	return r.client.Update(ctx, rb)
 }

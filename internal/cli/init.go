@@ -15,13 +15,11 @@ func injectionParameters(injType v1alpha1.InjectionType, component string) (para
 	case v1alpha1.NetworkPartition:
 		params = fmt.Sprintf("      labelSelector: \"app.kubernetes.io/part-of=%s\"", component)
 	case v1alpha1.CRDMutation:
-		params = fmt.Sprintf(`      apiVersion: "apps/v1"
-      kind: "Deployment"
+		params = fmt.Sprintf(`      apiVersion: "replace-with-crd-api-version"
+      kind: "replace-with-crd-kind"
       name: "%s"
-      field: "replicas"
-      value: "0"`, component)
-		dangerLevel = fmt.Sprintf("    dangerLevel: %s", v1alpha1.DangerLevelHigh)
-		allowDangerous = "    allowDangerous: true"
+      field: "chaosTest"
+      value: "injected"`, component)
 	case v1alpha1.ConfigDrift:
 		params = fmt.Sprintf(`      name: "%s-config"
       key: "replace-key"
@@ -39,6 +37,9 @@ func injectionParameters(injType v1alpha1.InjectionType, component string) (para
 	case v1alpha1.FinalizerBlock:
 		params = fmt.Sprintf(`      kind: "Deployment"
       name: "%s"`, component)
+	case v1alpha1.ClientFault:
+		params = `      faults: '{"reconcile":{"errorRate":0.3,"error":"connection refused"}}'`
+		dangerLevel = fmt.Sprintf("    dangerLevel: %s", v1alpha1.DangerLevelMedium)
 	default: // PodKill
 		params = fmt.Sprintf("      labelSelector: \"app.kubernetes.io/part-of=%s\"", component)
 	}
@@ -80,6 +81,27 @@ func newInitCommand() *cobra.Command {
 				allowDangerousLine = "\n" + allowDangerous
 			}
 
+			// Cluster-scoped injection types must NOT include allowedNamespaces
+			clusterScoped := injType == v1alpha1.WebhookDisrupt ||
+				injType == v1alpha1.RBACRevoke
+
+			if clusterScoped && namespace != v1alpha1.DefaultNamespace {
+				fmt.Fprintf(cmd.ErrOrStderr(), "Warning: --namespace is ignored for cluster-scoped injection type %s\n", injType)
+			}
+
+			var blastRadiusBlock string
+			if clusterScoped {
+				blastRadiusBlock = fmt.Sprintf(`  blastRadius:
+    maxPodsAffected: 1
+    dryRun: false%s`, allowDangerousLine)
+			} else {
+				blastRadiusBlock = fmt.Sprintf(`  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - %s
+    dryRun: false%s`, namespace, allowDangerousLine)
+			}
+
 			tmpl := `apiVersion: chaos.opendatahub.io/v1alpha1
 kind: ChaosExperiment
 metadata:
@@ -100,13 +122,9 @@ spec:
     ttl: "300s"%s
     parameters:
 %s
-  blastRadius:
-    maxPodsAffected: 1
-    allowedNamespaces:
-      - %s
-    dryRun: false%s
+%s
 `
-			fmt.Fprintf(cmd.OutOrStdout(), tmpl,
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), tmpl,
 				component, injectionType,
 				component,
 				operator, component, component,
@@ -114,15 +132,14 @@ spec:
 				injectionType,
 				dangerLevelLine,
 				params,
-				namespace,
-				allowDangerousLine,
+				blastRadiusBlock,
 			)
 			return nil
 		},
 	}
 
 	cmd.Flags().StringVar(&component, "component", "", "target component name (required)")
-	cmd.Flags().StringVar(&injectionType, "type", "PodKill", "injection type")
+	cmd.Flags().StringVar(&injectionType, "type", "PodKill", "injection type (PodKill|NetworkPartition|CRDMutation|ConfigDrift|WebhookDisrupt|RBACRevoke|FinalizerBlock|ClientFault)")
 	cmd.Flags().StringVar(&operator, "operator", "opendatahub-operator", "target operator")
 	cmd.Flags().StringVar(&namespace, "namespace", v1alpha1.DefaultNamespace, "target namespace")
 

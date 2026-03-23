@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.25"
+          go-version: "1.25.0"
       - name: Run tests
         run: go test -race ./... -count=1
 
@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.25"
+          go-version: "1.25.0"
       - name: Run go vet
         run: go vet ./...
 
@@ -37,9 +37,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.25"
+          go-version: "1.25.0"
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v7
+        with:
+          version: v2.11.4
 
   validate-experiments:
     runs-on: ubuntu-latest
@@ -47,7 +49,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.25"
+          go-version: "1.25.0"
       - name: Build CLI
         run: go build -o bin/odh-chaos ./cmd/odh-chaos
       - name: Validate experiment files
@@ -78,6 +80,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.25"
+          go-version: "1.25.0"
       - name: Build
         run: go build -o /dev/null ./...

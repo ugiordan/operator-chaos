@@ -2,6 +2,7 @@ package model
 
 import (
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // OperatorKnowledge encodes the full semantics of an operator:
@@ -29,7 +30,7 @@ type ComponentModel struct {
 	Controller       string                  `json:"controller" yaml:"controller"`
 	ManagedResources []ManagedResource       `json:"managedResources" yaml:"managedResources"`
 	Dependencies     []string                `json:"dependencies,omitempty" yaml:"dependencies,omitempty"`
-	SteadyState      v1alpha1.SteadyStateDef `json:"steadyState,omitempty" yaml:"steadyState,omitempty"`
+	SteadyState      v1alpha1.SteadyStateSpec `json:"steadyState,omitempty" yaml:"steadyState,omitempty"`
 	Webhooks         []WebhookSpec           `json:"webhooks,omitempty" yaml:"webhooks,omitempty"`
 	Finalizers       []string                `json:"finalizers,omitempty" yaml:"finalizers,omitempty"`
 }
@@ -56,8 +57,8 @@ type WebhookSpec struct {
 // RecoveryExpectations defines how long the framework should wait for
 // operator recovery and how many reconcile cycles to tolerate.
 type RecoveryExpectations struct {
-	ReconcileTimeout   v1alpha1.Duration `json:"reconcileTimeout" yaml:"reconcileTimeout"`
-	MaxReconcileCycles int               `json:"maxReconcileCycles" yaml:"maxReconcileCycles"`
+	ReconcileTimeout   metav1.Duration `json:"reconcileTimeout" yaml:"reconcileTimeout"`
+	MaxReconcileCycles int             `json:"maxReconcileCycles" yaml:"maxReconcileCycles"`
 }
 
 // GetComponent returns the component with the given name, or nil if not found.

@@ -147,7 +147,7 @@ func TestInit_SharedStructure(t *testing.T) {
 
 	assert.Equal(t, "chaos.opendatahub.io/v1alpha1", exp.APIVersion)
 	assert.Equal(t, "ChaosExperiment", exp.Kind)
-	assert.Contains(t, exp.Metadata.Name, "dashboard")
+	assert.Contains(t, exp.Name, "dashboard")
 	assert.Equal(t, "dashboard", exp.Spec.Target.Component)
 	assert.Equal(t, "my-operator", exp.Spec.Target.Operator)
 	assert.NotEmpty(t, exp.Spec.Hypothesis.Description)
@@ -161,9 +161,22 @@ func TestInit_MissingComponent(t *testing.T) {
 	assert.Error(t, err, "should fail when --component is not provided")
 }
 
+func TestInit_ClientFault(t *testing.T) {
+	out := executeInit(t, "--component", "dashboard", "--type", "ClientFault")
+	exp := parseExperiment(t, out)
+
+	assert.Equal(t, v1alpha1.ClientFault, exp.Spec.Injection.Type)
+	assert.Contains(t, exp.Spec.Injection.Parameters, "faults")
+	assert.NotEmpty(t, exp.Spec.Injection.Parameters["faults"])
+	assert.Equal(t, v1alpha1.DangerLevelMedium, exp.Spec.Injection.DangerLevel)
+
+	errs := experiment.Validate(exp)
+	assert.Empty(t, errs, "generated ClientFault template should pass validation, got: %v", errs)
+}
+
 func TestInit_DangerLevelForDangerousTypes(t *testing.T) {
-	// CRDMutation, WebhookDisrupt, and RBACRevoke are dangerous types
-	dangerousTypes := []string{"CRDMutation", "WebhookDisrupt", "RBACRevoke"}
+	// WebhookDisrupt and RBACRevoke are dangerous cluster-scoped types
+	dangerousTypes := []string{"WebhookDisrupt", "RBACRevoke"}
 	for _, typ := range dangerousTypes {
 		t.Run(typ, func(t *testing.T) {
 			out := executeInit(t, "--component", "dashboard", "--type", typ)

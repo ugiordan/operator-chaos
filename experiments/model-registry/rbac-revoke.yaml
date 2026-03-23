@@ -32,6 +32,4 @@ spec:
     recoveryTimeout: 120s
   blastRadius:
     maxPodsAffected: 1
-    allowedNamespaces:
-      - odh-model-registries
     allowDangerous: true

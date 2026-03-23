@@ -200,7 +200,9 @@ var clusterScopedKinds = map[string]bool{
 	"Namespace":                        true,
 	"PersistentVolume":                 true,
 	"StorageClass":                     true,
+	"IngressClass":                     true,
 	"PriorityClass":                    true,
+	"APIService":                       true,
 	"Node":                             true,
 }
 
@@ -278,14 +280,14 @@ func checkSingleResource(ctx context.Context, k8sClient client.Client, mr model.
 func printResourceTable(results []resourceStatus) {
 	fmt.Println("\n--- Cluster Resource Check ---")
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	fmt.Fprintf(w, "  COMPONENT\tNAME\tKIND\tSTATUS\n")
-	fmt.Fprintf(w, "  ---------\t----\t----\t------\n")
+	_, _ = fmt.Fprintf(w, "  COMPONENT\tNAME\tKIND\tSTATUS\n")
+	_, _ = fmt.Fprintf(w, "  ---------\t----\t----\t------\n")
 	for _, r := range results {
 		status := r.Status
 		if r.Error != "" {
 			status = fmt.Sprintf("%s (%s)", r.Status, r.Error)
 		}
-		fmt.Fprintf(w, "  %s\t%s\t%s\t%s\n", r.Component, r.Name, r.Kind, status)
+		_, _ = fmt.Fprintf(w, "  %s\t%s\t%s\t%s\n", r.Component, r.Name, r.Kind, status)
 	}
-	w.Flush()
+	_ = w.Flush()
 }

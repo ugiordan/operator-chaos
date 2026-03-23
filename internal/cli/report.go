@@ -19,7 +19,7 @@ func newReportCommand() *cobra.Command {
 	)
 
 	cmd := &cobra.Command{
-		Use:   "report [results-directory]",
+		Use:   "report <results-directory>",
 		Short: "Generate summary reports from experiment results",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -55,6 +55,10 @@ func newReportCommand() *cobra.Command {
 				return nil
 			}
 
+			if format != "junit" && outputDir != "" {
+				fmt.Fprintf(os.Stderr, "Warning: --output is only used with --format junit, ignoring\n")
+			}
+
 			if format == "junit" {
 				output := os.Stdout
 				if outputDir != "" {
@@ -63,7 +67,7 @@ func newReportCommand() *cobra.Command {
 					if err != nil {
 						return fmt.Errorf("creating output file: %w", err)
 					}
-					defer f.Close()
+					defer func() { _ = f.Close() }()
 					output = f
 					fmt.Fprintf(os.Stderr, "Writing JUnit report to %s\n", outPath)
 				}

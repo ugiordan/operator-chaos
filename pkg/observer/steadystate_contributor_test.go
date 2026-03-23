@@ -3,11 +3,11 @@ package observer
 import (
 	"context"
 	"testing"
-	"time"
 
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type mockObserver struct {
@@ -23,7 +23,7 @@ func TestSteadyStateContributor_Passed(t *testing.T) {
 	board := NewObservationBoard()
 	obs := &mockObserver{
 		result: &v1alpha1.CheckResult{
-			Passed: true, ChecksRun: 2, ChecksPassed: 2, Timestamp: time.Now(),
+			Passed: true, ChecksRun: 2, ChecksPassed: 2, Timestamp: metav1.Now(),
 		},
 	}
 	checks := []v1alpha1.SteadyStateCheck{
@@ -44,7 +44,7 @@ func TestSteadyStateContributor_Passed(t *testing.T) {
 func TestSteadyStateContributor_Failed(t *testing.T) {
 	board := NewObservationBoard()
 	obs := &mockObserver{
-		result: &v1alpha1.CheckResult{Passed: false, ChecksRun: 1, ChecksPassed: 0, Timestamp: time.Now()},
+		result: &v1alpha1.CheckResult{Passed: false, ChecksRun: 1, ChecksPassed: 0, Timestamp: metav1.Now()},
 	}
 
 	contrib := NewSteadyStateContributor(obs, []v1alpha1.SteadyStateCheck{{Type: v1alpha1.CheckConditionTrue}}, "ns")

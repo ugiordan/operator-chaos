@@ -3,10 +3,11 @@ package observer
 import (
 	"context"
 	"fmt"
-	"time"
 
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -25,8 +26,8 @@ func NewKubernetesObserver(c client.Client) *KubernetesObserver {
 // and returns a CheckResult summarizing which checks passed or failed.
 func (o *KubernetesObserver) CheckSteadyState(ctx context.Context, checks []v1alpha1.SteadyStateCheck, namespace string) (*v1alpha1.CheckResult, error) {
 	result := &v1alpha1.CheckResult{
-		ChecksRun: len(checks),
-		Timestamp: time.Now(),
+		ChecksRun: int32(len(checks)),
+		Timestamp: metav1.Now(),
 	}
 
 	for _, check := range checks {
@@ -115,7 +116,10 @@ func (o *KubernetesObserver) checkResourceExists(ctx context.Context, check v1al
 
 	err := o.client.Get(ctx, types.NamespacedName{Name: check.Name, Namespace: ns}, obj)
 	if err != nil {
-		return false, nil // Resource doesn't exist, but this isn't an error - just a failed check
+		if apierrors.IsNotFound(err) {
+			return false, nil // Resource genuinely doesn't exist
+		}
+		return false, fmt.Errorf("checking %s/%s: %w", check.Kind, check.Name, err)
 	}
 	return true, nil
 }

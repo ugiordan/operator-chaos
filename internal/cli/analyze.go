@@ -13,7 +13,7 @@ func newAnalyzeCommand() *cobra.Command {
 	var jsonOutput bool
 
 	cmd := &cobra.Command{
-		Use:   "analyze [directory]",
+		Use:   "analyze <directory>",
 		Short: "Analyze Go source code for fault injection candidates",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

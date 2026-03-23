@@ -5,16 +5,16 @@ import "time"
 // TTLAnnotationKey is the annotation key used to store the expiration timestamp on chaos-injected resources.
 const TTLAnnotationKey = "chaos.opendatahub.io/expires"
 
-// TTLExpiry returns an RFC3339 timestamp representing now plus the given duration.
-func TTLExpiry(ttl time.Duration) string {
-	return time.Now().Add(ttl).Format(time.RFC3339)
+// TTLExpiry returns the TTL annotation value for the given duration from the provided time.
+func TTLExpiry(now time.Time, d time.Duration) string {
+	return now.Add(d).Format(time.RFC3339)
 }
 
-// IsExpired returns true if the given RFC3339 expiry string is in the past or malformed.
-func IsExpired(expiryStr string) bool {
-	expiry, err := time.Parse(time.RFC3339, expiryStr)
+// IsExpired returns true if the TTL annotation value has expired relative to the provided time.
+func IsExpired(now time.Time, annotation string) bool {
+	t, err := time.Parse(time.RFC3339, annotation)
 	if err != nil {
 		return true // malformed = treat as expired
 	}
-	return time.Now().After(expiry)
+	return now.After(t)
 }

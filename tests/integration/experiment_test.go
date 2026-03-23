@@ -91,7 +91,7 @@ func TestPodKillExperimentE2E(t *testing.T) {
 
 	// 5. Create experiment
 	exp := &v1alpha1.ChaosExperiment{
-		Metadata: v1alpha1.Metadata{
+		ObjectMeta: metav1.ObjectMeta{
 			Name:      "test-pod-kill",
 			Namespace: "chaos-test",
 		},
@@ -113,7 +113,7 @@ func TestPodKillExperimentE2E(t *testing.T) {
 			},
 			Hypothesis: v1alpha1.HypothesisSpec{
 				Description:     "App recovers from pod kill",
-				RecoveryTimeout: v1alpha1.Duration{Duration: 30 * time.Second},
+				RecoveryTimeout: metav1.Duration{Duration: 30 * time.Second},
 			},
 		},
 	}
@@ -150,7 +150,7 @@ func TestDryRunExperimentE2E(t *testing.T) {
 	})
 
 	exp := &v1alpha1.ChaosExperiment{
-		Metadata: v1alpha1.Metadata{
+		ObjectMeta: metav1.ObjectMeta{
 			Name:      "dry-run-test",
 			Namespace: "test-ns",
 		},
@@ -173,7 +173,7 @@ func TestDryRunExperimentE2E(t *testing.T) {
 			},
 			Hypothesis: v1alpha1.HypothesisSpec{
 				Description:     "Dry run test",
-				RecoveryTimeout: v1alpha1.Duration{Duration: 60 * time.Second},
+				RecoveryTimeout: metav1.Duration{Duration: 60 * time.Second},
 			},
 		},
 	}

@@ -7,6 +7,7 @@ import (
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
 	"github.com/opendatahub-io/odh-platform-chaos/pkg/observer"
 	"github.com/stretchr/testify/assert"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func TestEvaluateResilient(t *testing.T) {
@@ -18,7 +19,7 @@ func TestEvaluateResilient(t *testing.T) {
 		true, // all reconciled
 		2,    // reconcile cycles
 		12*time.Second, // recovery time
-		v1alpha1.HypothesisSpec{RecoveryTimeout: v1alpha1.Duration{Duration: 60 * time.Second}},
+		v1alpha1.HypothesisSpec{RecoveryTimeout: metav1.Duration{Duration: 60 * time.Second}},
 	)
 
 	assert.Equal(t, v1alpha1.Resilient, result.Verdict)
@@ -34,7 +35,7 @@ func TestEvaluateFailed(t *testing.T) {
 		&v1alpha1.CheckResult{Passed: true, ChecksRun: 3, ChecksPassed: 3},
 		&v1alpha1.CheckResult{Passed: false, ChecksRun: 3, ChecksPassed: 1},
 		false, 0, 120*time.Second,
-		v1alpha1.HypothesisSpec{RecoveryTimeout: v1alpha1.Duration{Duration: 60 * time.Second}},
+		v1alpha1.HypothesisSpec{RecoveryTimeout: metav1.Duration{Duration: 60 * time.Second}},
 	)
 
 	assert.Equal(t, v1alpha1.Failed, result.Verdict)
@@ -47,7 +48,7 @@ func TestEvaluateDegraded_SlowRecovery(t *testing.T) {
 		&v1alpha1.CheckResult{Passed: true, ChecksRun: 3, ChecksPassed: 3},
 		&v1alpha1.CheckResult{Passed: true, ChecksRun: 3, ChecksPassed: 3},
 		true, 3, 90*time.Second,
-		v1alpha1.HypothesisSpec{RecoveryTimeout: v1alpha1.Duration{Duration: 60 * time.Second}},
+		v1alpha1.HypothesisSpec{RecoveryTimeout: metav1.Duration{Duration: 60 * time.Second}},
 	)
 
 	assert.Equal(t, v1alpha1.Degraded, result.Verdict)
@@ -60,7 +61,7 @@ func TestEvaluateDegraded_ExcessiveCycles(t *testing.T) {
 		&v1alpha1.CheckResult{Passed: true, ChecksRun: 3, ChecksPassed: 3},
 		&v1alpha1.CheckResult{Passed: true, ChecksRun: 3, ChecksPassed: 3},
 		true, 15, 30*time.Second, // 15 cycles > max 5
-		v1alpha1.HypothesisSpec{RecoveryTimeout: v1alpha1.Duration{Duration: 60 * time.Second}},
+		v1alpha1.HypothesisSpec{RecoveryTimeout: metav1.Duration{Duration: 60 * time.Second}},
 	)
 
 	assert.Equal(t, v1alpha1.Degraded, result.Verdict)
@@ -74,7 +75,7 @@ func TestEvaluateInconclusive(t *testing.T) {
 		&v1alpha1.CheckResult{Passed: false, ChecksRun: 3, ChecksPassed: 1}, // pre-check failed
 		&v1alpha1.CheckResult{Passed: false, ChecksRun: 3, ChecksPassed: 1},
 		false, 0, 0,
-		v1alpha1.HypothesisSpec{RecoveryTimeout: v1alpha1.Duration{Duration: 60 * time.Second}},
+		v1alpha1.HypothesisSpec{RecoveryTimeout: metav1.Duration{Duration: 60 * time.Second}},
 	)
 
 	assert.Equal(t, v1alpha1.Inconclusive, result.Verdict)
@@ -83,7 +84,7 @@ func TestEvaluateInconclusive(t *testing.T) {
 // --- EvaluateFromFindings tests ---
 
 func defaultHypothesis() v1alpha1.HypothesisSpec {
-	return v1alpha1.HypothesisSpec{RecoveryTimeout: v1alpha1.Duration{Duration: 60 * time.Second}}
+	return v1alpha1.HypothesisSpec{RecoveryTimeout: metav1.Duration{Duration: 60 * time.Second}}
 }
 
 func reconFinding(allReconciled bool, cycles int, recovery time.Duration) observer.Finding {
@@ -97,7 +98,7 @@ func reconFinding(allReconciled bool, cycles int, recovery time.Duration) observ
 	}
 }
 
-func ssFinding(passed bool, run, passed_ int) observer.Finding {
+func ssFinding(passed bool, run, passed_ int32) observer.Finding {
 	return observer.Finding{
 		Source: observer.SourceSteadyState,
 		Checks: &v1alpha1.CheckResult{Passed: passed, ChecksRun: run, ChecksPassed: passed_},

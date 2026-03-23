@@ -3,12 +3,12 @@ package observer
 import (
 	"context"
 	"testing"
-	"time"
 
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
 	"github.com/opendatahub-io/odh-platform-chaos/pkg/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type collateralMockObserver struct {
@@ -31,7 +31,7 @@ func TestCollateralContributor_AllPass(t *testing.T) {
 			Passed:       true,
 			ChecksRun:    1,
 			ChecksPassed: 1,
-			Timestamp:    time.Now(),
+			Timestamp:    metav1.Now(),
 		},
 	}
 
@@ -40,7 +40,7 @@ func TestCollateralContributor_AllPass(t *testing.T) {
 			Ref: model.ComponentRef{Operator: "op-a", Component: "comp-1"},
 			Component: &model.ComponentModel{
 				Name: "comp-1",
-				SteadyState: v1alpha1.SteadyStateDef{
+				SteadyState: v1alpha1.SteadyStateSpec{
 					Checks: []v1alpha1.SteadyStateCheck{
 						{Type: v1alpha1.CheckConditionTrue, Name: "comp-1"},
 					},
@@ -70,7 +70,7 @@ func TestCollateralContributor_OneFails(t *testing.T) {
 			Passed:       false,
 			ChecksRun:    1,
 			ChecksPassed: 0,
-			Timestamp:    time.Now(),
+			Timestamp:    metav1.Now(),
 		},
 	}
 
@@ -79,7 +79,7 @@ func TestCollateralContributor_OneFails(t *testing.T) {
 			Ref: model.ComponentRef{Operator: "op-b", Component: "comp-2"},
 			Component: &model.ComponentModel{
 				Name: "comp-2",
-				SteadyState: v1alpha1.SteadyStateDef{
+				SteadyState: v1alpha1.SteadyStateSpec{
 					Checks: []v1alpha1.SteadyStateCheck{
 						{Type: v1alpha1.CheckResourceExists, Name: "comp-2"},
 					},
@@ -103,7 +103,7 @@ func TestCollateralContributor_SkipsNoChecks(t *testing.T) {
 	obs := &collateralMockObserver{
 		result: &v1alpha1.CheckResult{
 			Passed:    true,
-			Timestamp: time.Now(),
+			Timestamp: metav1.Now(),
 		},
 	}
 
@@ -112,7 +112,7 @@ func TestCollateralContributor_SkipsNoChecks(t *testing.T) {
 			Ref: model.ComponentRef{Operator: "op-c", Component: "comp-3"},
 			Component: &model.ComponentModel{
 				Name: "comp-3",
-				SteadyState: v1alpha1.SteadyStateDef{
+				SteadyState: v1alpha1.SteadyStateSpec{
 					Checks: []v1alpha1.SteadyStateCheck{}, // Empty checks
 				},
 			},
@@ -135,7 +135,7 @@ func TestCollateralContributor_MultipleDependents(t *testing.T) {
 			Passed:       true,
 			ChecksRun:    1,
 			ChecksPassed: 1,
-			Timestamp:    time.Now(),
+			Timestamp:    metav1.Now(),
 		},
 	}
 
@@ -144,7 +144,7 @@ func TestCollateralContributor_MultipleDependents(t *testing.T) {
 			Ref: model.ComponentRef{Operator: "op-d", Component: "comp-4"},
 			Component: &model.ComponentModel{
 				Name: "comp-4",
-				SteadyState: v1alpha1.SteadyStateDef{
+				SteadyState: v1alpha1.SteadyStateSpec{
 					Checks: []v1alpha1.SteadyStateCheck{
 						{Type: v1alpha1.CheckConditionTrue, Name: "comp-4"},
 					},
@@ -156,7 +156,7 @@ func TestCollateralContributor_MultipleDependents(t *testing.T) {
 			Ref: model.ComponentRef{Operator: "op-e", Component: "comp-5"},
 			Component: &model.ComponentModel{
 				Name: "comp-5",
-				SteadyState: v1alpha1.SteadyStateDef{
+				SteadyState: v1alpha1.SteadyStateSpec{
 					Checks: []v1alpha1.SteadyStateCheck{
 						{Type: v1alpha1.CheckResourceExists, Name: "comp-5"},
 					},

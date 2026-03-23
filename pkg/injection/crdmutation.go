@@ -7,6 +7,7 @@ import (
 
 	v1alpha1 "github.com/opendatahub-io/odh-platform-chaos/api/v1alpha1"
 	"github.com/opendatahub-io/odh-platform-chaos/pkg/safety"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -43,7 +44,10 @@ func (m *CRDMutationInjector) Inject(ctx context.Context, spec v1alpha1.Injectio
 
 	// Save original field value for cleanup
 	fieldName := spec.Parameters["field"]
-	specMap, _, _ := unstructured.NestedMap(obj.Object, "spec")
+	specMap, _, err := unstructured.NestedMap(obj.Object, "spec")
+	if err != nil {
+		return nil, nil, fmt.Errorf("reading spec from %s/%s: %w", spec.Parameters["kind"], spec.Parameters["name"], err)
+	}
 	var originalValue any
 	if specMap != nil {
 		originalValue = specMap[fieldName]
@@ -149,6 +153,70 @@ func (m *CRDMutationInjector) Inject(ctx context.Context, spec v1alpha1.Injectio
 	}
 
 	return cleanup, events, nil
+}
+
+// Revert restores the original field value on the custom resource using a merge patch.
+// It is idempotent: if no rollback annotation is present, it returns nil.
+func (m *CRDMutationInjector) Revert(ctx context.Context, spec v1alpha1.InjectionSpec, namespace string) error {
+	obj := &unstructured.Unstructured{}
+	obj.SetAPIVersion(spec.Parameters["apiVersion"])
+	obj.SetKind(spec.Parameters["kind"])
+
+	key := types.NamespacedName{
+		Name:      spec.Parameters["name"],
+		Namespace: namespace,
+	}
+
+	if err := m.client.Get(ctx, key, obj); err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil
+		}
+		return fmt.Errorf("getting resource %s/%s for revert: %w", spec.Parameters["kind"], spec.Parameters["name"], err)
+	}
+
+	// Check for rollback annotation — if absent, already reverted
+	annotations := obj.GetAnnotations()
+	rollbackStr, ok := annotations[safety.RollbackAnnotationKey]
+	if !ok {
+		return nil
+	}
+
+	var rollbackInfo map[string]any
+	if err := safety.UnwrapRollbackData(rollbackStr, &rollbackInfo); err != nil {
+		return fmt.Errorf("unwrapping rollback data for %s/%s: %w", spec.Parameters["kind"], spec.Parameters["name"], err)
+	}
+
+	fieldName, ok := rollbackInfo["field"].(string)
+	if !ok || fieldName == "" {
+		return fmt.Errorf("rollback data missing or invalid 'field' key for %s/%s", spec.Parameters["kind"], spec.Parameters["name"])
+	}
+	originalValue := rollbackInfo["originalValue"]
+
+	// Build chaos labels to remove
+	chaosLabels := safety.ChaosLabels(string(v1alpha1.CRDMutation))
+	restoreAnnotations := map[string]any{
+		safety.RollbackAnnotationKey: nil,
+	}
+	restoreLabels := make(map[string]any)
+	for k := range chaosLabels {
+		restoreLabels[k] = nil
+	}
+
+	restorePatchMap := map[string]any{
+		"metadata": map[string]any{
+			"annotations": restoreAnnotations,
+			"labels":      restoreLabels,
+		},
+		"spec": map[string]any{
+			fieldName: originalValue,
+		},
+	}
+	restorePatch, err := json.Marshal(restorePatchMap)
+	if err != nil {
+		return fmt.Errorf("building restore patch: %w", err)
+	}
+
+	return m.client.Patch(ctx, obj, client.RawPatch(types.MergePatchType, restorePatch))
 }
 
 // parseTypedValue attempts to interpret a string as a JSON literal. If the

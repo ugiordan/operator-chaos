@@ -44,7 +44,7 @@ func validateExperiment(path string) error {
 		return fmt.Errorf("%d validation errors", len(errs))
 	}
 
-	fmt.Printf("Experiment '%s' is valid.\n", exp.Metadata.Name)
+	fmt.Printf("Experiment '%s' is valid.\n", exp.Name)
 	return nil
 }
 

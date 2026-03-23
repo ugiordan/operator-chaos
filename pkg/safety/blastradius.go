@@ -10,7 +10,7 @@ import (
 // When affectedCount <= 0, it is defaulted to 1 to match the injection-type default behavior
 // (e.g., PodKill defaults count to 1 when unset). This ensures the blast radius check uses
 // the same effective count that the injector will actually apply.
-func ValidateBlastRadius(spec v1alpha1.BlastRadiusSpec, targetNamespace string, targetResource string, affectedCount int) error {
+func ValidateBlastRadius(spec v1alpha1.BlastRadiusSpec, targetNamespace string, targetResource string, affectedCount int32) error {
 	// Default to 1 when count is zero or negative, matching the injection defaulting
 	// in validatePodKillParams. count=0 means "use injection-type default (typically 1)".
 	if affectedCount <= 0 {

@@ -2,7 +2,6 @@ package cli
 
 import (
 	"context"
-	"encoding/json"
 	"testing"
 	"time"
 
@@ -36,12 +35,12 @@ func newTestScheme() *runtime.Scheme {
 	return scheme
 }
 
-// mustMarshal marshals v to JSON, panicking on error (test helper only).
+// mustMarshal marshals v to JSON wrapped in an integrity envelope (test helper only).
 func mustMarshal(t *testing.T, v interface{}) string {
 	t.Helper()
-	data, err := json.Marshal(v)
+	wrapped, err := safety.WrapRollbackData(v)
 	require.NoError(t, err)
-	return string(data)
+	return wrapped
 }
 
 // chaosLabelsFor returns a full set of chaos labels for the given injection type.

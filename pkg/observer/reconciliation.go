@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/opendatahub-io/odh-platform-chaos/pkg/clock"
 	"github.com/opendatahub-io/odh-platform-chaos/pkg/model"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/types"
@@ -19,11 +20,12 @@ const reconciliationPollInterval = 2 * time.Second
 // spec, conditions, and owner references), not just pod restarts.
 type ReconciliationChecker struct {
 	client client.Client
+	clock  clock.Clock
 }
 
 // NewReconciliationChecker creates a new ReconciliationChecker with the given client.
 func NewReconciliationChecker(c client.Client) *ReconciliationChecker {
-	return &ReconciliationChecker{client: c}
+	return &ReconciliationChecker{client: c, clock: clock.RealClock{}}
 }
 
 // ReconciliationResult captures the outcome of reconciliation verification,
@@ -58,16 +60,19 @@ func (r *ReconciliationChecker) CheckReconciliation(
 		AllReconciled: true,
 	}
 
-	startTime := time.Now()
+	startTime := r.clock.Now()
 	deadline := startTime.Add(timeout)
 	cycles := 0
 
 	ticker := time.NewTicker(reconciliationPollInterval)
 	defer ticker.Stop()
 
-	for time.Now().Before(deadline) {
+	for r.clock.Now().Before(deadline) {
 		cycles++
 		allGood := true
+		// Reset resources at start of each cycle so the last cycle's
+		// diagnostic data is preserved on timeout.
+		result.Resources = nil
 
 		for _, mr := range component.ManagedResources {
 			ns := mr.Namespace
@@ -141,12 +146,9 @@ func (r *ReconciliationChecker) CheckReconciliation(
 		if allGood {
 			result.AllReconciled = true
 			result.ReconcileCycles = cycles
-			result.RecoveryTime = time.Since(startTime)
+			result.RecoveryTime = r.clock.Now().Sub(startTime)
 			return result, nil
 		}
-
-		// Reset resources for next cycle
-		result.Resources = nil
 
 		// Wait for poll interval or context cancellation
 		select {
@@ -155,13 +157,13 @@ func (r *ReconciliationChecker) CheckReconciliation(
 		case <-ctx.Done():
 			result.AllReconciled = false
 			result.ReconcileCycles = cycles
-			result.RecoveryTime = time.Since(startTime)
+			result.RecoveryTime = r.clock.Now().Sub(startTime)
 			return result, ctx.Err()
 		}
 	}
 
 	result.AllReconciled = false
 	result.ReconcileCycles = cycles
-	result.RecoveryTime = time.Since(startTime)
+	result.RecoveryTime = r.clock.Now().Sub(startTime)
 	return result, nil
 }

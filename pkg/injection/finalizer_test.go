@@ -28,7 +28,8 @@ func TestFinalizerBlockValidate(t *testing.T) {
 		{
 			name: "valid spec",
 			spec: v1alpha1.InjectionSpec{
-				Type: v1alpha1.FinalizerBlock,
+				Type:        v1alpha1.FinalizerBlock,
+				DangerLevel: v1alpha1.DangerLevelHigh,
 				Parameters: map[string]string{
 					"apiVersion": "v1",
 					"kind":       "ConfigMap",
@@ -41,7 +42,8 @@ func TestFinalizerBlockValidate(t *testing.T) {
 		{
 			name: "valid spec without finalizer uses default",
 			spec: v1alpha1.InjectionSpec{
-				Type: v1alpha1.FinalizerBlock,
+				Type:        v1alpha1.FinalizerBlock,
+				DangerLevel: v1alpha1.DangerLevelHigh,
 				Parameters: map[string]string{
 					"apiVersion": "v1",
 					"kind":       "ConfigMap",
@@ -309,6 +311,51 @@ func TestFinalizerBlockInjectStoresRollbackAnnotation(t *testing.T) {
 
 	// Verify finalizer was also removed
 	assert.NotContains(t, restored.Finalizers, "chaos.opendatahub.io/block")
+}
+
+func TestFinalizerBlockRevert(t *testing.T) {
+	scheme := runtime.NewScheme()
+	require.NoError(t, corev1.AddToScheme(scheme))
+
+	cm := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{Name: "revert-finalized", Namespace: "default"},
+	}
+
+	k8sClient := fake.NewClientBuilder().WithScheme(scheme).WithObjects(cm).Build()
+	injector := NewFinalizerBlockInjector(k8sClient)
+	ctx := context.Background()
+
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.FinalizerBlock,
+		Parameters: map[string]string{
+			"apiVersion": "v1",
+			"kind":       "ConfigMap",
+			"name":       "revert-finalized",
+			"finalizer":  "chaos.opendatahub.io/block",
+		},
+	}
+
+	// Inject
+	_, _, err := injector.Inject(ctx, spec, "default")
+	require.NoError(t, err)
+
+	// Verify finalizer was added
+	modified := &corev1.ConfigMap{}
+	require.NoError(t, k8sClient.Get(ctx, client.ObjectKey{Name: "revert-finalized", Namespace: "default"}, modified))
+	assert.Contains(t, modified.Finalizers, "chaos.opendatahub.io/block")
+
+	// Revert
+	err = injector.Revert(ctx, spec, "default")
+	require.NoError(t, err)
+
+	// Verify finalizer removed
+	restored := &corev1.ConfigMap{}
+	require.NoError(t, k8sClient.Get(ctx, client.ObjectKey{Name: "revert-finalized", Namespace: "default"}, restored))
+	assert.NotContains(t, restored.Finalizers, "chaos.opendatahub.io/block")
+
+	// Idempotent
+	err = injector.Revert(ctx, spec, "default")
+	assert.NoError(t, err)
 }
 
 func TestFinalizerBlockRejectsDuplicateFinalizer(t *testing.T) {

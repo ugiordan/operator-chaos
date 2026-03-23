@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/opendatahub-io/odh-platform-chaos/pkg/clock"
 	coordinationv1 "k8s.io/api/coordination/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -17,8 +18,6 @@ import (
 // considered expired after this many seconds (15 minutes).
 const DefaultLeaseDurationSeconds = int32(900)
 
-const leaseReleaseTimeout = 10 * time.Second
-
 // LeaseExperimentLock implements ExperimentLock using Kubernetes Lease objects
 // for distributed safety. Only one experiment per operator can run across
 // all instances of odh-chaos in the cluster.
@@ -26,6 +25,7 @@ type LeaseExperimentLock struct {
 	client    client.Client
 	namespace string
 	logger    *slog.Logger
+	clock     clock.Clock
 }
 
 // NewLeaseExperimentLock creates a distributed lock backed by Kubernetes Lease objects.
@@ -34,7 +34,28 @@ func NewLeaseExperimentLock(c client.Client, namespace string) *LeaseExperimentL
 		client:    c,
 		namespace: namespace,
 		logger:    slog.Default(),
+		clock:     clock.RealClock{},
 	}
+}
+
+// WithClock returns a copy of the lock using the given clock (for testing).
+func (l *LeaseExperimentLock) WithClock(c clock.Clock) *LeaseExperimentLock {
+	copy := *l
+	copy.clock = c
+	return &copy
+}
+
+// leaseName returns the Kubernetes Lease name for the given operator.
+func leaseName(operator string) string {
+	return fmt.Sprintf("odh-chaos-lock-%s", operator)
+}
+
+// holderOf extracts the holder identity from a lease, returning empty string if not set.
+func holderOf(lease *coordinationv1.Lease) string {
+	if lease.Spec.HolderIdentity == nil {
+		return ""
+	}
+	return *lease.Spec.HolderIdentity
 }
 
 // Acquire attempts to create a Lease for the given operator. If a Lease already
@@ -42,14 +63,17 @@ func NewLeaseExperimentLock(c client.Client, namespace string) *LeaseExperimentL
 // an in-place Update (using Kubernetes optimistic concurrency / resourceVersion)
 // to avoid TOCTOU races. If the lease is still valid, an error is returned
 // containing the holding experiment name.
-func (l *LeaseExperimentLock) Acquire(ctx context.Context, operator string, experimentName string) error {
-	leaseName := fmt.Sprintf("odh-chaos-lock-%s", operator)
-	leaseDuration := DefaultLeaseDurationSeconds
-	now := metav1.NewMicroTime(time.Now())
+func (l *LeaseExperimentLock) Acquire(ctx context.Context, operator string, experimentName string, leaseDuration time.Duration) error {
+	name := leaseName(operator)
+	leaseDurationSeconds := DefaultLeaseDurationSeconds
+	if dynamicSeconds := int32(leaseDuration.Seconds()); dynamicSeconds > leaseDurationSeconds {
+		leaseDurationSeconds = dynamicSeconds
+	}
+	now := metav1.NewMicroTime(l.clock.Now())
 
 	lease := &coordinationv1.Lease{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      leaseName,
+			Name:      name,
 			Namespace: l.namespace,
 			Labels: map[string]string{
 				"app.kubernetes.io/managed-by": "odh-chaos",
@@ -57,7 +81,7 @@ func (l *LeaseExperimentLock) Acquire(ctx context.Context, operator string, expe
 		},
 		Spec: coordinationv1.LeaseSpec{
 			HolderIdentity:       &experimentName,
-			LeaseDurationSeconds: &leaseDuration,
+			LeaseDurationSeconds: &leaseDurationSeconds,
 			AcquireTime:          &now,
 		},
 	}
@@ -69,72 +93,106 @@ func (l *LeaseExperimentLock) Acquire(ctx context.Context, operator string, expe
 			return fmt.Errorf("checking existing lease: %w", getErr)
 		}
 
+		// Self-re-acquire: if same experiment already holds the lock, allow it.
+		if existing.Spec.HolderIdentity != nil && *existing.Spec.HolderIdentity == experimentName {
+			return nil
+		}
+
 		// If the existing lease has expired, reclaim it via Update (optimistic
 		// concurrency via resourceVersion). This avoids a TOCTOU race where
 		// two callers both delete then create.
 		if l.isExpired(existing) {
-			holder := ""
-			if existing.Spec.HolderIdentity != nil {
-				holder = *existing.Spec.HolderIdentity
-			}
 			l.logger.Info("reclaiming expired lease",
-				"lease", leaseName,
-				"holder", holder,
+				"lease", name,
+				"holder", holderOf(existing),
 				"operator", operator,
 			)
 
 			// Update the existing lease in-place. The resourceVersion on
 			// the existing object provides optimistic concurrency -- if
 			// another caller updates first, this one gets a conflict error.
-			reclaimNow := metav1.NewMicroTime(time.Now())
+			reclaimNow := metav1.NewMicroTime(l.clock.Now())
 			existing.Spec.HolderIdentity = &experimentName
-			existing.Spec.LeaseDurationSeconds = &leaseDuration
+			existing.Spec.LeaseDurationSeconds = &leaseDurationSeconds
 			existing.Spec.AcquireTime = &reclaimNow
+			existing.Spec.RenewTime = nil
 
 			return l.client.Update(ctx, existing)
 		}
 
-		holder := ""
-		if existing.Spec.HolderIdentity != nil {
-			holder = *existing.Spec.HolderIdentity
-		}
-		return fmt.Errorf("operator %s is locked by experiment %q", operator, holder)
+		return fmt.Errorf("operator %s is locked by experiment %q: %w", operator, holderOf(existing), ErrLockContention)
 	}
 	return err
 }
 
-// Release deletes the Lease for the given operator, allowing other experiments
-// to acquire the lock.
-func (l *LeaseExperimentLock) Release(operator string) {
-	leaseName := fmt.Sprintf("odh-chaos-lock-%s", operator)
-	lease := &coordinationv1.Lease{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      leaseName,
-			Namespace: l.namespace,
+// Release deletes the Lease for the given operator after verifying that the
+// holder matches experimentName. Returns an error wrapping ErrLockNotFound if
+// the lease does not exist, ErrHolderMismatch if held by a different experiment,
+// or a raw error on deletion failure.
+func (l *LeaseExperimentLock) Release(ctx context.Context, operator string, experimentName string) error {
+	name := leaseName(operator)
+	existing := &coordinationv1.Lease{}
+	if err := l.client.Get(ctx, client.ObjectKey{Name: name, Namespace: l.namespace}, existing); err != nil {
+		if errors.IsNotFound(err) {
+			return fmt.Errorf("lease %s: %w", name, ErrLockNotFound)
+		}
+		return fmt.Errorf("getting lease for release: %w", err)
+	}
+
+	holder := holderOf(existing)
+	if holder != experimentName {
+		return fmt.Errorf("lock held by %q, release requested by %q: %w", holder, experimentName, ErrHolderMismatch)
+	}
+
+	return l.client.Delete(ctx, existing, &client.DeleteOptions{
+		Preconditions: &metav1.Preconditions{
+			ResourceVersion: &existing.ResourceVersion,
 		},
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), leaseReleaseTimeout)
-	defer cancel()
-	if err := l.client.Delete(ctx, lease); err != nil {
-		l.logger.Error("failed to release lease",
-			"lease", leaseName,
-			"operator", operator,
-			"error", err,
-		)
-	}
+	})
 }
 
-// isExpired returns true if the lease's acquire time plus its duration is in
-// the past. Leases without an acquire time or duration are considered expired
-// to avoid permanent locks from incomplete state.
+// Renew updates the RenewTime of an existing lease to extend its validity.
+// AcquireTime is left unchanged (it records the original acquisition).
+// Returns an error if the lease is not found or the holder does not match.
+func (l *LeaseExperimentLock) Renew(ctx context.Context, operator string, experimentName string) error {
+	name := leaseName(operator)
+	existing := &coordinationv1.Lease{}
+	if err := l.client.Get(ctx, client.ObjectKey{Name: name, Namespace: l.namespace}, existing); err != nil {
+		if errors.IsNotFound(err) {
+			return fmt.Errorf("lease %s: %w", name, ErrLockNotFound)
+		}
+		return fmt.Errorf("getting lease for renewal: %w", err)
+	}
+
+	holder := holderOf(existing)
+	if holder != experimentName {
+		return fmt.Errorf("lock held by %q, renew requested by %q: %w", holder, experimentName, ErrHolderMismatch)
+	}
+
+	now := metav1.NewMicroTime(l.clock.Now())
+	existing.Spec.RenewTime = &now
+
+	return l.client.Update(ctx, existing)
+}
+
+// isExpired returns true if the lease's last active time plus its duration is in
+// the past. RenewTime is preferred when available; otherwise AcquireTime is used.
+// Leases without both times or duration are considered expired to avoid permanent
+// locks from incomplete state.
 func (l *LeaseExperimentLock) isExpired(lease *coordinationv1.Lease) bool {
-	if lease.Spec.AcquireTime == nil || lease.Spec.LeaseDurationSeconds == nil {
+	if lease.Spec.LeaseDurationSeconds == nil {
 		return true
 	}
-	expiry := lease.Spec.AcquireTime.Time.Add(
-		time.Duration(*lease.Spec.LeaseDurationSeconds) * time.Second,
-	)
-	return time.Now().After(expiry)
+	var lastActive time.Time
+	if lease.Spec.RenewTime != nil {
+		lastActive = lease.Spec.RenewTime.Time
+	} else if lease.Spec.AcquireTime != nil {
+		lastActive = lease.Spec.AcquireTime.Time
+	} else {
+		return true
+	}
+	expiry := lastActive.Add(time.Duration(*lease.Spec.LeaseDurationSeconds) * time.Second)
+	return l.clock.Now().After(expiry)
 }
 
 // Compile-time interface check.

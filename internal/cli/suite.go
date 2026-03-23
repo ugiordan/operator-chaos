@@ -40,7 +40,7 @@ func newSuiteCommand() *cobra.Command {
 	)
 
 	cmd := &cobra.Command{
-		Use:   "suite [experiments-directory]",
+		Use:   "suite <experiments-directory>",
 		Short: "Run all experiments in a directory",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -179,7 +179,7 @@ func runSingleExperiment(parentCtx context.Context, file string, deps *orchestra
 		r.err = err
 		return r
 	}
-	r.name = exp.Metadata.Name
+	r.name = exp.Name
 
 	errs := experiment.Validate(exp)
 	if len(errs) > 0 {
@@ -190,7 +190,7 @@ func runSingleExperiment(parentCtx context.Context, file string, deps *orchestra
 
 	// In dry-run mode, just validate
 	if dryRun {
-		r.verdict = fmt.Sprintf("VALID %s (%s)", exp.Metadata.Name, exp.Spec.Injection.Type)
+		r.verdict = fmt.Sprintf("VALID %s (%s)", exp.Name, exp.Spec.Injection.Type)
 		r.status = "pass"
 		return r
 	}
@@ -201,7 +201,7 @@ func runSingleExperiment(parentCtx context.Context, file string, deps *orchestra
 	cancel()
 
 	if runErr != nil {
-		r.verdict = fmt.Sprintf("FAIL  %s: %v", exp.Metadata.Name, runErr)
+		r.verdict = fmt.Sprintf("FAIL  %s: %v", exp.Name, runErr)
 		r.status = "fail"
 		r.err = runErr
 		return r
@@ -210,7 +210,7 @@ func runSingleExperiment(parentCtx context.Context, file string, deps *orchestra
 	r.orchResult = result
 
 	if result.CleanupError != "" {
-		fmt.Fprintf(os.Stderr, "WARNING: cleanup error in %s: %s\n", exp.Metadata.Name, result.CleanupError)
+		fmt.Fprintf(os.Stderr, "WARNING: cleanup error in %s: %s\n", exp.Name, result.CleanupError)
 	}
 
 	// Build enriched verdict string with recovery time and deviation count
@@ -225,19 +225,19 @@ func runSingleExperiment(parentCtx context.Context, file string, deps *orchestra
 	switch result.Verdict {
 	case v1alpha1.Resilient:
 		r.verdict = fmt.Sprintf("PASS  %s (%s, %s recovery, %d deviations)",
-			exp.Metadata.Name, verdictStr, recoveryStr, deviationCount)
+			exp.Name, verdictStr, recoveryStr, deviationCount)
 		r.status = "pass"
 	case v1alpha1.Degraded, v1alpha1.Failed:
 		r.verdict = fmt.Sprintf("FAIL  %s (%s, %s recovery, %d deviations)",
-			exp.Metadata.Name, verdictStr, recoveryStr, deviationCount)
+			exp.Name, verdictStr, recoveryStr, deviationCount)
 		r.status = "fail"
 	case v1alpha1.Inconclusive:
 		r.verdict = fmt.Sprintf("SKIP  %s (%s, %s recovery, %d deviations)",
-			exp.Metadata.Name, verdictStr, recoveryStr, deviationCount)
+			exp.Name, verdictStr, recoveryStr, deviationCount)
 		r.status = "skip"
 	default:
 		r.verdict = fmt.Sprintf("FAIL  %s (%s, %s recovery, %d deviations)",
-			exp.Metadata.Name, verdictStr, recoveryStr, deviationCount)
+			exp.Name, verdictStr, recoveryStr, deviationCount)
 		r.status = "fail"
 	}
 
@@ -257,7 +257,7 @@ func writeSuiteJUnitReport(reportDir, suiteName string, results []suiteResult) e
 	if err != nil {
 		return fmt.Errorf("creating JUnit report file: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	// Build ExperimentReport entries from suite results
 	var reports []reporter.ExperimentReport

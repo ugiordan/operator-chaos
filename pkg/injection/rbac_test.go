@@ -236,6 +236,128 @@ func TestRBACRevokeNotFound(t *testing.T) {
 	assert.Contains(t, err.Error(), "nonexistent-binding")
 }
 
+func TestRBACRevokeRevertClusterRoleBinding(t *testing.T) {
+	scheme := runtime.NewScheme()
+	require.NoError(t, rbacv1.AddToScheme(scheme))
+
+	crb := &rbacv1.ClusterRoleBinding{
+		ObjectMeta: metav1.ObjectMeta{Name: "revert-crb"},
+		RoleRef: rbacv1.RoleRef{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "ClusterRole",
+			Name:     "my-role",
+		},
+		Subjects: []rbacv1.Subject{
+			{Kind: "ServiceAccount", Name: "my-sa", Namespace: "opendatahub"},
+		},
+	}
+
+	k8sClient := fake.NewClientBuilder().WithScheme(scheme).WithObjects(crb).Build()
+	injector := NewRBACRevokeInjector(k8sClient)
+	ctx := context.Background()
+
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.RBACRevoke,
+		Parameters: map[string]string{
+			"bindingName": "revert-crb",
+			"bindingType": "ClusterRoleBinding",
+		},
+	}
+
+	// Inject
+	_, _, err := injector.Inject(ctx, spec, "")
+	require.NoError(t, err)
+
+	// Verify subjects cleared
+	modified := &rbacv1.ClusterRoleBinding{}
+	require.NoError(t, k8sClient.Get(ctx, client.ObjectKey{Name: "revert-crb"}, modified))
+	assert.Empty(t, modified.Subjects)
+
+	// Revert
+	err = injector.Revert(ctx, spec, "")
+	require.NoError(t, err)
+
+	// Verify subjects restored
+	restored := &rbacv1.ClusterRoleBinding{}
+	require.NoError(t, k8sClient.Get(ctx, client.ObjectKey{Name: "revert-crb"}, restored))
+	require.Len(t, restored.Subjects, 1)
+	assert.Equal(t, "my-sa", restored.Subjects[0].Name)
+
+	// Idempotent
+	err = injector.Revert(ctx, spec, "")
+	assert.NoError(t, err)
+}
+
+func TestRBACRevokeRevertRoleBinding(t *testing.T) {
+	scheme := runtime.NewScheme()
+	require.NoError(t, rbacv1.AddToScheme(scheme))
+
+	rb := &rbacv1.RoleBinding{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "revert-rb",
+			Namespace: "opendatahub",
+		},
+		RoleRef: rbacv1.RoleRef{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "Role",
+			Name:     "my-role",
+		},
+		Subjects: []rbacv1.Subject{
+			{Kind: "ServiceAccount", Name: "my-sa", Namespace: "opendatahub"},
+			{Kind: "ServiceAccount", Name: "other-sa", Namespace: "opendatahub"},
+		},
+	}
+
+	k8sClient := fake.NewClientBuilder().WithScheme(scheme).WithObjects(rb).Build()
+	injector := NewRBACRevokeInjector(k8sClient)
+	ctx := context.Background()
+
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.RBACRevoke,
+		Parameters: map[string]string{
+			"bindingName": "revert-rb",
+			"bindingType": "RoleBinding",
+		},
+	}
+
+	// Inject
+	_, _, err := injector.Inject(ctx, spec, "opendatahub")
+	require.NoError(t, err)
+
+	// Verify subjects cleared
+	modified := &rbacv1.RoleBinding{}
+	require.NoError(t, k8sClient.Get(ctx, client.ObjectKey{Name: "revert-rb", Namespace: "opendatahub"}, modified))
+	assert.Empty(t, modified.Subjects)
+
+	// Verify chaos annotations/labels present
+	_, hasAnnotation := modified.Annotations[safety.RollbackAnnotationKey]
+	assert.True(t, hasAnnotation, "rollback annotation should be present after injection")
+	assert.Equal(t, safety.ManagedByValue, modified.Labels[safety.ManagedByLabel])
+
+	// Revert
+	err = injector.Revert(ctx, spec, "opendatahub")
+	require.NoError(t, err)
+
+	// Verify subjects restored
+	restored := &rbacv1.RoleBinding{}
+	require.NoError(t, k8sClient.Get(ctx, client.ObjectKey{Name: "revert-rb", Namespace: "opendatahub"}, restored))
+	require.Len(t, restored.Subjects, 2)
+	assert.Equal(t, "my-sa", restored.Subjects[0].Name)
+	assert.Equal(t, "other-sa", restored.Subjects[1].Name)
+
+	// Verify chaos annotations removed
+	_, hasAnnotation = restored.Annotations[safety.RollbackAnnotationKey]
+	assert.False(t, hasAnnotation, "rollback annotation should be removed after revert")
+	_, hasManagedBy := restored.Labels[safety.ManagedByLabel]
+	assert.False(t, hasManagedBy, "managed-by label should be removed after revert")
+	_, hasChaosType := restored.Labels[safety.ChaosTypeLabel]
+	assert.False(t, hasChaosType, "chaos-type label should be removed after revert")
+
+	// Idempotent — second Revert is a no-op
+	err = injector.Revert(ctx, spec, "opendatahub")
+	assert.NoError(t, err)
+}
+
 func TestRBACRevokeInjectStoresRollbackAnnotation(t *testing.T) {
 	scheme := runtime.NewScheme()
 	require.NoError(t, rbacv1.AddToScheme(scheme))

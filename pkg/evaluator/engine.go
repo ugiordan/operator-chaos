@@ -34,6 +34,12 @@ func (e *Evaluator) Evaluate(
 		ReconcileCycles: reconcileCycles,
 	}
 
+	if preCheck == nil || postCheck == nil {
+		result.Verdict = v1alpha1.Inconclusive
+		result.Confidence = "missing pre-check or post-check data"
+		return result
+	}
+
 	if !preCheck.Passed {
 		result.Verdict = v1alpha1.Inconclusive
 		result.Confidence = fmt.Sprintf(
@@ -130,7 +136,7 @@ func (e *Evaluator) computeVerdict(
 		verdict = v1alpha1.Failed
 	}
 
-	if recoveryTime > hypothesis.RecoveryTimeout.Duration {
+	if hypothesis.RecoveryTimeout.Duration > 0 && recoveryTime > hypothesis.RecoveryTimeout.Duration {
 		if verdict == v1alpha1.Resilient {
 			verdict = v1alpha1.Degraded
 		}
