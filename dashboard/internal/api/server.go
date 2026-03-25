@@ -34,6 +34,7 @@ func (s *Server) registerRoutes() {
 	}
 	s.mux.HandleFunc("GET /api/v1/experiments", s.handleListExperiments)
 	s.mux.HandleFunc("GET /api/v1/experiments/{namespace}/{name}", s.handleGetExperiment)
+	s.mux.HandleFunc("GET /api/v1/overview/stats", s.handleOverviewStats)
 }
 
 func writeJSON(w http.ResponseWriter, status int, v interface{}) {
