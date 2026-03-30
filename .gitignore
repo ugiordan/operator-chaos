@@ -11,3 +11,4 @@ results/
 docs/plans/
 dashboard/ui/node_modules/
 dashboard/ui-dist/
+.superpowers/

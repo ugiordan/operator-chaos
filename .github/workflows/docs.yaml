@@ -1,0 +1,45 @@
+name: Deploy Docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'api/**'
+      - 'pkg/**'
+      - 'cmd/**'
+      - 'internal/cli/**'
+      - 'hack/gen-*.go'
+      - 'README.md'
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.0"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install MkDocs dependencies
+        run: pip install -r site/requirements.txt
+
+      - name: Generate CRD schema reference
+        run: go run hack/gen-crd-docs.go > site/docs/reference/crd-schema.md
+
+      - name: Generate CLI reference
+        run: go run hack/gen-cli-docs.go > site/docs/reference/cli-commands.md
+
+      - name: Deploy to GitHub Pages
+        working-directory: site
+        run: mkdocs gh-deploy --force
