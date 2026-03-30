@@ -1,7 +1,7 @@
 site_name: ODH Platform Chaos
-site_url: https://opendatahub-io.github.io/odh-platform-chaos
-repo_url: https://github.com/opendatahub-io/odh-platform-chaos
-repo_name: opendatahub-io/odh-platform-chaos
+site_url: https://ugiordan.github.io/odh-platform-chaos
+repo_url: https://github.com/ugiordan/odh-platform-chaos
+repo_name: ugiordan/odh-platform-chaos
 edit_uri: edit/main/site/docs/
 
 theme:
