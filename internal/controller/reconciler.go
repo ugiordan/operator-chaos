@@ -90,10 +90,12 @@ func (r *ChaosExperimentReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 
 	logger = logger.WithValues("phase", exp.Status.Phase)
 
+	emitter := NewEventEmitter(r.Recorder, exp)
+
 	// Deletion check — FIRST, before any phase-based early returns.
 	if !exp.DeletionTimestamp.IsZero() {
 		logger.Info("handling deletion")
-		return r.handleDeletion(ctx, exp)
+		return r.handleDeletion(ctx, exp, emitter)
 	}
 
 	// Clean up finalizer if still present on terminal experiments.
@@ -168,8 +170,8 @@ func (r *ChaosExperimentReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 
 	// Spec mutation detection.
 	if exp.Status.ObservedGeneration != 0 && exp.Generation != exp.Status.ObservedGeneration {
-		r.Recorder.Event(exp, "Warning", "SpecMutated", "Spec changed during active experiment")
-		return r.abort(ctx, exp, "spec mutated after experiment started")
+		emitter.SpecMutated()
+		return r.abort(ctx, exp, "spec mutated after experiment started", emitter)
 	}
 
 	// Set ObservedGeneration in-memory. This is only persisted when a phase
@@ -183,7 +185,8 @@ func (r *ChaosExperimentReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 			// Abort if the lease was taken by another experiment (holder mismatch)
 			// or if the lock no longer exists (not found).
 			if errors.Is(err, safety.ErrHolderMismatch) || errors.Is(err, safety.ErrLockNotFound) {
-				return r.abort(ctx, exp, fmt.Sprintf("lease renewal failed: %v", err))
+				emitter.LeaseRenewalFailed(err)
+				return r.abort(ctx, exp, fmt.Sprintf("lease renewal failed: %v", err), emitter)
 			}
 			// For transient errors (network, etc.), requeue to retry.
 			return ctrl.Result{RequeueAfter: 5 * time.Second}, nil
@@ -193,27 +196,27 @@ func (r *ChaosExperimentReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	// Phase switch — dispatch to phase handler.
 	switch exp.Status.Phase {
 	case "", v1alpha1.PhasePending:
-		return r.reconcilePending(ctx, exp)
+		return r.reconcilePending(ctx, exp, emitter)
 	case v1alpha1.PhaseSteadyStatePre:
-		return r.reconcilePreCheck(ctx, exp)
+		return r.reconcilePreCheck(ctx, exp, emitter)
 	case v1alpha1.PhaseInjecting:
-		return r.reconcileInject(ctx, exp)
+		return r.reconcileInject(ctx, exp, emitter)
 	case v1alpha1.PhaseObserving:
-		return r.reconcileObserve(ctx, exp)
+		return r.reconcileObserve(ctx, exp, emitter)
 	case v1alpha1.PhaseSteadyStatePost:
-		return r.reconcilePostCheck(ctx, exp)
+		return r.reconcilePostCheck(ctx, exp, emitter)
 	case v1alpha1.PhaseEvaluating:
-		return r.reconcileEvaluate(ctx, exp)
+		return r.reconcileEvaluate(ctx, exp, emitter)
 	default:
-		return r.abort(ctx, exp, fmt.Sprintf("unknown phase %q", exp.Status.Phase))
+		return r.abort(ctx, exp, fmt.Sprintf("unknown phase %q", exp.Status.Phase), emitter)
 	}
 }
 
 // reconcilePending validates the experiment, acquires the lock, sets StartTime,
 // and transitions to SteadyStatePre.
-func (r *ChaosExperimentReconciler) reconcilePending(ctx context.Context, exp *v1alpha1.ChaosExperiment) (ctrl.Result, error) {
+func (r *ChaosExperimentReconciler) reconcilePending(ctx context.Context, exp *v1alpha1.ChaosExperiment, emitter *EventEmitter) (ctrl.Result, error) {
 	if err := r.Orchestrator.ValidateExperiment(ctx, exp); err != nil {
-		return r.abort(ctx, exp, fmt.Sprintf("validation failed: %v", err))
+		return r.abort(ctx, exp, fmt.Sprintf("validation failed: %v", err), emitter)
 	}
 
 	recoveryTimeout := exp.ResolvedRecoveryTimeout()
@@ -221,7 +224,7 @@ func (r *ChaosExperimentReconciler) reconcilePending(ctx context.Context, exp *v
 
 	if err := r.Lock.Acquire(ctx, exp.Spec.Target.Operator, exp.Name, leaseDuration); err != nil {
 		if errors.Is(err, safety.ErrLockContention) {
-			r.Recorder.Event(exp, "Normal", "LockContention", fmt.Sprintf("Lock held by another experiment, requeuing: %v", err))
+			emitter.LockContention(err.Error())
 			return ctrl.Result{RequeueAfter: lockContentionRequeue}, nil
 		}
 		return ctrl.Result{}, err
@@ -233,7 +236,7 @@ func (r *ChaosExperimentReconciler) reconcilePending(ctx context.Context, exp *v
 	exp.Status.StartTime = &now
 	exp.Status.Phase = v1alpha1.PhaseSteadyStatePre
 	exp.Status.Message = fmt.Sprintf("Running pre-checks for %s", exp.Spec.Target.Operator)
-	r.Recorder.Event(exp, "Normal", "ExperimentStarted", "Experiment started, transitioning to SteadyStatePre")
+	emitter.ExperimentStarted()
 
 	if err := r.Status().Update(ctx, exp); err != nil {
 		return ctrl.Result{}, err
@@ -243,17 +246,17 @@ func (r *ChaosExperimentReconciler) reconcilePending(ctx context.Context, exp *v
 
 // reconcilePreCheck runs the pre-check, stores results, and transitions to Injecting.
 // If the pre-check fails, the experiment is aborted.
-func (r *ChaosExperimentReconciler) reconcilePreCheck(ctx context.Context, exp *v1alpha1.ChaosExperiment) (ctrl.Result, error) {
+func (r *ChaosExperimentReconciler) reconcilePreCheck(ctx context.Context, exp *v1alpha1.ChaosExperiment, emitter *EventEmitter) (ctrl.Result, error) {
 	result, err := r.Orchestrator.RunPreCheck(ctx, exp)
 	if err != nil {
-		return r.abort(ctx, exp, fmt.Sprintf("pre-check error: %v", err))
+		return r.abort(ctx, exp, fmt.Sprintf("pre-check error: %v", err), emitter)
 	}
 
 	exp.Status.SteadyStatePre = result
-	r.Recorder.Event(exp, "Normal", "PreCheckComplete", fmt.Sprintf("Pre-check passed=%t", result.Passed))
+	emitter.PreCheckComplete(result.Passed)
 
 	if !result.Passed {
-		return r.abort(ctx, exp, "pre-check failed: steady-state not established")
+		return r.abort(ctx, exp, "pre-check failed: steady-state not established", emitter)
 	}
 
 	setCondition(exp, r.Clock.Now(), v1alpha1.ConditionSteadyStateEstablished, metav1.ConditionTrue, "PreCheckPassed", "Steady-state established before injection")
@@ -267,7 +270,7 @@ func (r *ChaosExperimentReconciler) reconcilePreCheck(ctx context.Context, exp *
 // reconcileInject performs fault injection. It adds the cleanup finalizer,
 // calls InjectFault, stores injection events, and transitions to Observing.
 // Re-entry guard: if InjectionStartedAt is already set, skip to Observing.
-func (r *ChaosExperimentReconciler) reconcileInject(ctx context.Context, exp *v1alpha1.ChaosExperiment) (ctrl.Result, error) {
+func (r *ChaosExperimentReconciler) reconcileInject(ctx context.Context, exp *v1alpha1.ChaosExperiment, emitter *EventEmitter) (ctrl.Result, error) {
 	// Re-entry guard: if InjectionStartedAt was persisted (crash barrier) but
 	// the controller crashed before completing injection, skip to Observing.
 	if exp.Status.InjectionStartedAt != nil {
@@ -317,7 +320,8 @@ func (r *ChaosExperimentReconciler) reconcileInject(ctx context.Context, exp *v1
 	// The CleanupFunc is only used by the standalone orchestrator (pkg/orchestrator/lifecycle.go).
 	_, events, err := r.Orchestrator.InjectFault(ctx, exp)
 	if err != nil {
-		return r.abort(ctx, exp, fmt.Sprintf("injection failed: %v", err))
+		emitter.InjectionFailed(err)
+		return r.abort(ctx, exp, fmt.Sprintf("injection failed: %v", err), emitter)
 	}
 
 	// InjectionLog is best-effort: if this status update fails after successful
@@ -329,7 +333,7 @@ func (r *ChaosExperimentReconciler) reconcileInject(ctx context.Context, exp *v1
 	setCondition(exp, r.Clock.Now(), v1alpha1.ConditionFaultInjected, metav1.ConditionTrue, "FaultInjected", "Fault successfully injected")
 	exp.Status.Phase = v1alpha1.PhaseObserving
 	exp.Status.Message = fmt.Sprintf("Fault injected, observing recovery for %s", exp.Spec.Hypothesis.RecoveryTimeout.Duration)
-	r.Recorder.Event(exp, "Normal", "FaultInjected", "Fault injected, transitioning to Observing")
+	emitter.FaultInjected()
 
 	if err := r.Status().Update(ctx, exp); err != nil {
 		return ctrl.Result{}, err
@@ -339,9 +343,9 @@ func (r *ChaosExperimentReconciler) reconcileInject(ctx context.Context, exp *v1
 
 // reconcileObserve waits for the recovery timeout to elapse, then reverts the
 // fault and transitions to SteadyStatePost.
-func (r *ChaosExperimentReconciler) reconcileObserve(ctx context.Context, exp *v1alpha1.ChaosExperiment) (ctrl.Result, error) {
+func (r *ChaosExperimentReconciler) reconcileObserve(ctx context.Context, exp *v1alpha1.ChaosExperiment, emitter *EventEmitter) (ctrl.Result, error) {
 	if exp.Status.InjectionStartedAt == nil {
-		return r.abort(ctx, exp, "InjectionStartedAt is nil in Observing phase")
+		return r.abort(ctx, exp, "InjectionStartedAt is nil in Observing phase", emitter)
 	}
 
 	elapsed := r.Clock.Now().Sub(exp.Status.InjectionStartedAt.Time)
@@ -351,7 +355,7 @@ func (r *ChaosExperimentReconciler) reconcileObserve(ctx context.Context, exp *v
 	// longer than their declared TTL.
 	if exp.Spec.Injection.TTL.Duration > 0 && elapsed > exp.Spec.Injection.TTL.Duration {
 		log.FromContext(ctx).Info("injection TTL exceeded, force-reverting", "ttl", exp.Spec.Injection.TTL.Duration, "elapsed", elapsed)
-		r.Recorder.Event(exp, "Warning", "TTLExceeded", fmt.Sprintf("Injection TTL %s exceeded after %s", exp.Spec.Injection.TTL.Duration, elapsed))
+		emitter.TTLExceeded(exp.Spec.Injection.TTL.Duration.String(), elapsed.String())
 	} else {
 		recoveryTimeout := exp.ResolvedRecoveryTimeout()
 		if elapsed < recoveryTimeout {
@@ -372,7 +376,7 @@ func (r *ChaosExperimentReconciler) reconcileObserve(ctx context.Context, exp *v
 	// ours immediately before reverting, closing the window where the lease
 	// could expire between the top-of-loop renewal and the revert.
 	if err := r.Lock.Renew(ctx, exp.Spec.Target.Operator, exp.Name); err != nil {
-		return r.abort(ctx, exp, fmt.Sprintf("pre-revert lease check failed: %v", err))
+		return r.abort(ctx, exp, fmt.Sprintf("pre-revert lease check failed: %v", err), emitter)
 	}
 
 	// Recovery timeout elapsed — revert the fault.
@@ -381,11 +385,12 @@ func (r *ChaosExperimentReconciler) reconcileObserve(ctx context.Context, exp *v
 	// RevertFault will run again on re-entry. This is safe because revert
 	// restores from rollback data, which is a no-op if already restored.
 	if err := r.Orchestrator.RevertFault(ctx, exp); err != nil {
-		return r.abort(ctx, exp, fmt.Sprintf("post-timeout revert failed: %v", err))
+		emitter.RevertFailed(err)
+		return r.abort(ctx, exp, fmt.Sprintf("post-timeout revert failed: %v", err), emitter)
 	}
 
 	exp.Status.Phase = v1alpha1.PhaseSteadyStatePost
-	r.Recorder.Event(exp, "Normal", "FaultReverted", "Fault reverted, transitioning to SteadyStatePost")
+	emitter.FaultReverted()
 
 	if err := r.Status().Update(ctx, exp); err != nil {
 		return ctrl.Result{}, err
@@ -396,10 +401,10 @@ func (r *ChaosExperimentReconciler) reconcileObserve(ctx context.Context, exp *v
 // reconcilePostCheck runs the post-check, stores results, and evaluates the
 // hypothesis in a single reconcile to avoid inconsistency between the stored
 // SteadyStatePost result and the evaluation verdict.
-func (r *ChaosExperimentReconciler) reconcilePostCheck(ctx context.Context, exp *v1alpha1.ChaosExperiment) (ctrl.Result, error) {
+func (r *ChaosExperimentReconciler) reconcilePostCheck(ctx context.Context, exp *v1alpha1.ChaosExperiment, emitter *EventEmitter) (ctrl.Result, error) {
 	result, findings, err := r.Orchestrator.RunPostCheck(ctx, exp)
 	if err != nil {
-		return r.abort(ctx, exp, fmt.Sprintf("post-check error: %v", err))
+		return r.abort(ctx, exp, fmt.Sprintf("post-check error: %v", err), emitter)
 	}
 
 	exp.Status.SteadyStatePost = result
@@ -409,21 +414,21 @@ func (r *ChaosExperimentReconciler) reconcilePostCheck(ctx context.Context, exp 
 	}
 	setCondition(exp, r.Clock.Now(), v1alpha1.ConditionRecoveryObserved, condStatus, "PostCheckComplete", fmt.Sprintf("Post-check passed=%t", result.Passed))
 	exp.Status.Phase = v1alpha1.PhaseEvaluating
-	r.Recorder.Event(exp, "Normal", "PostCheckComplete", fmt.Sprintf("Post-check passed=%t", result.Passed))
+	emitter.PostCheckComplete(result.Passed)
 
 	// Evaluate inline using the same findings to guarantee consistency
 	// between the stored post-check result and the verdict.
-	return r.doEvaluate(ctx, exp, findings)
+	return r.doEvaluate(ctx, exp, findings, emitter)
 }
 
 // reconcileEvaluate handles crash recovery: if the controller restarted while
 // in Evaluating phase, re-run RunPostCheck to obtain findings for evaluation.
-func (r *ChaosExperimentReconciler) reconcileEvaluate(ctx context.Context, exp *v1alpha1.ChaosExperiment) (ctrl.Result, error) {
+func (r *ChaosExperimentReconciler) reconcileEvaluate(ctx context.Context, exp *v1alpha1.ChaosExperiment, emitter *EventEmitter) (ctrl.Result, error) {
 	_, findings, err := r.Orchestrator.RunPostCheck(ctx, exp)
 	if err != nil {
-		return r.abort(ctx, exp, fmt.Sprintf("evaluation post-check error: %v", err))
+		return r.abort(ctx, exp, fmt.Sprintf("evaluation post-check error: %v", err), emitter)
 	}
-	return r.doEvaluate(ctx, exp, findings)
+	return r.doEvaluate(ctx, exp, findings, emitter)
 }
 
 // doEvaluate performs the actual evaluation, sets verdict, EndTime, persists
@@ -431,7 +436,7 @@ func (r *ChaosExperimentReconciler) reconcileEvaluate(ctx context.Context, exp *
 // the next reconcile (the Complete/Aborted cleanup block at the top of
 // Reconcile handles this), avoiding the race where finalizer removal before
 // status update could orphan the lease.
-func (r *ChaosExperimentReconciler) doEvaluate(ctx context.Context, exp *v1alpha1.ChaosExperiment, findings []observer.Finding) (ctrl.Result, error) {
+func (r *ChaosExperimentReconciler) doEvaluate(ctx context.Context, exp *v1alpha1.ChaosExperiment, findings []observer.Finding, emitter *EventEmitter) (ctrl.Result, error) {
 	evalResult := r.Orchestrator.EvaluateExperiment(findings, exp.Spec.Hypothesis)
 
 	exp.Status.Verdict = evalResult.Verdict
@@ -441,7 +446,19 @@ func (r *ChaosExperimentReconciler) doEvaluate(ctx context.Context, exp *v1alpha
 	exp.Status.Message = fmt.Sprintf("Experiment complete, verdict: %s", evalResult.Verdict)
 	setCondition(exp, r.Clock.Now(), v1alpha1.ConditionComplete, metav1.ConditionTrue, "ExperimentComplete", fmt.Sprintf("Verdict: %s", evalResult.Verdict))
 	exp.Status.Phase = v1alpha1.PhaseComplete
-	r.Recorder.Event(exp, "Normal", "ExperimentComplete", fmt.Sprintf("Experiment complete, verdict: %s", evalResult.Verdict))
+
+	// Observer findings
+	findingSummary := fmt.Sprintf("%d passed, %d total", countPassed(findings), len(findings))
+	emitter.ObserverFindings(len(findings), findingSummary)
+
+	// Recovery (only when actually observed)
+	if evalResult.RecoveryTime > 0 {
+		emitter.RecoveryDetected(evalResult.RecoveryTime.String(), evalResult.ReconcileCycles)
+	}
+
+	// Verdict (severity-aware) + terminal marker
+	emitter.VerdictReached(evalResult.Verdict)
+	emitter.ExperimentComplete(evalResult.Verdict)
 
 	if err := r.Status().Update(ctx, exp); err != nil {
 		return ctrl.Result{}, err
@@ -458,7 +475,7 @@ func (r *ChaosExperimentReconciler) doEvaluate(ctx context.Context, exp *v1alpha
 
 // handleDeletion handles the deletion of a ChaosExperiment CR.
 // It reverts any active fault, releases the lock, and removes the finalizer.
-func (r *ChaosExperimentReconciler) handleDeletion(ctx context.Context, exp *v1alpha1.ChaosExperiment) (ctrl.Result, error) {
+func (r *ChaosExperimentReconciler) handleDeletion(ctx context.Context, exp *v1alpha1.ChaosExperiment, emitter *EventEmitter) (ctrl.Result, error) {
 	if !controllerutil.ContainsFinalizer(exp, cleanupFinalizer) {
 		return ctrl.Result{}, nil
 	}
@@ -467,7 +484,7 @@ func (r *ChaosExperimentReconciler) handleDeletion(ctx context.Context, exp *v1a
 	// finalizer prevents deletion until the fault is cleaned up.
 	if err := r.Orchestrator.RevertFault(ctx, exp); err != nil {
 		exp.Status.CleanupError = fmt.Sprintf("deletion revert failed: %v", err)
-		r.Recorder.Event(exp, "Warning", "CleanupError", fmt.Sprintf("Failed to revert fault during deletion: %v", err))
+		emitter.CleanupError(err)
 		_ = r.Status().Update(ctx, exp)
 		return ctrl.Result{}, fmt.Errorf("reverting fault during deletion: %w", err)
 	}
@@ -491,7 +508,7 @@ func (r *ChaosExperimentReconciler) handleDeletion(ctx context.Context, exp *v1a
 // Terminal status is persisted BEFORE releasing the lock. Finalizer removal
 // is deferred to the next reconcile to avoid the race where deletion during
 // the window between finalizer removal and status update orphans the lease.
-func (r *ChaosExperimentReconciler) abort(ctx context.Context, exp *v1alpha1.ChaosExperiment, reason string) (ctrl.Result, error) {
+func (r *ChaosExperimentReconciler) abort(ctx context.Context, exp *v1alpha1.ChaosExperiment, reason string, emitter *EventEmitter) (ctrl.Result, error) {
 	// Revert fault if in an active-fault phase.
 	var revertError string
 	switch exp.Status.Phase {
@@ -526,7 +543,7 @@ func (r *ChaosExperimentReconciler) abort(ctx context.Context, exp *v1alpha1.Cha
 	now := metav1.NewTime(r.Clock.Now())
 	exp.Status.EndTime = &now
 	setCondition(exp, r.Clock.Now(), v1alpha1.ConditionComplete, metav1.ConditionFalse, "ExperimentAborted", reason)
-	r.Recorder.Event(exp, "Warning", "ExperimentAborted", reason)
+	emitter.ExperimentAborted(reason)
 
 	if err := r.Status().Update(ctx, exp); err != nil {
 		return ctrl.Result{}, err
@@ -576,6 +593,17 @@ func toEvaluationSummary(result *evaluator.EvaluationResult) *v1alpha1.Evaluatio
 		ReconcileCycles: result.ReconcileCycles,
 		Deviations:      deviations,
 	}
+}
+
+// countPassed counts the number of findings that passed.
+func countPassed(findings []observer.Finding) int {
+	count := 0
+	for _, f := range findings {
+		if f.Passed {
+			count++
+		}
+	}
+	return count
 }
 
 // setCondition sets or updates a condition on the experiment status.
