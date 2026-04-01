@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -42,6 +43,12 @@ var (
 		[]string{"operator", "component", "injection_type"},
 		nil,
 	)
+	descDeviations = prometheus.NewDesc(
+		"chaosexperiment_deviations",
+		"Deviation counts by type from current CR set",
+		[]string{"operator", "component", "injection_type", "deviation_type"},
+		nil,
+	)
 
 	allDescs = []*prometheus.Desc{
 		descVerdicts,
@@ -49,6 +56,7 @@ var (
 		descRecoveryCycles,
 		descActiveExperiments,
 		descInjections,
+		descDeviations,
 	}
 
 	recoverySecondsBuckets = []float64{0.5, 1, 2, 5, 10, 30, 60, 120, 300}
@@ -95,6 +103,7 @@ func (c *ExperimentCollector) Collect(ch chan<- prometheus.Metric) {
 	verdicts := map[verdictKey]float64{}
 	injections := map[injectionKey]float64{}
 	activeByOperator := map[string]float64{}
+	deviations := map[deviationKey]float64{}
 	type histObs struct {
 		values []float64
 	}
@@ -131,6 +140,11 @@ func (c *ExperimentCollector) Collect(ch chan<- prometheus.Metric) {
 					}
 					recoveryCyclesObs[iKey].values = append(recoveryCyclesObs[iKey].values, float64(exp.Status.EvaluationResult.ReconcileCycles))
 				}
+				for _, d := range exp.Status.EvaluationResult.Deviations {
+					devType := strings.TrimSpace(strings.SplitN(d, ":", 2)[0])
+					dKey := deviationKey{operator, component, injType, devType}
+					deviations[dKey]++
+				}
 			}
 
 		case activePhases[exp.Status.Phase]:
@@ -156,6 +170,11 @@ func (c *ExperimentCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(descActiveExperiments, prometheus.GaugeValue, v, op)
 	}
 
+	for k, v := range deviations {
+		ch <- prometheus.MustNewConstMetric(descDeviations, prometheus.GaugeValue, v,
+			k.operator, k.component, k.injectionType, k.deviationType)
+	}
+
 	for k, obs := range recoverySecsObs {
 		bucketCounts, sum := computeHistogram(obs.values, recoverySecondsBuckets)
 		ch <- prometheus.MustNewConstHistogram(descRecoverySeconds,
@@ -177,6 +196,10 @@ type verdictKey struct {
 
 type injectionKey struct {
 	operator, component, injectionType string
+}
+
+type deviationKey struct {
+	operator, component, injectionType, deviationType string
 }
 
 func computeHistogram(values []float64, bucketBounds []float64) (map[float64]uint64, float64) {
