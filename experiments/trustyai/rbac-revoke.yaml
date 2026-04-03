@@ -1,0 +1,35 @@
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: trustyai-rbac-revoke
+spec:
+  target:
+    operator: trustyai
+    component: trustyai-service-operator-controller-manager
+    resource: ClusterRoleBinding/trustyai-service-operator-manager-rolebinding
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: trustyai-service-operator-controller-manager
+        namespace: opendatahub
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: RBACRevoke
+    dangerLevel: high
+    parameters:
+      bindingName: trustyai-service-operator-manager-rolebinding
+      bindingType: ClusterRoleBinding
+    ttl: "60s"
+  hypothesis:
+    description: >-
+      When the trustyai-service-operator ClusterRoleBinding subjects are
+      revoked, the operator loses cluster access and can no longer manage
+      TrustyAIService resources. API calls return 403 errors. Once
+      permissions are restored, normal operation resumes without restart.
+    recoveryTimeout: 120s
+  blastRadius:
+    maxPodsAffected: 1
+    allowDangerous: true

@@ -1,0 +1,35 @@
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: codeflare-rbac-revoke
+spec:
+  target:
+    operator: codeflare
+    component: codeflare-operator-manager
+    resource: ClusterRoleBinding/codeflare-operator-manager-rolebinding
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: codeflare-operator-manager
+        namespace: opendatahub
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: RBACRevoke
+    dangerLevel: high
+    parameters:
+      bindingName: codeflare-operator-manager-rolebinding
+      bindingType: ClusterRoleBinding
+    ttl: "60s"
+  hypothesis:
+    description: >-
+      When the codeflare-operator ClusterRoleBinding subjects are revoked,
+      the operator can no longer manage AppWrapper resources. API calls
+      return 403 errors. Once permissions are restored, normal operation
+      resumes without restart.
+    recoveryTimeout: 120s
+  blastRadius:
+    maxPodsAffected: 1
+    allowDangerous: true

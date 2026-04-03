@@ -1,0 +1,35 @@
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: modelmesh-rbac-revoke
+spec:
+  target:
+    operator: modelmesh
+    component: modelmesh-controller
+    resource: ClusterRoleBinding/modelmesh-controller-rolebinding
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: modelmesh-controller
+        namespace: opendatahub
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: RBACRevoke
+    dangerLevel: high
+    parameters:
+      bindingName: modelmesh-controller-rolebinding
+      bindingType: ClusterRoleBinding
+    ttl: "60s"
+  hypothesis:
+    description: >-
+      When the modelmesh ClusterRoleBinding subjects are revoked, the
+      controller can no longer manage ServingRuntimes. API calls return
+      403 errors. Once permissions are restored, normal operation resumes
+      without restart.
+    recoveryTimeout: 120s
+  blastRadius:
+    maxPodsAffected: 1
+    allowDangerous: true

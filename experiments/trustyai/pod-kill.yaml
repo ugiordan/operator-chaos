@@ -1,0 +1,35 @@
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: trustyai-pod-kill
+spec:
+  target:
+    operator: trustyai
+    component: trustyai-service-operator-controller-manager
+    resource: Deployment/trustyai-service-operator-controller-manager
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: trustyai-service-operator-controller-manager
+        namespace: opendatahub
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: PodKill
+    parameters:
+      labelSelector: control-plane=controller-manager,app.kubernetes.io/name=trustyai-service-operator
+    count: 1
+    ttl: "300s"
+  hypothesis:
+    description: >-
+      When the trustyai-service-operator pod is killed, existing TrustyAI
+      services keep running and continue providing explainability. New
+      TrustyAIService deployments queue until the operator recovers within
+      the recovery timeout.
+    recoveryTimeout: 120s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - opendatahub

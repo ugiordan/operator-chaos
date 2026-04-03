@@ -1,0 +1,35 @@
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: modelmesh-pod-kill
+spec:
+  target:
+    operator: modelmesh
+    component: modelmesh-controller
+    resource: Deployment/modelmesh-controller
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: modelmesh-controller
+        namespace: opendatahub
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: PodKill
+    parameters:
+      labelSelector: control-plane=modelmesh-controller,app.kubernetes.io/name=modelmesh-controller
+    count: 1
+    ttl: "300s"
+  hypothesis:
+    description: >-
+      When the modelmesh-controller pod is killed, existing model endpoints
+      keep serving via existing serving runtime pods. New ServingRuntime
+      deployments queue until the controller recovers within the recovery
+      timeout.
+    recoveryTimeout: 120s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - opendatahub

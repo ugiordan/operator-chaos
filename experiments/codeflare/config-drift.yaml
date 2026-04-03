@@ -1,0 +1,38 @@
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: codeflare-config-drift
+spec:
+  target:
+    operator: codeflare
+    component: codeflare-operator-manager
+    resource: ConfigMap/codeflare-operator-config
+  steadyState:
+    checks:
+      - type: resourceExists
+        apiVersion: v1
+        kind: ConfigMap
+        name: codeflare-operator-config
+        namespace: opendatahub
+    timeout: "30s"
+  injection:
+    type: ConfigDrift
+    dangerLevel: high
+    parameters:
+      name: codeflare-operator-config
+      key: config.yaml
+      value: '{"ray":{"defaultClusterSize":"-1","workerImage":"invalid:broken"}}'
+      resourceType: ConfigMap
+    ttl: "300s"
+  hypothesis:
+    description: >-
+      When the codeflare operator configuration is corrupted, new cluster
+      configurations receive wrong parameters. Existing Ray clusters remain
+      unaffected. The operator should detect the drift and reconcile the
+      correct configuration.
+    recoveryTimeout: 180s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - opendatahub
+    allowDangerous: true

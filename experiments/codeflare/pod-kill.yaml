@@ -1,0 +1,34 @@
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: codeflare-pod-kill
+spec:
+  target:
+    operator: codeflare
+    component: codeflare-operator-manager
+    resource: Deployment/codeflare-operator-manager
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: codeflare-operator-manager
+        namespace: opendatahub
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: PodKill
+    parameters:
+      labelSelector: control-plane=manager,app.kubernetes.io/name=codeflare-operator
+    count: 1
+    ttl: "300s"
+  hypothesis:
+    description: >-
+      When the codeflare-operator pod is killed, existing Ray clusters
+      remain unaffected. New AppWrapper submissions queue until the
+      operator recovers within the recovery timeout.
+    recoveryTimeout: 120s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - opendatahub

@@ -1,0 +1,38 @@
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: modelmesh-config-drift
+spec:
+  target:
+    operator: modelmesh
+    component: modelmesh-controller
+    resource: ConfigMap/modelmesh-serving-config
+  steadyState:
+    checks:
+      - type: resourceExists
+        apiVersion: v1
+        kind: ConfigMap
+        name: modelmesh-serving-config
+        namespace: opendatahub
+    timeout: "30s"
+  injection:
+    type: ConfigDrift
+    dangerLevel: high
+    parameters:
+      name: modelmesh-serving-config
+      key: config.yaml
+      value: '{"modelServing":{"grpcMaxMessageSize":"-1","restProxy":"invalid://broken"}}'
+      resourceType: ConfigMap
+    ttl: "300s"
+  hypothesis:
+    description: >-
+      When the modelmesh serving configuration is corrupted, new model
+      deployments receive wrong serving parameters. Existing deployments
+      remain unaffected. The operator should detect the drift and reconcile
+      the correct configuration.
+    recoveryTimeout: 180s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - opendatahub
+    allowDangerous: true

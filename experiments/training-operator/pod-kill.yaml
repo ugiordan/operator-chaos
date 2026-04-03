@@ -1,0 +1,34 @@
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: training-operator-pod-kill
+spec:
+  target:
+    operator: training-operator
+    component: training-operator-controller-manager
+    resource: Deployment/training-operator-controller-manager
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: training-operator-controller-manager
+        namespace: opendatahub
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: PodKill
+    parameters:
+      labelSelector: control-plane=controller-manager,app.kubernetes.io/name=training-operator
+    count: 1
+    ttl: "300s"
+  hypothesis:
+    description: >-
+      When the training-operator pod is killed, running training jobs
+      continue via worker pods. New job submissions queue until the
+      controller recovers within the recovery timeout.
+    recoveryTimeout: 120s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - opendatahub

@@ -1,0 +1,35 @@
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: ray-rbac-revoke
+spec:
+  target:
+    operator: ray
+    component: ray-operator-controller-manager
+    resource: ClusterRoleBinding/ray-operator-manager-rolebinding
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: ray-operator-controller-manager
+        namespace: opendatahub
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: RBACRevoke
+    dangerLevel: high
+    parameters:
+      bindingName: ray-operator-manager-rolebinding
+      bindingType: ClusterRoleBinding
+    ttl: "60s"
+  hypothesis:
+    description: >-
+      When the ray-operator ClusterRoleBinding subjects are revoked, the
+      controller can no longer manage RayCluster resources. API calls
+      return 403 errors. Once permissions are restored, normal operation
+      resumes without restart.
+    recoveryTimeout: 120s
+  blastRadius:
+    maxPodsAffected: 1
+    allowDangerous: true

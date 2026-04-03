@@ -1,0 +1,37 @@
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: training-operator-finalizer-block
+spec:
+  target:
+    operator: training-operator
+    component: training-operator-controller-manager
+    resource: PyTorchJob
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: training-operator-controller-manager
+        namespace: opendatahub
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: FinalizerBlock
+    parameters:
+      apiVersion: kubeflow.org/v1
+      kind: PyTorchJob
+      name: test-pytorchjob
+      finalizer: training-operator.kubeflow.org/finalizer
+    ttl: "300s"
+  hypothesis:
+    description: >-
+      When a stuck finalizer prevents a PyTorchJob from being deleted, the
+      controller should handle the Terminating state gracefully and not leak
+      associated worker pods or services. The chaos framework removes the
+      finalizer via TTL-based cleanup after 300s.
+    recoveryTimeout: 180s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - opendatahub

@@ -1,0 +1,34 @@
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: training-operator-network-partition
+spec:
+  target:
+    operator: training-operator
+    component: training-operator-controller-manager
+    resource: Deployment/training-operator-controller-manager
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: training-operator-controller-manager
+        namespace: opendatahub
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: NetworkPartition
+    parameters:
+      labelSelector: control-plane=controller-manager,app.kubernetes.io/name=training-operator
+    ttl: "300s"
+  hypothesis:
+    description: >-
+      When the training-operator is network-partitioned from the API server,
+      job status stops updating but running worker pods continue training.
+      Once the partition is removed, reconciliation resumes without manual
+      intervention.
+    recoveryTimeout: 180s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - opendatahub
