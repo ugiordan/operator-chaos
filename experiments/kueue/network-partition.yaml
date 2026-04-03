@@ -1,0 +1,34 @@
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: kueue-network-partition
+spec:
+  target:
+    operator: kueue
+    component: kueue-controller-manager
+    resource: Deployment/kueue-controller-manager
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: kueue-controller-manager
+        namespace: opendatahub
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: NetworkPartition
+    parameters:
+      labelSelector: control-plane=controller-manager,app.kubernetes.io/name=kueue
+    ttl: "300s"
+  hypothesis:
+    description: >-
+      When kueue-controller-manager pods are network-partitioned from the
+      API server, workload admission stops and no new workloads are
+      scheduled. Existing admitted workloads continue running. Once the
+      partition is removed, scheduling resumes without manual intervention.
+    recoveryTimeout: 180s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - opendatahub

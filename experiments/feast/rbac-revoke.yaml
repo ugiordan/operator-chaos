@@ -1,0 +1,35 @@
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: feast-rbac-revoke
+spec:
+  target:
+    operator: feast
+    component: feast-operator-controller-manager
+    resource: ClusterRoleBinding/feast-operator-manager-rolebinding
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: feast-operator-controller-manager
+        namespace: opendatahub
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: RBACRevoke
+    dangerLevel: high
+    parameters:
+      bindingName: feast-operator-manager-rolebinding
+      bindingType: ClusterRoleBinding
+    ttl: "60s"
+  hypothesis:
+    description: >-
+      When the feast-operator ClusterRoleBinding subjects are revoked, the
+      operator loses cluster access and can no longer manage FeatureStore
+      resources. API calls return 403 errors. Once permissions are restored,
+      normal operation resumes without restart.
+    recoveryTimeout: 120s
+  blastRadius:
+    maxPodsAffected: 1
+    allowDangerous: true

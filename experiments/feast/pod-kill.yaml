@@ -1,0 +1,35 @@
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: feast-pod-kill
+spec:
+  target:
+    operator: feast
+    component: feast-operator-controller-manager
+    resource: Deployment/feast-operator-controller-manager
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: feast-operator-controller-manager
+        namespace: opendatahub
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: PodKill
+    parameters:
+      labelSelector: control-plane=controller-manager,app.kubernetes.io/name=feast-operator
+    count: 1
+    ttl: "300s"
+  hypothesis:
+    description: >-
+      When the feast-operator pod is killed, existing FeatureStore instances
+      continue serving features. New FeatureStore deployments queue until
+      the operator recovers and processes the backlog within the recovery
+      timeout.
+    recoveryTimeout: 120s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - opendatahub

@@ -1,0 +1,34 @@
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: llamastack-network-partition
+spec:
+  target:
+    operator: llamastack
+    component: llamastack-controller-manager
+    resource: Deployment/llamastack-controller-manager
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: llamastack-controller-manager
+        namespace: opendatahub
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: NetworkPartition
+    parameters:
+      labelSelector: control-plane=controller-manager,app.kubernetes.io/name=llamastack
+    ttl: "300s"
+  hypothesis:
+    description: >-
+      When the llamastack-controller-manager is network-partitioned from
+      the API server, reconciliation stops. Running LLM endpoints remain
+      unaffected. Once the partition is removed, reconciliation resumes
+      without manual intervention.
+    recoveryTimeout: 180s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - opendatahub

@@ -1,0 +1,35 @@
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: llamastack-pod-kill
+spec:
+  target:
+    operator: llamastack
+    component: llamastack-controller-manager
+    resource: Deployment/llamastack-controller-manager
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: llamastack-controller-manager
+        namespace: opendatahub
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: PodKill
+    parameters:
+      labelSelector: control-plane=controller-manager,app.kubernetes.io/name=llamastack
+    count: 1
+    ttl: "300s"
+  hypothesis:
+    description: >-
+      When the llamastack-controller-manager pod is killed, existing
+      LlamaStack distributions continue serving LLM endpoints. New
+      deployments queue until the controller recovers within the recovery
+      timeout.
+    recoveryTimeout: 120s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - opendatahub

@@ -1,0 +1,37 @@
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: kueue-finalizer-block
+spec:
+  target:
+    operator: kueue
+    component: kueue-controller-manager
+    resource: Workload
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: kueue-controller-manager
+        namespace: opendatahub
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: FinalizerBlock
+    parameters:
+      apiVersion: kueue.x-k8s.io/v1beta1
+      kind: Workload
+      name: test-workload
+      finalizer: kueue.x-k8s.io/managed-resources
+    ttl: "300s"
+  hypothesis:
+    description: >-
+      When a stuck finalizer prevents a Workload from being deleted, the
+      controller should handle the Terminating state gracefully and not
+      leak associated resource quota reservations. The chaos framework
+      removes the finalizer via TTL-based cleanup after 300s.
+    recoveryTimeout: 180s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - opendatahub

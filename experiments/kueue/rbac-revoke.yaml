@@ -1,0 +1,35 @@
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: kueue-rbac-revoke
+spec:
+  target:
+    operator: kueue
+    component: kueue-controller-manager
+    resource: ClusterRoleBinding/kueue-controller-manager-rolebinding
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: kueue-controller-manager
+        namespace: opendatahub
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: RBACRevoke
+    dangerLevel: high
+    parameters:
+      bindingName: kueue-controller-manager-rolebinding
+      bindingType: ClusterRoleBinding
+    ttl: "60s"
+  hypothesis:
+    description: >-
+      When the kueue ClusterRoleBinding subjects are revoked, the controller
+      can no longer read or update Workloads, ClusterQueues, or LocalQueues.
+      Admission stops with 403 errors. Once permissions are restored, normal
+      scheduling resumes without restart.
+    recoveryTimeout: 120s
+  blastRadius:
+    maxPodsAffected: 1
+    allowDangerous: true

@@ -1,0 +1,38 @@
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: llamastack-config-drift
+spec:
+  target:
+    operator: llamastack
+    component: llamastack-controller-manager
+    resource: ConfigMap/llamastack-serving-config
+  steadyState:
+    checks:
+      - type: resourceExists
+        apiVersion: v1
+        kind: ConfigMap
+        name: llamastack-serving-config
+        namespace: opendatahub
+    timeout: "30s"
+  injection:
+    type: ConfigDrift
+    dangerLevel: high
+    parameters:
+      name: llamastack-serving-config
+      key: config.yaml
+      value: '{"serving":{"endpoint":"invalid://broken","timeout":"-1"}}'
+      resourceType: ConfigMap
+    ttl: "300s"
+  hypothesis:
+    description: >-
+      When the llamastack serving configuration is corrupted, new LLM
+      deployments receive invalid config and fail to start. Existing
+      deployments remain unaffected. The operator should detect the drift
+      and reconcile the correct configuration.
+    recoveryTimeout: 180s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - opendatahub
+    allowDangerous: true

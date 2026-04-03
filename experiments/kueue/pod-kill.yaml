@@ -1,0 +1,35 @@
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: kueue-pod-kill
+spec:
+  target:
+    operator: kueue
+    component: kueue-controller-manager
+    resource: Deployment/kueue-controller-manager
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: kueue-controller-manager
+        namespace: opendatahub
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: PodKill
+    parameters:
+      labelSelector: control-plane=controller-manager,app.kubernetes.io/name=kueue
+    count: 1
+    ttl: "300s"
+  hypothesis:
+    description: >-
+      When the kueue-controller-manager pod is killed, pending workloads
+      should queue but not be admitted during downtime. Kubernetes should
+      recreate the pod, and the controller should recover and resume
+      scheduling within the recovery timeout.
+    recoveryTimeout: 120s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - opendatahub
