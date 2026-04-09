@@ -19,7 +19,7 @@ jobs:
         with:
           go-version: "1.25.0"
       - name: Create dashboard UI placeholder
-        run: mkdir -p dashboard/ui-dist
+        run: mkdir -p dashboard/ui-dist && touch dashboard/ui-dist/.gitkeep
       - name: Run tests
         run: go test -race ./... -count=1
 
@@ -31,7 +31,7 @@ jobs:
         with:
           go-version: "1.25.0"
       - name: Create dashboard UI placeholder
-        run: mkdir -p dashboard/ui-dist
+        run: mkdir -p dashboard/ui-dist && touch dashboard/ui-dist/.gitkeep
       - name: Run go vet
         run: go vet ./...
 
@@ -43,7 +43,7 @@ jobs:
         with:
           go-version: "1.25.0"
       - name: Create dashboard UI placeholder
-        run: mkdir -p dashboard/ui-dist
+        run: mkdir -p dashboard/ui-dist && touch dashboard/ui-dist/.gitkeep
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v7
         with:
@@ -57,7 +57,7 @@ jobs:
         with:
           go-version: "1.25.0"
       - name: Create dashboard UI placeholder
-        run: mkdir -p dashboard/ui-dist
+        run: mkdir -p dashboard/ui-dist && touch dashboard/ui-dist/.gitkeep
       - name: Build CLI
         run: go build -o bin/odh-chaos ./cmd/odh-chaos
       - name: Validate experiment files
