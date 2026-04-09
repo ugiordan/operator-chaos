@@ -25,6 +25,28 @@ Existing chaos tools (Krkn, Litmus, Chaos Mesh) test infrastructure resilience: 
 
 ODH Platform Chaos answers this by testing reconciliation: verifying operators restore resources to their intended state after operator-semantic faults like CRD mutation, config drift, and RBAC revocation.
 
+## How It Works
+
+```mermaid
+flowchart LR
+    A["Define\nExperiment"] --> B["Verify\nBaseline"]
+    B --> C["Inject\nFault"]
+    C --> D["Observe\nRecovery"]
+    D --> E{"Render\nVerdict"}
+    E -->|recovered| R["Resilient"]
+    E -->|partial| G["Degraded"]
+    E -->|not recovered| F["Failed"]
+
+    style A fill:#1565c0,color:#fff,stroke:#0d47a1
+    style B fill:#6a1b9a,color:#fff,stroke:#4a148c
+    style C fill:#e65100,color:#fff,stroke:#bf360c
+    style D fill:#2e7d32,color:#fff,stroke:#1b5e20
+    style E fill:#37474f,color:#fff,stroke:#263238
+    style R fill:#2e7d32,color:#fff,stroke:#1b5e20
+    style G fill:#e65100,color:#fff,stroke:#bf360c
+    style F fill:#c62828,color:#fff,stroke:#b71c1c
+```
+
 ## Three Usage Modes
 
 | Mode | What It Tests | Cluster? | When to Use |
@@ -61,11 +83,13 @@ ODH Platform Chaos answers this by testing reconciliation: verifying operators r
 
 </div>
 
-## Structured Verdicts
+## Verdicts
 
-Every experiment produces a verdict:
+Every experiment produces a structured verdict:
 
-- **Resilient** — Operator restored all resources correctly within the timeout
-- **Degraded** — Operator recovered but with differences from the expected state
-- **Failed** — Operator did not recover within the timeout
-- **Inconclusive** — Experiment could not determine the outcome
+| Verdict | Meaning |
+|---------|---------|
+| **Resilient** | Operator restored all resources correctly within the timeout |
+| **Degraded** | Operator recovered but with deviations from expected state |
+| **Failed** | Operator did not recover within the timeout |
+| **Inconclusive** | Baseline check failed, experiment could not run |
