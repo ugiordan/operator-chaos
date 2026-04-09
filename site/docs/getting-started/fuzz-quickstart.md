@@ -35,6 +35,30 @@ You only need to replace the placeholder `reconcilerFactory` function with your 
 !!! tip "When to use auto-generation vs manual"
     Use `generate fuzz-targets` when you already have a knowledge model. It gives the fuzzer architecturally relevant starting points. Write tests manually when you need custom invariants or want to target specific reconciler paths.
 
+## How It Works
+
+```mermaid
+flowchart TD
+    F[Go Fuzz Engine] -->|generates opMask, faultType, intensity| D[DecodeFaultConfig]
+    D --> FC[FaultConfig]
+    FC --> CC[ChaosClient wraps Fake Client]
+
+    subgraph "Harness.Run()"
+        CC --> R[Run Reconciler]
+        R -->|panic?| FAIL1[FAIL: panic is always a bug]
+        R -->|non-chaos error?| FAIL2[FAIL: real bug in reconciler]
+        R -->|chaos error?| OK1[Expected, continue]
+        OK1 --> INV[Check Invariants]
+        INV -->|violation?| FAIL3[FAIL: state corrupted]
+        INV -->|all pass| PASS[PASS]
+    end
+
+    style FAIL1 fill:#c62828,color:#fff
+    style FAIL2 fill:#c62828,color:#fff
+    style FAIL3 fill:#c62828,color:#fff
+    style PASS fill:#2e7d32,color:#fff
+```
+
 ## Prerequisites
 
 - Go 1.18+ (for native fuzzing support)

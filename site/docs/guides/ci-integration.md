@@ -111,6 +111,18 @@ Use `--dry-run` to validate experiment definitions without executing them:
 
 Use chaos experiments as a quality gate before promoting a deployment. The workflow below runs the chaos suite after deploying to staging and only proceeds to production if all experiments pass.
 
+```mermaid
+flowchart LR
+    A[Deploy to Staging] --> B[Wait for Rollout]
+    B --> C[Preflight Check]
+    C --> D[Run Chaos Suite]
+    D -->|All Resilient| E[Deploy to Production]
+    D -->|Any Failed/Degraded| F[Block & Alert]
+
+    style E fill:#2e7d32,color:#fff
+    style F fill:#c62828,color:#fff
+```
+
 ```yaml
 name: Deploy with Chaos Gate
 

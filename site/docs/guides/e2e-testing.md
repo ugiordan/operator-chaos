@@ -88,6 +88,35 @@ odh-chaos preflight --knowledge knowledge/odh-model-controller.yaml
 
 ## Step 2: Create Experiment Suite
 
+The suite progresses from low to high danger, validating basic recovery before testing destructive scenarios:
+
+```mermaid
+flowchart LR
+    subgraph Low Danger
+        A[01 PodKill]
+        B[02 ConfigDrift]
+    end
+    subgraph Medium Danger
+        C[03 NetworkPartition]
+        D[04 CRDMutation]
+        E[05 FinalizerBlock]
+    end
+    subgraph High Danger
+        F[06 RBACRevoke]
+        G[07 WebhookDisrupt]
+    end
+
+    A --> B --> C --> D --> E --> F --> G
+
+    style A fill:#2e7d32,color:#fff
+    style B fill:#2e7d32,color:#fff
+    style C fill:#e65100,color:#fff
+    style D fill:#e65100,color:#fff
+    style E fill:#e65100,color:#fff
+    style F fill:#c62828,color:#fff
+    style G fill:#c62828,color:#fff
+```
+
 Create a directory `experiments/odh-model-controller/` with one YAML per injection type.
 
 ### 2.1 PodKill --- Kill Controller Pods

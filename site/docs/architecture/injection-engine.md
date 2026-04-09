@@ -14,6 +14,35 @@ type Injector interface {
 }
 ```
 
+### Injection Lifecycle
+
+```mermaid
+sequenceDiagram
+    participant O as Orchestrator
+    participant R as Registry
+    participant I as Injector
+    participant K as K8s Resource
+
+    O->>R: Get(injectionType)
+    R-->>O: injector
+
+    O->>I: Validate(spec, blast)
+    I-->>O: OK
+
+    O->>I: Inject(ctx, spec, ns)
+    I->>K: Apply fault
+    I->>K: Store rollback annotation
+    I-->>O: CleanupFunc + Events
+
+    Note over O,K: Recovery window...
+
+    O->>I: Revert(ctx, spec, ns)
+    I->>K: Read rollback annotation
+    I->>K: Restore original state
+    I->>K: Remove chaos metadata
+    I-->>O: OK
+```
+
 ### Method Contracts
 
 #### `Validate(spec, blast) error`

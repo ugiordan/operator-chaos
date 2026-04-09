@@ -13,6 +13,34 @@ Run structured chaos experiments against a live cluster. The CLI orchestrates th
 
 ## Workflow
 
+```mermaid
+sequenceDiagram
+    participant User
+    participant CLI as odh-chaos CLI
+    participant K8s as Kubernetes Cluster
+
+    User->>CLI: init --component X --type PodKill
+    CLI-->>User: experiment.yaml
+
+    User->>CLI: validate experiment.yaml
+    CLI-->>User: OK / errors
+
+    User->>CLI: run --dry-run
+    CLI->>K8s: Pre-flight checks (no injection)
+    K8s-->>CLI: Resources verified
+    CLI-->>User: Dry run passed
+
+    User->>CLI: run experiment.yaml
+    CLI->>K8s: 1. Steady-state baseline
+    K8s-->>CLI: Baseline OK
+    CLI->>K8s: 2. Inject fault
+    CLI->>K8s: 3. Observe recovery
+    K8s-->>CLI: Recovery data
+    CLI->>K8s: 4. Evaluate verdict
+    CLI->>K8s: 5. Cleanup artifacts
+    CLI-->>User: Verdict: Resilient / Degraded / Failed
+```
+
 ### 1. Generate an Experiment Skeleton
 
 Create a basic experiment configuration:

@@ -185,6 +185,26 @@ components:
 
 **Two dependency types:**
 
+```mermaid
+graph TD
+    subgraph "kserve.yaml (intra-operator)"
+        A[kserve-controller-manager]
+        B[llmisvc-controller-manager]
+        C[kserve-localmodel-controller]
+        B -->|depends on| A
+        C -->|depends on| A
+    end
+
+    subgraph "odh-model-controller.yaml (cross-operator)"
+        D[odh-model-controller]
+    end
+
+    D -->|depends on| A
+
+    style A fill:#1565c0,color:#fff
+    style D fill:#6a1b9a,color:#fff
+```
+
 1. **Intra-operator**: Component name within the same knowledge file (e.g., `llmisvc-controller-manager` depends on `kserve-controller-manager`)
 2. **Cross-operator**: Operator name across knowledge files (e.g., `odh-model-controller` depends on `kserve`)
 

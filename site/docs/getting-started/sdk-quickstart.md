@@ -5,6 +5,19 @@ Wrap a controller-runtime `client.Client` with fault injection. The `ChaosClient
 !!! tip "When to Use SDK Middleware"
     Use this when you want to test how your reconciler handles API-level failures (timeouts, conflicts, connection errors) in integration tests or staging, without needing the full experiment lifecycle.
 
+```mermaid
+flowchart LR
+    Rec[Reconciler] -->|Get/List/Update/...| CC[ChaosClient]
+    CC --> FC{FaultConfig}
+    FC -->|fault fires| ERR[Return ChaosError]
+    FC -->|no fault| RC[Real Client]
+    RC --> API[K8s API Server]
+
+    style CC fill:#e65100,color:#fff
+    style ERR fill:#c62828,color:#fff
+    style API fill:#1565c0,color:#fff
+```
+
 ## Prerequisites
 
 - controller-runtime v0.23+
