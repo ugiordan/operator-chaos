@@ -1,7 +1,4 @@
-
-<!doctype html>
-<html lang="en" class="no-js">
-  <head>
+<!DOCTYPE html><html lang="en" class="no-js"><head>
     
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -14,7 +11,7 @@
         <link rel="prev" href="../go-sdk/">
       
       
-        <link rel="next" href="../experiment-types/">
+        <link rel="next" href="../../architecture/overview/">
       
       
         
@@ -45,8 +42,8 @@
       
         
         
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback">
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
@@ -57,7 +54,17 @@
 
     
     
-  </head>
+  <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
   
   
     
@@ -93,12 +100,12 @@
     <a href="../.." title="ODH Platform Chaos" class="md-header__button md-logo" aria-label="ODH Platform Chaos" data-md-component="logo">
       
   
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
       
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
     </label>
     <div class="md-header__title" data-md-component="header-title">
       <div class="md-header__ellipsis">
@@ -123,20 +130,20 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="blue" aria-label="Switch to dark mode" type="radio" name="__palette" id="__palette_0">
     
-      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden="">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
       </label>
     
   
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="blue" aria-label="Switch to light mode" type="radio" name="__palette" id="__palette_1">
     
-      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden="">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
       </label>
     
   
@@ -152,24 +159,24 @@
       
         <label class="md-header__button md-icon" for="__search">
           
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
         </label>
         <div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required="">
       <label class="md-search__icon md-icon" for="__search">
         
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
         
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
       </label>
       <nav class="md-search__options" aria-label="Search">
         
         <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
           
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
         </button>
       </nav>
       
@@ -177,7 +184,7 @@
       
     </form>
     <div class="md-search__output">
-      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix="">
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
             Initializing search
@@ -195,7 +202,7 @@
         <a href="https://github.com/ugiordan/odh-platform-chaos" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
   </div>
   <div class="md-source__repository">
     ugiordan/odh-platform-chaos
@@ -251,6 +258,50 @@
     
   
   Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../components/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Components
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../failure-modes/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Failure Modes
 
         </a>
       </li>
@@ -359,7 +410,7 @@
           
             
               
-              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
@@ -373,7 +424,7 @@
     <a href="../.." title="ODH Platform Chaos" class="md-nav__button md-logo" aria-label="ODH Platform Chaos" data-md-component="logo">
       
   
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
 
     </a>
     ODH Platform Chaos
@@ -383,7 +434,7 @@
       <a href="https://github.com/ugiordan/odh-platform-chaos" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
   </div>
   <div class="md-source__repository">
     ugiordan/odh-platform-chaos
@@ -391,7 +442,7 @@
 </a>
     </div>
   
-  <ul class="md-nav__list" data-md-scrollfix>
+  <ul class="md-nav__list" data-md-scrollfix="">
     
       
       
@@ -450,7 +501,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2">
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
@@ -480,7 +531,7 @@
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+          <ul class="md-nav__list" data-md-scrollfix="">
             
               
                 
@@ -611,6 +662,28 @@
     
       
         
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
       
         
       
@@ -635,10 +708,2913 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3">
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <div class="md-nav__link md-nav__container">
+            <a href="../../components/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Components
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Components
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../components/odh-model-controller/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    odh-model-controller
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    odh-model-controller
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/odh-model-controller/failure-modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure Modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/odh-model-controller/validation-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Results
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/odh-model-controller/custom-experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom Experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../components/dashboard/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ODH Dashboard
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    ODH Dashboard
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/dashboard/failure-modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure Modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/dashboard/validation-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Results
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/dashboard/custom-experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom Experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../components/kserve/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    KServe
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    KServe
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/kserve/failure-modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure Modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/kserve/validation-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Results
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/kserve/custom-experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom Experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_5">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../components/model-registry/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Registry
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Model Registry
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/model-registry/failure-modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure Modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/model-registry/validation-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Results
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/model-registry/custom-experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom Experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../components/workbenches/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workbenches
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Workbenches
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/workbenches/failure-modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure Modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/workbenches/validation-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Results
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/workbenches/custom-experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom Experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_7">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../components/data-science-pipelines/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Science Pipelines
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Data Science Pipelines
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/data-science-pipelines/failure-modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure Modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/data-science-pipelines/validation-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Results
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/data-science-pipelines/custom-experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom Experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_8">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../components/opendatahub-operator/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenDataHub Operator
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_8" id="__nav_3_8_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    OpenDataHub Operator
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/opendatahub-operator/failure-modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure Modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/opendatahub-operator/validation-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Results
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/opendatahub-operator/custom-experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom Experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_9">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../components/codeflare/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CodeFlare
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_9" id="__nav_3_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CodeFlare
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/codeflare/failure-modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure Modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/codeflare/validation-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Results
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/codeflare/custom-experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom Experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_10">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../components/modelmesh/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ModelMesh
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_10" id="__nav_3_10_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    ModelMesh
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/modelmesh/failure-modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure Modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/modelmesh/validation-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Results
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/modelmesh/custom-experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom Experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_11">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../components/feast/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Feast
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_11" id="__nav_3_11_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Feast
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/feast/failure-modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure Modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/feast/validation-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Results
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/feast/custom-experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom Experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_12">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../components/kueue/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kueue
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_12" id="__nav_3_12_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kueue
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/kueue/failure-modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure Modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/kueue/validation-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Results
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/kueue/custom-experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom Experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_13">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../components/llamastack/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LlamaStack
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_13" id="__nav_3_13_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_13">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    LlamaStack
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/llamastack/failure-modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure Modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/llamastack/validation-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Results
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/llamastack/custom-experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom Experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_14">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../components/ray/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ray
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_14" id="__nav_3_14_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_14_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_14">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Ray
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/ray/failure-modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure Modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/ray/validation-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Results
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/ray/custom-experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom Experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_15">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../components/training-operator/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training Operator
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_15" id="__nav_3_15_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_15_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_15">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Training Operator
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/training-operator/failure-modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure Modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/training-operator/validation-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Results
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/training-operator/custom-experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom Experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_16">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../components/trustyai/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TrustyAI
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_16" id="__nav_3_16_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_16_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_16">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    TrustyAI
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/trustyai/failure-modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure Modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/trustyai/validation-results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Results
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/trustyai/custom-experiments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom Experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../failure-modes/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure Modes
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Failure Modes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../failure-modes/podkill/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PodKill
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../failure-modes/network-partition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NetworkPartition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../failure-modes/config-drift/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ConfigDrift
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../failure-modes/crd-mutation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CRDMutation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../failure-modes/webhook-disrupt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebhookDisrupt
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../failure-modes/rbac-revoke/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RBACRevoke
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../failure-modes/finalizer-block/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FinalizerBlock
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../failure-modes/client-fault/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ClientFault
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../failure-modes/custom-failure-modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Creating Custom Failure Modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5">
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
             
   
   
@@ -656,8 +3632,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -665,7 +3641,7 @@
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+          <ul class="md-nav__list" data-md-scrollfix="">
             
               
                 
@@ -730,14 +3706,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/dashboard/" class="md-nav__link">
+      <a href="../../guides/dashboard-operator/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Dashboard
+    Dashboard (Chaos Operator)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dashboard-grafana/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dashboard (Grafana)
   
 
     
@@ -859,8 +3863,6 @@
       
         
       
-        
-      
     
     
     
@@ -877,10 +3879,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked="">
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
             
   
   
@@ -898,8 +3900,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_4">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -907,7 +3909,7 @@
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+          <ul class="md-nav__list" data-md-scrollfix="">
             
               
                 
@@ -1029,7 +4031,7 @@
       <span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
   <a href="#odh-chaos" class="md-nav__link">
@@ -1079,34 +4081,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../experiment-types/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Experiment Types
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -1144,10 +4118,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7">
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
             
   
   
@@ -1165,8 +4139,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1174,7 +4148,7 @@
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+          <ul class="md-nav__list" data-md-scrollfix="">
             
               
                 
@@ -1246,7 +4220,7 @@
   <span class="md-ellipsis">
     
   
-    Observer & Blackboard
+    Observer &amp; Blackboard
   
 
     
@@ -1321,10 +4295,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8">
         
           
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
             
   
   
@@ -1342,8 +4316,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1351,7 +4325,7 @@
   
 
           </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+          <ul class="md-nav__list" data-md-scrollfix="">
             
               
                 
@@ -1395,7 +4369,7 @@
   <span class="md-ellipsis">
     
   
-    Adding Injection Types
+    Adding Injection Types (Go)
   
 
     
@@ -1424,7 +4398,7 @@
             
             
               
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
@@ -1440,7 +4414,7 @@
       <span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
   <a href="#odh-chaos" class="md-nav__link">
@@ -1501,226 +4475,226 @@
   
 
 
-<h1 id="cli-reference">CLI Reference<a class="headerlink" href="#cli-reference" title="Permanent link">&para;</a></h1>
+<h1 id="cli-reference">CLI Reference<a class="headerlink" href="#cli-reference" title="Permanent link">¶</a></h1>
 <p>Auto-generated from cobra command definitions.</p>
-<h2 id="odh-chaos">odh-chaos<a class="headerlink" href="#odh-chaos" title="Permanent link">&para;</a></h2>
+<h2 id="odh-chaos">odh-chaos<a class="headerlink" href="#odh-chaos" title="Permanent link">¶</a></h2>
 <p>Chaos engineering framework for OpenDataHub operators</p>
-<h3 id="synopsis">Synopsis<a class="headerlink" href="#synopsis" title="Permanent link">&para;</a></h3>
+<h3 id="synopsis">Synopsis<a class="headerlink" href="#synopsis" title="Permanent link">¶</a></h3>
 <p>ODH Platform Chaos tests operator reconciliation semantics.
 It validates that operators recover managed resources correctly after
 fault injection, not just that pods restart.</p>
-<h3 id="options">Options<a class="headerlink" href="#options" title="Permanent link">&para;</a></h3>
+<h3 id="options">Options<a class="headerlink" href="#options" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>  -h, --help                help for odh-chaos
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>      --kubeconfig string   path to kubeconfig file
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>      --namespace string    target namespace (default &quot;opendatahub&quot;)
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>      --namespace string    target namespace (default "opendatahub")
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_1"><a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-analyze">odh-chaos analyze<a class="headerlink" href="#odh-chaos-analyze" title="Permanent link">&para;</a></h2>
+<h1 id="_1"><a class="headerlink" href="#_1" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-analyze">odh-chaos analyze<a class="headerlink" href="#odh-chaos-analyze" title="Permanent link">¶</a></h2>
 <p>Analyze Go source code for fault injection candidates</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>odh-chaos analyze &lt;directory&gt; [flags]
 </code></pre></div>
-<h3 id="options_1">Options<a class="headerlink" href="#options_1" title="Permanent link">&para;</a></h3>
+<h3 id="options_1">Options<a class="headerlink" href="#options_1" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>  -h, --help   help for analyze
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>      --json   output in JSON format
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>      --kubeconfig string   path to kubeconfig file
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>      --namespace string    target namespace (default &quot;opendatahub&quot;)
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>      --namespace string    target namespace (default "opendatahub")
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_2"><a class="headerlink" href="#_2" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-clean">odh-chaos clean<a class="headerlink" href="#odh-chaos-clean" title="Permanent link">&para;</a></h2>
+<h1 id="_2"><a class="headerlink" href="#_2" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-clean">odh-chaos clean<a class="headerlink" href="#odh-chaos-clean" title="Permanent link">¶</a></h2>
 <p>Remove all chaos artifacts from the cluster (emergency stop)</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>odh-chaos clean [flags]
 </code></pre></div>
-<h3 id="options_2">Options<a class="headerlink" href="#options_2" title="Permanent link">&para;</a></h3>
+<h3 id="options_2">Options<a class="headerlink" href="#options_2" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>  -h, --help                help for clean
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>      --interval duration   scan interval when --watch is set (default 1m0s)
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>      --watch               continuously scan and clean chaos artifacts
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_1">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_1" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_1">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_1" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>      --kubeconfig string   path to kubeconfig file
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>      --namespace string    target namespace (default &quot;opendatahub&quot;)
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>      --namespace string    target namespace (default "opendatahub")
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_3"><a class="headerlink" href="#_3" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-controller">odh-chaos controller<a class="headerlink" href="#odh-chaos-controller" title="Permanent link">&para;</a></h2>
+<h1 id="_3"><a class="headerlink" href="#_3" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-controller">odh-chaos controller<a class="headerlink" href="#odh-chaos-controller" title="Permanent link">¶</a></h2>
 <p>Controller mode commands</p>
-<h3 id="options_3">Options<a class="headerlink" href="#options_3" title="Permanent link">&para;</a></h3>
+<h3 id="options_3">Options<a class="headerlink" href="#options_3" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>  -h, --help   help for controller
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_2">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_2" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_2">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_2" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>      --kubeconfig string   path to kubeconfig file
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>      --namespace string    target namespace (default &quot;opendatahub&quot;)
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>      --namespace string    target namespace (default "opendatahub")
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_4"><a class="headerlink" href="#_4" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-controller-start">odh-chaos controller start<a class="headerlink" href="#odh-chaos-controller-start" title="Permanent link">&para;</a></h2>
+<h1 id="_4"><a class="headerlink" href="#_4" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-controller-start">odh-chaos controller start<a class="headerlink" href="#odh-chaos-controller-start" title="Permanent link">¶</a></h2>
 <p>Start the ChaosExperiment controller</p>
-<h3 id="synopsis_1">Synopsis<a class="headerlink" href="#synopsis_1" title="Permanent link">&para;</a></h3>
+<h3 id="synopsis_1">Synopsis<a class="headerlink" href="#synopsis_1" title="Permanent link">¶</a></h3>
 <p>Starts a Kubernetes controller that watches ChaosExperiment CRs and drives them through the experiment lifecycle.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>odh-chaos controller start [flags]
 </code></pre></div>
-<h3 id="options_4">Options<a class="headerlink" href="#options_4" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>      --health-addr string     health probe bind address (default &quot;:8081&quot;)
+<h3 id="options_4">Options<a class="headerlink" href="#options_4" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>      --health-addr string     health probe bind address (default ":8081")
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>  -h, --help                   help for start
 <a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>      --knowledge-dir string   directory of operator knowledge YAMLs
 <a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>      --leader-elect           enable leader election (default true)
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>      --metrics-addr string    metrics bind address (default &quot;:8080&quot;)
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>      --metrics-addr string    metrics bind address (default ":8080")
 <a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>      --namespace string       namespace to watch (required)
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_3">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_3" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_3">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_3" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>      --kubeconfig string   path to kubeconfig file
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_5"><a class="headerlink" href="#_5" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-diff-crds">odh-chaos diff-crds<a class="headerlink" href="#odh-chaos-diff-crds" title="Permanent link">&para;</a></h2>
+<h1 id="_5"><a class="headerlink" href="#_5" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-diff-crds">odh-chaos diff-crds<a class="headerlink" href="#odh-chaos-diff-crds" title="Permanent link">¶</a></h2>
 <p>Compare CRD schemas between versions</p>
-<h3 id="synopsis_2">Synopsis<a class="headerlink" href="#synopsis_2" title="Permanent link">&para;</a></h3>
+<h3 id="synopsis_2">Synopsis<a class="headerlink" href="#synopsis_2" title="Permanent link">¶</a></h3>
 <p>Compare OpenAPI v3 schemas embedded in CRD YAML files. Detects field removals, type changes, enum value changes, defaulting shifts, and API version removals.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>odh-chaos diff-crds [flags]
 </code></pre></div>
-<h3 id="options_5">Options<a class="headerlink" href="#options_5" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>      --format string        output format: table, json, yaml (default &quot;table&quot;)
+<h3 id="options_5">Options<a class="headerlink" href="#options_5" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>      --format string        output format: table, json, yaml (default "table")
 <a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>  -h, --help                 help for diff-crds
 <a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>      --source-crds string   path to source version CRD YAML directory
 <a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>      --target-crds string   path to target version CRD YAML directory (required)
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_4">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_4" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_4">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_4" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>      --kubeconfig string   path to kubeconfig file
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>      --namespace string    target namespace (default &quot;opendatahub&quot;)
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>      --namespace string    target namespace (default "opendatahub")
 <a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_6"><a class="headerlink" href="#_6" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-diff">odh-chaos diff<a class="headerlink" href="#odh-chaos-diff" title="Permanent link">&para;</a></h2>
+<h1 id="_6"><a class="headerlink" href="#_6" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-diff">odh-chaos diff<a class="headerlink" href="#odh-chaos-diff" title="Permanent link">¶</a></h2>
 <p>Compare two versioned knowledge model directories</p>
-<h3 id="synopsis_3">Synopsis<a class="headerlink" href="#synopsis_3" title="Permanent link">&para;</a></h3>
+<h3 id="synopsis_3">Synopsis<a class="headerlink" href="#synopsis_3" title="Permanent link">¶</a></h3>
 <p>Structural comparison of operator knowledge models between two versions. Detects renames, namespace moves, webhook changes, and dependency shifts. No cluster access required.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>odh-chaos diff [flags]
 </code></pre></div>
-<h3 id="options_6">Options<a class="headerlink" href="#options_6" title="Permanent link">&para;</a></h3>
+<h3 id="options_6">Options<a class="headerlink" href="#options_6" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>      --breaking        only show breaking changes
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>      --format string   output format: table, json, yaml (default &quot;table&quot;)
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>      --format string   output format: table, json, yaml (default "table")
 <a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>  -h, --help            help for diff
 <a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>      --source string   path to source version knowledge directory (required)
 <a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>      --target string   path to target version knowledge directory (required)
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_5">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_5" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_5">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_5" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>      --kubeconfig string   path to kubeconfig file
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>      --namespace string    target namespace (default &quot;opendatahub&quot;)
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>      --namespace string    target namespace (default "opendatahub")
 <a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_7"><a class="headerlink" href="#_7" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-generate">odh-chaos generate<a class="headerlink" href="#odh-chaos-generate" title="Permanent link">&para;</a></h2>
+<h1 id="_7"><a class="headerlink" href="#_7" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-generate">odh-chaos generate<a class="headerlink" href="#odh-chaos-generate" title="Permanent link">¶</a></h2>
 <p>Generate code from knowledge models</p>
-<h3 id="options_7">Options<a class="headerlink" href="#options_7" title="Permanent link">&para;</a></h3>
+<h3 id="options_7">Options<a class="headerlink" href="#options_7" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>  -h, --help   help for generate
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_6">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_6" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_6">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_6" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>      --kubeconfig string   path to kubeconfig file
-<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>      --namespace string    target namespace (default &quot;opendatahub&quot;)
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>      --namespace string    target namespace (default "opendatahub")
 <a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_8"><a class="headerlink" href="#_8" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-generate-chaos">odh-chaos generate chaos<a class="headerlink" href="#odh-chaos-generate-chaos" title="Permanent link">&para;</a></h2>
+<h1 id="_8"><a class="headerlink" href="#_8" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-generate-chaos">odh-chaos generate chaos<a class="headerlink" href="#odh-chaos-generate-chaos" title="Permanent link">¶</a></h2>
 <p>Generate a chaos playbook from knowledge models and experiments</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>odh-chaos generate chaos [flags]
 </code></pre></div>
-<h3 id="options_8">Options<a class="headerlink" href="#options_8" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>      --danger string        danger filter: all, low, medium, high (default &quot;all&quot;)
+<h3 id="options_8">Options<a class="headerlink" href="#options_8" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>      --danger string        danger filter: all, low, medium, high (default "all")
 <a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>      --experiments string   experiments directory (required)
 <a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>  -h, --help                 help for chaos
 <a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>      --knowledge string     knowledge directory (required)
 <a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>      --output string        output file path (defaults to stdout)
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_7">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_7" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_7">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_7" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>      --kubeconfig string   path to kubeconfig file
-<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>      --namespace string    target namespace (default &quot;opendatahub&quot;)
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>      --namespace string    target namespace (default "opendatahub")
 <a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_9"><a class="headerlink" href="#_9" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-generate-fuzz-targets">odh-chaos generate fuzz-targets<a class="headerlink" href="#odh-chaos-generate-fuzz-targets" title="Permanent link">&para;</a></h2>
+<h1 id="_9"><a class="headerlink" href="#_9" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-generate-fuzz-targets">odh-chaos generate fuzz-targets<a class="headerlink" href="#odh-chaos-generate-fuzz-targets" title="Permanent link">¶</a></h2>
 <p>Generate fuzz test targets from a knowledge model</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>odh-chaos generate fuzz-targets [flags]
 </code></pre></div>
-<h3 id="options_9">Options<a class="headerlink" href="#options_9" title="Permanent link">&para;</a></h3>
+<h3 id="options_9">Options<a class="headerlink" href="#options_9" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>  -h, --help               help for fuzz-targets
 <a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>      --knowledge string   path to knowledge YAML file (required)
 <a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>      --output string      output file path (defaults to stdout)
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_8">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_8" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_8">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_8" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>      --kubeconfig string   path to kubeconfig file
-<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>      --namespace string    target namespace (default &quot;opendatahub&quot;)
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>      --namespace string    target namespace (default "opendatahub")
 <a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_10"><a class="headerlink" href="#_10" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-generate-upgrade">odh-chaos generate upgrade<a class="headerlink" href="#odh-chaos-generate-upgrade" title="Permanent link">&para;</a></h2>
+<h1 id="_10"><a class="headerlink" href="#_10" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-generate-upgrade">odh-chaos generate upgrade<a class="headerlink" href="#odh-chaos-generate-upgrade" title="Permanent link">¶</a></h2>
 <p>Generate an upgrade playbook from knowledge directories</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>odh-chaos generate upgrade [flags]
 </code></pre></div>
-<h3 id="options_10">Options<a class="headerlink" href="#options_10" title="Permanent link">&para;</a></h3>
+<h3 id="options_10">Options<a class="headerlink" href="#options_10" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>      --discover           try to discover OLM channels from cluster (default true)
 <a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>  -h, --help               help for upgrade
-<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>      --namespace string   operator namespace (defaults to first model&#39;s namespace)
-<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>      --operator string    operator name (defaults to first model&#39;s operator)
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>      --namespace string   operator namespace (defaults to first model's namespace)
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>      --operator string    operator name (defaults to first model's operator)
 <a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a>      --output string      output file path (defaults to stdout)
 <a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a>      --source string      source knowledge directory (required)
 <a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a>      --target string      target knowledge directory (required)
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_9">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_9" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_9">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_9" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>      --kubeconfig string   path to kubeconfig file
 <a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_11"><a class="headerlink" href="#_11" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-init">odh-chaos init<a class="headerlink" href="#odh-chaos-init" title="Permanent link">&para;</a></h2>
+<h1 id="_11"><a class="headerlink" href="#_11" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-init">odh-chaos init<a class="headerlink" href="#odh-chaos-init" title="Permanent link">¶</a></h2>
 <p>Generate a skeleton experiment YAML</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>odh-chaos init [flags]
 </code></pre></div>
-<h3 id="options_11">Options<a class="headerlink" href="#options_11" title="Permanent link">&para;</a></h3>
+<h3 id="options_11">Options<a class="headerlink" href="#options_11" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>      --component string   target component name (required)
 <a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>  -h, --help               help for init
-<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>      --namespace string   target namespace (default &quot;opendatahub&quot;)
-<a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a>      --operator string    target operator (default &quot;opendatahub-operator&quot;)
-<a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a>      --type string        injection type (PodKill|NetworkPartition|CRDMutation|ConfigDrift|WebhookDisrupt|RBACRevoke|FinalizerBlock|ClientFault) (default &quot;PodKill&quot;)
+<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>      --namespace string   target namespace (default "opendatahub")
+<a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a>      --operator string    target operator (default "opendatahub-operator")
+<a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a>      --type string        injection type (PodKill|NetworkPartition|CRDMutation|ConfigDrift|WebhookDisrupt|RBACRevoke|FinalizerBlock|ClientFault) (default "PodKill")
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_10">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_10" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_10">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_10" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>      --kubeconfig string   path to kubeconfig file
 <a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_12"><a class="headerlink" href="#_12" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-playbook">odh-chaos playbook<a class="headerlink" href="#odh-chaos-playbook" title="Permanent link">&para;</a></h2>
+<h1 id="_12"><a class="headerlink" href="#_12" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-playbook">odh-chaos playbook<a class="headerlink" href="#odh-chaos-playbook" title="Permanent link">¶</a></h2>
 <p>Execute upgrade and chaos playbooks</p>
-<h3 id="synopsis_4">Synopsis<a class="headerlink" href="#synopsis_4" title="Permanent link">&para;</a></h3>
+<h3 id="synopsis_4">Synopsis<a class="headerlink" href="#synopsis_4" title="Permanent link">¶</a></h3>
 <p>Run multi-step playbooks that orchestrate upgrades, chaos experiments,
 and validation steps. Supports both UpgradePlaybook and ChaosPlaybook kinds.</p>
-<h3 id="options_12">Options<a class="headerlink" href="#options_12" title="Permanent link">&para;</a></h3>
+<h3 id="options_12">Options<a class="headerlink" href="#options_12" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>  -h, --help   help for playbook
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_11">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_11" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_11">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_11" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>      --kubeconfig string   path to kubeconfig file
-<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a>      --namespace string    target namespace (default &quot;opendatahub&quot;)
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a>      --namespace string    target namespace (default "opendatahub")
 <a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_13"><a class="headerlink" href="#_13" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-playbook-run">odh-chaos playbook run<a class="headerlink" href="#odh-chaos-playbook-run" title="Permanent link">&para;</a></h2>
+<h1 id="_13"><a class="headerlink" href="#_13" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-playbook-run">odh-chaos playbook run<a class="headerlink" href="#odh-chaos-playbook-run" title="Permanent link">¶</a></h2>
 <p>Execute a playbook (UpgradePlaybook or ChaosPlaybook)</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>odh-chaos playbook run [flags]
 </code></pre></div>
-<h3 id="options_13">Options<a class="headerlink" href="#options_13" title="Permanent link">&para;</a></h3>
+<h3 id="options_13">Options<a class="headerlink" href="#options_13" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>      --allow-shell          Allow kubectl steps with shell commands
 <a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a>      --dry-run              Print execution plan without running
 <a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a>      --force-resume         Allow resume without state file
@@ -1732,66 +4706,66 @@ and validation steps. Supports both UpgradePlaybook and ChaosPlaybook kinds.</p>
 <a id="__codelineno-35-9" name="__codelineno-35-9" href="#__codelineno-35-9"></a>      --state-dir string     Directory for state files
 <a id="__codelineno-35-10" name="__codelineno-35-10" href="#__codelineno-35-10"></a>      --timeout duration     Overall timeout (default 1h0m0s)
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_12">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_12" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_12">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_12" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>      --kubeconfig string   path to kubeconfig file
-<a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a>      --namespace string    target namespace (default &quot;opendatahub&quot;)
+<a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a>      --namespace string    target namespace (default "opendatahub")
 <a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_14"><a class="headerlink" href="#_14" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-preflight">odh-chaos preflight<a class="headerlink" href="#odh-chaos-preflight" title="Permanent link">&para;</a></h2>
+<h1 id="_14"><a class="headerlink" href="#_14" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-preflight">odh-chaos preflight<a class="headerlink" href="#odh-chaos-preflight" title="Permanent link">¶</a></h2>
 <p>Check cluster readiness before running chaos experiments</p>
-<h3 id="synopsis_5">Synopsis<a class="headerlink" href="#synopsis_5" title="Permanent link">&para;</a></h3>
+<h3 id="synopsis_5">Synopsis<a class="headerlink" href="#synopsis_5" title="Permanent link">¶</a></h3>
 <p>Preflight verifies that all resources declared in an operator knowledge
 file exist and are healthy on the cluster. Use --local to validate the
 knowledge file structure without connecting to a cluster.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>odh-chaos preflight [flags]
 </code></pre></div>
-<h3 id="options_14">Options<a class="headerlink" href="#options_14" title="Permanent link">&para;</a></h3>
+<h3 id="options_14">Options<a class="headerlink" href="#options_14" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>  -h, --help               help for preflight
 <a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a>      --knowledge string   path to operator knowledge YAML (required)
 <a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a>      --local              skip cluster checks, only validate knowledge file
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_13">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_13" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_13">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_13" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a>      --kubeconfig string   path to kubeconfig file
-<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a>      --namespace string    target namespace (default &quot;opendatahub&quot;)
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a>      --namespace string    target namespace (default "opendatahub")
 <a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_15"><a class="headerlink" href="#_15" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-report">odh-chaos report<a class="headerlink" href="#odh-chaos-report" title="Permanent link">&para;</a></h2>
+<h1 id="_15"><a class="headerlink" href="#_15" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-report">odh-chaos report<a class="headerlink" href="#odh-chaos-report" title="Permanent link">¶</a></h2>
 <p>Generate summary reports from experiment results</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>odh-chaos report &lt;results-directory&gt; [flags]
 </code></pre></div>
-<h3 id="options_15">Options<a class="headerlink" href="#options_15" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>      --format string   output format (summary, junit) (default &quot;summary&quot;)
+<h3 id="options_15">Options<a class="headerlink" href="#options_15" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>      --format string   output format (summary, junit) (default "summary")
 <a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a>  -h, --help            help for report
 <a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a>      --output string   output directory for reports
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_14">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_14" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_14">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_14" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a>      --kubeconfig string   path to kubeconfig file
-<a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a>      --namespace string    target namespace (default &quot;opendatahub&quot;)
+<a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a>      --namespace string    target namespace (default "opendatahub")
 <a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_16"><a class="headerlink" href="#_16" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-run">odh-chaos run<a class="headerlink" href="#odh-chaos-run" title="Permanent link">&para;</a></h2>
+<h1 id="_16"><a class="headerlink" href="#_16" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-run">odh-chaos run<a class="headerlink" href="#odh-chaos-run" title="Permanent link">¶</a></h2>
 <p>Run a chaos experiment</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a>odh-chaos run &lt;experiment.yaml&gt; [flags]
 </code></pre></div>
-<h3 id="options_16">Options<a class="headerlink" href="#options_16" title="Permanent link">&para;</a></h3>
+<h3 id="options_16">Options<a class="headerlink" href="#options_16" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>      --distributed-lock        use Kubernetes Lease-based distributed locking
 <a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a>      --dry-run                 validate without injecting
 <a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a>  -h, --help                    help for run
 <a id="__codelineno-44-4" name="__codelineno-44-4" href="#__codelineno-44-4"></a>      --knowledge stringArray   path to operator knowledge YAML (repeatable)
 <a id="__codelineno-44-5" name="__codelineno-44-5" href="#__codelineno-44-5"></a>      --knowledge-dir string    directory of operator knowledge YAMLs
-<a id="__codelineno-44-6" name="__codelineno-44-6" href="#__codelineno-44-6"></a>      --lock-namespace string   namespace for distributed lock leases (default &quot;opendatahub&quot;)
+<a id="__codelineno-44-6" name="__codelineno-44-6" href="#__codelineno-44-6"></a>      --lock-namespace string   namespace for distributed lock leases (default "opendatahub")
 <a id="__codelineno-44-7" name="__codelineno-44-7" href="#__codelineno-44-7"></a>      --report-dir string       directory for report output
 <a id="__codelineno-44-8" name="__codelineno-44-8" href="#__codelineno-44-8"></a>      --timeout duration        total experiment timeout (default 10m0s)
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_15">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_15" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_15">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_15" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>      --kubeconfig string   path to kubeconfig file
-<a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a>      --namespace string    target namespace (default &quot;opendatahub&quot;)
+<a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a>      --namespace string    target namespace (default "opendatahub")
 <a id="__codelineno-45-3" name="__codelineno-45-3" href="#__codelineno-45-3"></a>  -v, --verbose             verbose output
 </code></pre></div>
 <div class="admonition note">
@@ -1803,18 +4777,18 @@ knowledge file structure without connecting to a cluster.</p>
 <a id="__codelineno-46-4" name="__codelineno-46-4" href="#__codelineno-46-4"></a><span class="w">  </span>--namespace<span class="w"> </span>redhat-ods-applications
 </code></pre></div>
 </div>
-<h1 id="_17"><a class="headerlink" href="#_17" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-simulate-upgrade">odh-chaos simulate-upgrade<a class="headerlink" href="#odh-chaos-simulate-upgrade" title="Permanent link">&para;</a></h2>
+<h1 id="_17"><a class="headerlink" href="#_17" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-simulate-upgrade">odh-chaos simulate-upgrade<a class="headerlink" href="#odh-chaos-simulate-upgrade" title="Permanent link">¶</a></h2>
 <p>Simulate an upgrade by computing diff and generating experiments</p>
-<h3 id="synopsis_6">Synopsis<a class="headerlink" href="#synopsis_6" title="Permanent link">&para;</a></h3>
+<h3 id="synopsis_6">Synopsis<a class="headerlink" href="#synopsis_6" title="Permanent link">¶</a></h3>
 <p>Compares source and target versioned knowledge directories, computes
 the structural diff, and generates chaos experiments that simulate the
 effects of each detected change. Use --dry-run to preview the generated
 experiments without executing them.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a>odh-chaos simulate-upgrade [flags]
 </code></pre></div>
-<h3 id="options_17">Options<a class="headerlink" href="#options_17" title="Permanent link">&para;</a></h3>
+<h3 id="options_17">Options<a class="headerlink" href="#options_17" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>      --component string    limit to a specific component
 <a id="__codelineno-48-2" name="__codelineno-48-2" href="#__codelineno-48-2"></a>      --dry-run             output generated experiments without executing
 <a id="__codelineno-48-3" name="__codelineno-48-3" href="#__codelineno-48-3"></a>  -h, --help                help for simulate-upgrade
@@ -1822,102 +4796,102 @@ experiments without executing them.</p>
 <a id="__codelineno-48-5" name="__codelineno-48-5" href="#__codelineno-48-5"></a>      --source string       path to source version knowledge directory (required)
 <a id="__codelineno-48-6" name="__codelineno-48-6" href="#__codelineno-48-6"></a>      --target string       path to target version knowledge directory (required)
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_16">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_16" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_16">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_16" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a>      --kubeconfig string   path to kubeconfig file
-<a id="__codelineno-49-2" name="__codelineno-49-2" href="#__codelineno-49-2"></a>      --namespace string    target namespace (default &quot;opendatahub&quot;)
+<a id="__codelineno-49-2" name="__codelineno-49-2" href="#__codelineno-49-2"></a>      --namespace string    target namespace (default "opendatahub")
 <a id="__codelineno-49-3" name="__codelineno-49-3" href="#__codelineno-49-3"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_18"><a class="headerlink" href="#_18" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-suite">odh-chaos suite<a class="headerlink" href="#odh-chaos-suite" title="Permanent link">&para;</a></h2>
+<h1 id="_18"><a class="headerlink" href="#_18" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-suite">odh-chaos suite<a class="headerlink" href="#odh-chaos-suite" title="Permanent link">¶</a></h2>
 <p>Run all experiments in a directory</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a>odh-chaos suite &lt;experiments-directory&gt; [flags]
 </code></pre></div>
-<h3 id="options_18">Options<a class="headerlink" href="#options_18" title="Permanent link">&para;</a></h3>
+<h3 id="options_18">Options<a class="headerlink" href="#options_18" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a>      --distributed-lock        use Kubernetes Lease-based distributed locking
 <a id="__codelineno-51-2" name="__codelineno-51-2" href="#__codelineno-51-2"></a>      --dry-run                 validate without running
 <a id="__codelineno-51-3" name="__codelineno-51-3" href="#__codelineno-51-3"></a>  -h, --help                    help for suite
 <a id="__codelineno-51-4" name="__codelineno-51-4" href="#__codelineno-51-4"></a>      --knowledge stringArray   path to operator knowledge YAML (repeatable)
 <a id="__codelineno-51-5" name="__codelineno-51-5" href="#__codelineno-51-5"></a>      --knowledge-dir string    directory of operator knowledge YAMLs
-<a id="__codelineno-51-6" name="__codelineno-51-6" href="#__codelineno-51-6"></a>      --lock-namespace string   namespace for distributed lock leases (default &quot;opendatahub&quot;)
+<a id="__codelineno-51-6" name="__codelineno-51-6" href="#__codelineno-51-6"></a>      --lock-namespace string   namespace for distributed lock leases (default "opendatahub")
 <a id="__codelineno-51-7" name="__codelineno-51-7" href="#__codelineno-51-7"></a>      --parallel int            max concurrent experiments (default 1)
 <a id="__codelineno-51-8" name="__codelineno-51-8" href="#__codelineno-51-8"></a>      --report-dir string       directory for report output
 <a id="__codelineno-51-9" name="__codelineno-51-9" href="#__codelineno-51-9"></a>      --timeout duration        timeout per experiment (default 10m0s)
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_17">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_17" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_17">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_17" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a>      --kubeconfig string   path to kubeconfig file
-<a id="__codelineno-52-2" name="__codelineno-52-2" href="#__codelineno-52-2"></a>      --namespace string    target namespace (default &quot;opendatahub&quot;)
+<a id="__codelineno-52-2" name="__codelineno-52-2" href="#__codelineno-52-2"></a>      --namespace string    target namespace (default "opendatahub")
 <a id="__codelineno-52-3" name="__codelineno-52-3" href="#__codelineno-52-3"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_19"><a class="headerlink" href="#_19" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-types">odh-chaos types<a class="headerlink" href="#odh-chaos-types" title="Permanent link">&para;</a></h2>
+<h1 id="_19"><a class="headerlink" href="#_19" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-types">odh-chaos types<a class="headerlink" href="#odh-chaos-types" title="Permanent link">¶</a></h2>
 <p>List available injection types</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a>odh-chaos types [flags]
 </code></pre></div>
-<h3 id="options_19">Options<a class="headerlink" href="#options_19" title="Permanent link">&para;</a></h3>
+<h3 id="options_19">Options<a class="headerlink" href="#options_19" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a>  -h, --help   help for types
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_18">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_18" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_18">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_18" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-55-1" name="__codelineno-55-1" href="#__codelineno-55-1"></a>      --kubeconfig string   path to kubeconfig file
-<a id="__codelineno-55-2" name="__codelineno-55-2" href="#__codelineno-55-2"></a>      --namespace string    target namespace (default &quot;opendatahub&quot;)
+<a id="__codelineno-55-2" name="__codelineno-55-2" href="#__codelineno-55-2"></a>      --namespace string    target namespace (default "opendatahub")
 <a id="__codelineno-55-3" name="__codelineno-55-3" href="#__codelineno-55-3"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_20"><a class="headerlink" href="#_20" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-upgrade">odh-chaos upgrade<a class="headerlink" href="#odh-chaos-upgrade" title="Permanent link">&para;</a></h2>
+<h1 id="_20"><a class="headerlink" href="#_20" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-upgrade">odh-chaos upgrade<a class="headerlink" href="#odh-chaos-upgrade" title="Permanent link">¶</a></h2>
 <p>OLM upgrade management and playbook execution</p>
-<h3 id="synopsis_7">Synopsis<a class="headerlink" href="#synopsis_7" title="Permanent link">&para;</a></h3>
+<h3 id="synopsis_7">Synopsis<a class="headerlink" href="#synopsis_7" title="Permanent link">¶</a></h3>
 <p>Manage operator upgrades via OLM. Subcommands cover the full upgrade lifecycle:
 discover available channels, trigger single-hop upgrades, monitor in-progress
 upgrades, and execute multi-step upgrade playbooks.</p>
-<h3 id="options_20">Options<a class="headerlink" href="#options_20" title="Permanent link">&para;</a></h3>
+<h3 id="options_20">Options<a class="headerlink" href="#options_20" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-56-1" name="__codelineno-56-1" href="#__codelineno-56-1"></a>  -h, --help   help for upgrade
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_19">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_19" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_19">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_19" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-57-1" name="__codelineno-57-1" href="#__codelineno-57-1"></a>      --kubeconfig string   path to kubeconfig file
-<a id="__codelineno-57-2" name="__codelineno-57-2" href="#__codelineno-57-2"></a>      --namespace string    target namespace (default &quot;opendatahub&quot;)
+<a id="__codelineno-57-2" name="__codelineno-57-2" href="#__codelineno-57-2"></a>      --namespace string    target namespace (default "opendatahub")
 <a id="__codelineno-57-3" name="__codelineno-57-3" href="#__codelineno-57-3"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_21"><a class="headerlink" href="#_21" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-upgrade-discover">odh-chaos upgrade discover<a class="headerlink" href="#odh-chaos-upgrade-discover" title="Permanent link">&para;</a></h2>
+<h1 id="_21"><a class="headerlink" href="#_21" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-upgrade-discover">odh-chaos upgrade discover<a class="headerlink" href="#odh-chaos-upgrade-discover" title="Permanent link">¶</a></h2>
 <p>Show available OLM channels and versions for an operator</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-58-1" name="__codelineno-58-1" href="#__codelineno-58-1"></a>odh-chaos upgrade discover [flags]
 </code></pre></div>
-<h3 id="options_21">Options<a class="headerlink" href="#options_21" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-59-1" name="__codelineno-59-1" href="#__codelineno-59-1"></a>      --format string      Output format: table, json (default &quot;table&quot;)
+<h3 id="options_21">Options<a class="headerlink" href="#options_21" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-59-1" name="__codelineno-59-1" href="#__codelineno-59-1"></a>      --format string      Output format: table, json (default "table")
 <a id="__codelineno-59-2" name="__codelineno-59-2" href="#__codelineno-59-2"></a>  -h, --help               help for discover
 <a id="__codelineno-59-3" name="__codelineno-59-3" href="#__codelineno-59-3"></a>      --namespace string   Subscription namespace (required)
 <a id="__codelineno-59-4" name="__codelineno-59-4" href="#__codelineno-59-4"></a>      --operator string    OLM operator package name (required)
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_20">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_20" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_20">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_20" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-60-1" name="__codelineno-60-1" href="#__codelineno-60-1"></a>      --kubeconfig string   path to kubeconfig file
 <a id="__codelineno-60-2" name="__codelineno-60-2" href="#__codelineno-60-2"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_22"><a class="headerlink" href="#_22" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-upgrade-monitor">odh-chaos upgrade monitor<a class="headerlink" href="#odh-chaos-upgrade-monitor" title="Permanent link">&para;</a></h2>
+<h1 id="_22"><a class="headerlink" href="#_22" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-upgrade-monitor">odh-chaos upgrade monitor<a class="headerlink" href="#odh-chaos-upgrade-monitor" title="Permanent link">¶</a></h2>
 <p>Watch an in-progress OLM upgrade</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-61-1" name="__codelineno-61-1" href="#__codelineno-61-1"></a>odh-chaos upgrade monitor [flags]
 </code></pre></div>
-<h3 id="options_22">Options<a class="headerlink" href="#options_22" title="Permanent link">&para;</a></h3>
+<h3 id="options_22">Options<a class="headerlink" href="#options_22" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-62-1" name="__codelineno-62-1" href="#__codelineno-62-1"></a>  -h, --help               help for monitor
 <a id="__codelineno-62-2" name="__codelineno-62-2" href="#__codelineno-62-2"></a>      --namespace string   Subscription namespace (required)
 <a id="__codelineno-62-3" name="__codelineno-62-3" href="#__codelineno-62-3"></a>      --operator string    OLM operator package name (required)
 <a id="__codelineno-62-4" name="__codelineno-62-4" href="#__codelineno-62-4"></a>      --timeout duration   Max watch time (default 30m0s)
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_21">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_21" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_21">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_21" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-63-1" name="__codelineno-63-1" href="#__codelineno-63-1"></a>      --kubeconfig string   path to kubeconfig file
 <a id="__codelineno-63-2" name="__codelineno-63-2" href="#__codelineno-63-2"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_23"><a class="headerlink" href="#_23" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-upgrade-run">odh-chaos upgrade run<a class="headerlink" href="#odh-chaos-upgrade-run" title="Permanent link">&para;</a></h2>
+<h1 id="_23"><a class="headerlink" href="#_23" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-upgrade-run">odh-chaos upgrade run<a class="headerlink" href="#odh-chaos-upgrade-run" title="Permanent link">¶</a></h2>
 <p>Execute an upgrade playbook</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-64-1" name="__codelineno-64-1" href="#__codelineno-64-1"></a>odh-chaos upgrade run [flags]
 </code></pre></div>
-<h3 id="options_23">Options<a class="headerlink" href="#options_23" title="Permanent link">&para;</a></h3>
+<h3 id="options_23">Options<a class="headerlink" href="#options_23" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-65-1" name="__codelineno-65-1" href="#__codelineno-65-1"></a>      --allow-shell          Allow kubectl steps with shell commands
 <a id="__codelineno-65-2" name="__codelineno-65-2" href="#__codelineno-65-2"></a>      --dry-run              Print execution plan without running
 <a id="__codelineno-65-3" name="__codelineno-65-3" href="#__codelineno-65-3"></a>      --force-resume         Allow resume without state file
@@ -1929,79 +4903,79 @@ upgrades, and execute multi-step upgrade playbooks.</p>
 <a id="__codelineno-65-9" name="__codelineno-65-9" href="#__codelineno-65-9"></a>      --state-dir string     Directory for state files
 <a id="__codelineno-65-10" name="__codelineno-65-10" href="#__codelineno-65-10"></a>      --timeout duration     Overall timeout (default 1h0m0s)
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_22">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_22" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_22">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_22" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-66-1" name="__codelineno-66-1" href="#__codelineno-66-1"></a>      --kubeconfig string   path to kubeconfig file
-<a id="__codelineno-66-2" name="__codelineno-66-2" href="#__codelineno-66-2"></a>      --namespace string    target namespace (default &quot;opendatahub&quot;)
+<a id="__codelineno-66-2" name="__codelineno-66-2" href="#__codelineno-66-2"></a>      --namespace string    target namespace (default "opendatahub")
 <a id="__codelineno-66-3" name="__codelineno-66-3" href="#__codelineno-66-3"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_24"><a class="headerlink" href="#_24" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-upgrade-trigger">odh-chaos upgrade trigger<a class="headerlink" href="#odh-chaos-upgrade-trigger" title="Permanent link">&para;</a></h2>
+<h1 id="_24"><a class="headerlink" href="#_24" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-upgrade-trigger">odh-chaos upgrade trigger<a class="headerlink" href="#odh-chaos-upgrade-trigger" title="Permanent link">¶</a></h2>
 <p>Trigger a single OLM channel hop</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-67-1" name="__codelineno-67-1" href="#__codelineno-67-1"></a>odh-chaos upgrade trigger [flags]
 </code></pre></div>
-<h3 id="options_24">Options<a class="headerlink" href="#options_24" title="Permanent link">&para;</a></h3>
+<h3 id="options_24">Options<a class="headerlink" href="#options_24" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-68-1" name="__codelineno-68-1" href="#__codelineno-68-1"></a>      --channel string     Target OLM channel (required)
 <a id="__codelineno-68-2" name="__codelineno-68-2" href="#__codelineno-68-2"></a>  -h, --help               help for trigger
 <a id="__codelineno-68-3" name="__codelineno-68-3" href="#__codelineno-68-3"></a>      --namespace string   Subscription namespace (required)
 <a id="__codelineno-68-4" name="__codelineno-68-4" href="#__codelineno-68-4"></a>      --operator string    OLM operator package name (required)
 <a id="__codelineno-68-5" name="__codelineno-68-5" href="#__codelineno-68-5"></a>      --timeout duration   Max wait for CSV ready (default 20m0s)
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_23">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_23" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_23">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_23" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-69-1" name="__codelineno-69-1" href="#__codelineno-69-1"></a>      --kubeconfig string   path to kubeconfig file
 <a id="__codelineno-69-2" name="__codelineno-69-2" href="#__codelineno-69-2"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_25"><a class="headerlink" href="#_25" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-validate-version">odh-chaos validate-version<a class="headerlink" href="#odh-chaos-validate-version" title="Permanent link">&para;</a></h2>
+<h1 id="_25"><a class="headerlink" href="#_25" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-validate-version">odh-chaos validate-version<a class="headerlink" href="#odh-chaos-validate-version" title="Permanent link">¶</a></h2>
 <p>Validate versioned knowledge models against a live cluster</p>
-<h3 id="synopsis_8">Synopsis<a class="headerlink" href="#synopsis_8" title="Permanent link">&para;</a></h3>
+<h3 id="synopsis_8">Synopsis<a class="headerlink" href="#synopsis_8" title="Permanent link">¶</a></h3>
 <p>Loads all knowledge models from a versioned directory and checks that
 the expected managed resources exist on the cluster. Useful for verifying
 that a knowledge directory accurately describes the current cluster state.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-70-1" name="__codelineno-70-1" href="#__codelineno-70-1"></a>odh-chaos validate-version [flags]
 </code></pre></div>
-<h3 id="options_25">Options<a class="headerlink" href="#options_25" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-71-1" name="__codelineno-71-1" href="#__codelineno-71-1"></a>      --format string          output format: table or json (default &quot;table&quot;)
+<h3 id="options_25">Options<a class="headerlink" href="#options_25" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-71-1" name="__codelineno-71-1" href="#__codelineno-71-1"></a>      --format string          output format: table or json (default "table")
 <a id="__codelineno-71-2" name="__codelineno-71-2" href="#__codelineno-71-2"></a>  -h, --help                   help for validate-version
 <a id="__codelineno-71-3" name="__codelineno-71-3" href="#__codelineno-71-3"></a>      --knowledge-dir string   path to versioned knowledge directory (required)
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_24">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_24" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_24">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_24" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-72-1" name="__codelineno-72-1" href="#__codelineno-72-1"></a>      --kubeconfig string   path to kubeconfig file
-<a id="__codelineno-72-2" name="__codelineno-72-2" href="#__codelineno-72-2"></a>      --namespace string    target namespace (default &quot;opendatahub&quot;)
+<a id="__codelineno-72-2" name="__codelineno-72-2" href="#__codelineno-72-2"></a>      --namespace string    target namespace (default "opendatahub")
 <a id="__codelineno-72-3" name="__codelineno-72-3" href="#__codelineno-72-3"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_26"><a class="headerlink" href="#_26" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-validate">odh-chaos validate<a class="headerlink" href="#odh-chaos-validate" title="Permanent link">&para;</a></h2>
+<h1 id="_26"><a class="headerlink" href="#_26" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-validate">odh-chaos validate<a class="headerlink" href="#odh-chaos-validate" title="Permanent link">¶</a></h2>
 <p>Validate experiment or knowledge YAML without running</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-73-1" name="__codelineno-73-1" href="#__codelineno-73-1"></a>odh-chaos validate &lt;file.yaml&gt; [flags]
 </code></pre></div>
-<h3 id="options_26">Options<a class="headerlink" href="#options_26" title="Permanent link">&para;</a></h3>
+<h3 id="options_26">Options<a class="headerlink" href="#options_26" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-74-1" name="__codelineno-74-1" href="#__codelineno-74-1"></a>  -h, --help        help for validate
 <a id="__codelineno-74-2" name="__codelineno-74-2" href="#__codelineno-74-2"></a>      --knowledge   validate an OperatorKnowledge YAML file instead of an experiment
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_25">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_25" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_25">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_25" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-75-1" name="__codelineno-75-1" href="#__codelineno-75-1"></a>      --kubeconfig string   path to kubeconfig file
-<a id="__codelineno-75-2" name="__codelineno-75-2" href="#__codelineno-75-2"></a>      --namespace string    target namespace (default &quot;opendatahub&quot;)
+<a id="__codelineno-75-2" name="__codelineno-75-2" href="#__codelineno-75-2"></a>      --namespace string    target namespace (default "opendatahub")
 <a id="__codelineno-75-3" name="__codelineno-75-3" href="#__codelineno-75-3"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_27"><a class="headerlink" href="#_27" title="Permanent link">&para;</a></h1>
-<hr />
-<h2 id="odh-chaos-version">odh-chaos version<a class="headerlink" href="#odh-chaos-version" title="Permanent link">&para;</a></h2>
+<h1 id="_27"><a class="headerlink" href="#_27" title="Permanent link">¶</a></h1>
+<hr>
+<h2 id="odh-chaos-version">odh-chaos version<a class="headerlink" href="#odh-chaos-version" title="Permanent link">¶</a></h2>
 <p>Print the version</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-76-1" name="__codelineno-76-1" href="#__codelineno-76-1"></a>odh-chaos version [flags]
 </code></pre></div>
-<h3 id="options_27">Options<a class="headerlink" href="#options_27" title="Permanent link">&para;</a></h3>
+<h3 id="options_27">Options<a class="headerlink" href="#options_27" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-77-1" name="__codelineno-77-1" href="#__codelineno-77-1"></a>  -h, --help   help for version
 </code></pre></div>
-<h3 id="options-inherited-from-parent-commands_26">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_26" title="Permanent link">&para;</a></h3>
+<h3 id="options-inherited-from-parent-commands_26">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_26" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-78-1" name="__codelineno-78-1" href="#__codelineno-78-1"></a>      --kubeconfig string   path to kubeconfig file
-<a id="__codelineno-78-2" name="__codelineno-78-2" href="#__codelineno-78-2"></a>      --namespace string    target namespace (default &quot;opendatahub&quot;)
+<a id="__codelineno-78-2" name="__codelineno-78-2" href="#__codelineno-78-2"></a>      --namespace string    target namespace (default "opendatahub")
 <a id="__codelineno-78-3" name="__codelineno-78-3" href="#__codelineno-78-3"></a>  -v, --verbose             verbose output
 </code></pre></div>
-<h1 id="_28"><a class="headerlink" href="#_28" title="Permanent link">&para;</a></h1>
-<hr />
+<h1 id="_28"><a class="headerlink" href="#_28" title="Permanent link">¶</a></h1>
+<hr>
 
 
 
@@ -2022,7 +4996,7 @@ that a knowledge directory accurately describes the current cluster state.</p>
       
   <span class="md-source-file__fact">
     <span class="md-icon" title="Last update">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
     </span>
     <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 17, 2026 08:40:13 UTC">April 17, 2026</span>
   </span>
@@ -2032,7 +5006,7 @@ that a knowledge directory accurately describes the current cluster state.</p>
       
   <span class="md-source-file__fact">
     <span class="md-icon" title="Created">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"></path></svg>
     </span>
     <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="March 30, 2026 11:18:28 UTC">March 30, 2026</span>
   </span>
@@ -2056,9 +5030,9 @@ that a knowledge directory accurately describes the current cluster state.</p>
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
         
-          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden="">
   
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
   Back to top
 </button>
         
@@ -2097,5 +5071,7 @@ that a knowledge directory accurately describes the current cluster state.</p>
       <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
-  </body>
-</html>
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script></body></html>
