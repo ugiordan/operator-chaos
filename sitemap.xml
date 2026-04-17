@@ -2,78 +2,86 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://ugiordan.github.io/odh-platform-chaos/</loc>
-         <lastmod>2026-04-09</lastmod>
+         <lastmod>2026-04-17</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/odh-platform-chaos/architecture/injection-engine/</loc>
-         <lastmod>2026-04-09</lastmod>
+         <lastmod>2026-04-17</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/odh-platform-chaos/architecture/observer-blackboard/</loc>
-         <lastmod>2026-04-09</lastmod>
+         <lastmod>2026-04-17</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/odh-platform-chaos/architecture/overview/</loc>
-         <lastmod>2026-04-09</lastmod>
+         <lastmod>2026-04-17</lastmod>
+    </url>
+    <url>
+         <loc>https://ugiordan.github.io/odh-platform-chaos/architecture/upgrade-diff-engine/</loc>
+         <lastmod>2026-04-17</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/odh-platform-chaos/contributing/adding-injection-types/</loc>
-         <lastmod>2026-04-09</lastmod>
+         <lastmod>2026-04-17</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/odh-platform-chaos/contributing/development-setup/</loc>
-         <lastmod>2026-04-09</lastmod>
+         <lastmod>2026-04-17</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/odh-platform-chaos/getting-started/cli-quickstart/</loc>
-         <lastmod>2026-04-09</lastmod>
+         <lastmod>2026-04-17</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/odh-platform-chaos/getting-started/fuzz-quickstart/</loc>
-         <lastmod>2026-04-09</lastmod>
+         <lastmod>2026-04-17</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/odh-platform-chaos/getting-started/installation/</loc>
-         <lastmod>2026-04-09</lastmod>
+         <lastmod>2026-04-17</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/odh-platform-chaos/getting-started/sdk-quickstart/</loc>
-         <lastmod>2026-04-09</lastmod>
+         <lastmod>2026-04-17</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/odh-platform-chaos/guides/ci-integration/</loc>
-         <lastmod>2026-04-09</lastmod>
+         <lastmod>2026-04-17</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/odh-platform-chaos/guides/controller-mode/</loc>
-         <lastmod>2026-04-09</lastmod>
+         <lastmod>2026-04-17</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/odh-platform-chaos/guides/dashboard/</loc>
-         <lastmod>2026-04-09</lastmod>
+         <lastmod>2026-04-17</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/odh-platform-chaos/guides/e2e-testing/</loc>
-         <lastmod>2026-04-09</lastmod>
+         <lastmod>2026-04-17</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/odh-platform-chaos/guides/knowledge-models/</loc>
-         <lastmod>2026-04-09</lastmod>
+         <lastmod>2026-04-17</lastmod>
+    </url>
+    <url>
+         <loc>https://ugiordan.github.io/odh-platform-chaos/guides/upgrade-testing/</loc>
+         <lastmod>2026-04-17</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/odh-platform-chaos/reference/cli-commands/</loc>
-         <lastmod>2026-04-09</lastmod>
+         <lastmod>2026-04-17</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/odh-platform-chaos/reference/crd-schema/</loc>
-         <lastmod>2026-04-09</lastmod>
+         <lastmod>2026-04-17</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/odh-platform-chaos/reference/experiment-types/</loc>
-         <lastmod>2026-04-09</lastmod>
+         <lastmod>2026-04-17</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/odh-platform-chaos/reference/go-sdk/</loc>
-         <lastmod>2026-04-09</lastmod>
+         <lastmod>2026-04-17</lastmod>
     </url>
 </urlset>

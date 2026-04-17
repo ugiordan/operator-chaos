@@ -1,0 +1,3225 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://ugiordan.github.io/odh-platform-chaos/guides/upgrade-testing/">
+      
+      
+        <link rel="prev" href="../controller-mode/">
+      
+      
+        <link rel="next" href="../../reference/crd-schema/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Upgrade Testing - ODH Platform Chaos</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#upgrade-testing" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ODH Platform Chaos" class="md-header__button md-logo" aria-label="ODH Platform Chaos" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ODH Platform Chaos
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Upgrade Testing
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ugiordan/odh-platform-chaos" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ugiordan/odh-platform-chaos
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../e2e-testing/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/crd-schema/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../architecture/overview/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/development-setup/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ODH Platform Chaos" class="md-nav__button md-logo" aria-label="ODH Platform Chaos" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ODH Platform Chaos
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ugiordan/odh-platform-chaos" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ugiordan/odh-platform-chaos
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/cli-quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/sdk-quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SDK Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/fuzz-quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fuzz Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../e2e-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E2E Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CI Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dashboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../knowledge-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knowledge Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../controller-mode/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Controller Mode
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Upgrade Testing
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Upgrade Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#why-upgrade-testing-matters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Upgrade Testing Matters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workflow-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workflow Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#versioned-knowledge-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Versioned Knowledge Models
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Versioned Knowledge Models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#version-metadata-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Version Metadata Fields
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-a-version-snapshot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating a Version Snapshot
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparing-versions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comparing Versions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Comparing Versions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filtering-by-severity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filtering by Severity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#machine-readable-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Machine-Readable Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#crd-schema-diffing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CRD Schema Diffing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CRD Schema Diffing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-output_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#severity-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Severity Levels
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simulating-upgrades" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simulating Upgrades
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Simulating Upgrades">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diff-to-experiment-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diff-to-Experiment Mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dry-run-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dry-Run Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validating-cluster-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validating Cluster Version
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Validating Cluster Version">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-output_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#end-to-end-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        End-to-End Example
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="End-to-End Example">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#expected-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Expected Results
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#upgrade-playbooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Upgrade Playbooks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Upgrade Playbooks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#playbook-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Playbook Format
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-a-playbook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running a Playbook
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#discovering-available-channels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Discovering Available Channels
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#triggering-single-hops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Triggering Single Hops
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#monitoring-in-progress-upgrades" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Monitoring In-Progress Upgrades
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resume-on-failure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resume on Failure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ci-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CI Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dry-run-mode_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dry-Run Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-playbook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Playbook
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#olm-upgrade-path-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OLM Upgrade Path Considerations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OLM Upgrade Path Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#channel-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Channel Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upgrade-path-gaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Upgrade Path Gaps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workaround-subscription-recreation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workaround: Subscription Recreation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validated-upgrade-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validated Upgrade Results
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next Steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/crd-schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CRD Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/go-sdk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Go SDK
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/cli-commands/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Commands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/experiment-types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiment Types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/injection-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Injection Engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/observer-blackboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Observer & Blackboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/upgrade-diff-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Upgrade Diff Engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/development-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/adding-injection-types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adding Injection Types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#why-upgrade-testing-matters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Upgrade Testing Matters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workflow-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workflow Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#versioned-knowledge-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Versioned Knowledge Models
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Versioned Knowledge Models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#version-metadata-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Version Metadata Fields
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#creating-a-version-snapshot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating a Version Snapshot
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparing-versions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comparing Versions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Comparing Versions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filtering-by-severity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filtering by Severity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#machine-readable-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Machine-Readable Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#crd-schema-diffing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CRD Schema Diffing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CRD Schema Diffing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-output_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#severity-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Severity Levels
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simulating-upgrades" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simulating Upgrades
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Simulating Upgrades">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diff-to-experiment-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diff-to-Experiment Mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dry-run-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dry-Run Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validating-cluster-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validating Cluster Version
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Validating Cluster Version">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-output_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#end-to-end-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        End-to-End Example
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="End-to-End Example">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#expected-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Expected Results
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#upgrade-playbooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Upgrade Playbooks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Upgrade Playbooks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#playbook-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Playbook Format
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-a-playbook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running a Playbook
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#discovering-available-channels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Discovering Available Channels
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#triggering-single-hops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Triggering Single Hops
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#monitoring-in-progress-upgrades" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Monitoring In-Progress Upgrades
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resume-on-failure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resume on Failure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ci-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CI Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dry-run-mode_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dry-Run Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-playbook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Playbook
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#olm-upgrade-path-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OLM Upgrade Path Considerations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OLM Upgrade Path Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#channel-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Channel Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upgrade-path-gaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Upgrade Path Gaps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workaround-subscription-recreation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workaround: Subscription Recreation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validated-upgrade-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validated Upgrade Results
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next Steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="upgrade-testing">Upgrade Testing<a class="headerlink" href="#upgrade-testing" title="Permanent link">&para;</a></h1>
+<p>Test and validate RHOAI/ODH operator upgrades before they hit production. The upgrade testing workflow detects breaking changes between versions and simulates upgrade-like disruptions using the existing chaos injection engine.</p>
+<h2 id="why-upgrade-testing-matters">Why Upgrade Testing Matters<a class="headerlink" href="#why-upgrade-testing-matters" title="Permanent link">&para;</a></h2>
+<p>Operator upgrades are where architectural assumptions break. RHOAI 2.x to 3.x migrations caused real production incidents:</p>
+<ul>
+<li><strong>Component renaming</strong>: <code>odh-dashboard</code> became <code>rhods-dashboard</code>, breaking label selectors and monitoring queries</li>
+<li><strong>Namespace moves</strong>: Components migrated from <code>opendatahub</code> to <code>redhat-ods-applications</code>, breaking NetworkPolicies and RBAC bindings</li>
+<li><strong>CRD schema changes</strong>: Required fields added to InferenceService specs, failing existing workloads</li>
+<li><strong>Webhook additions</strong>: New validation webhooks rejected previously-valid resources</li>
+<li><strong>Dependency ordering changes</strong>: KServe initialization timing shifted, causing race conditions in dependent operators</li>
+</ul>
+<p>Traditional upgrade testing catches runtime errors (pod crash loops, API server rejections), but misses <strong>resilience degradation</strong>. The upgrade simulation workflow tests what happens when:</p>
+<ul>
+<li>Old-name pods are terminated and only new-name pods exist</li>
+<li>Cross-namespace communication is disrupted during namespace migrations</li>
+<li>Webhooks are suddenly removed or added mid-flight</li>
+<li>New dependencies become unavailable</li>
+</ul>
+<p>These are the failure modes that surface in production after the upgrade completes, when chaos occurs naturally.</p>
+<h2 id="workflow-overview">Workflow Overview<a class="headerlink" href="#workflow-overview" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart LR
+    A["Create\nKnowledge\nSnapshots"] --&gt; B["odh-chaos\ndiff"]
+    B --&gt; C["odh-chaos\ndiff-crds"]
+    C --&gt; D["odh-chaos\nsimulate-upgrade\n--dry-run"]
+    D --&gt; E["Review\nExperiments"]
+    E --&gt; F["odh-chaos\nsimulate-upgrade"]
+    F --&gt; G["odh-chaos\nvalidate-version"]
+
+    style A fill:#bbdefb,stroke:#1565c0
+    style B fill:#ce93d8,stroke:#6a1b9a
+    style C fill:#ce93d8,stroke:#6a1b9a
+    style D fill:#ffcc80,stroke:#e65100
+    style E fill:#b0bec5,stroke:#37474f
+    style F fill:#ef9a9a,stroke:#c62828
+    style G fill:#a5d6a7,stroke:#2e7d32</code></pre>
+<p><strong>Step 1</strong>: Snapshot knowledge models for both versions (source and target)</p>
+<p><strong>Step 2</strong>: Detect architectural differences with <code>odh-chaos diff</code></p>
+<p><strong>Step 3</strong>: Analyze CRD schema changes with <code>odh-chaos diff-crds</code></p>
+<p><strong>Step 4</strong>: Preview upgrade experiments with <code>--dry-run</code></p>
+<p><strong>Step 5</strong>: Review generated experiments for architectural correctness</p>
+<p><strong>Step 6</strong>: Execute upgrade simulation and collect results</p>
+<p><strong>Step 7</strong>: Validate cluster state matches target version</p>
+<h2 id="versioned-knowledge-models">Versioned Knowledge Models<a class="headerlink" href="#versioned-knowledge-models" title="Permanent link">&para;</a></h2>
+<p>Knowledge models now support version metadata to enable diff-based upgrade testing. Versioned models live in a structured directory hierarchy:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>knowledge/
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── odh/
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│   └── v2.10/
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│       ├── dashboard.yaml
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│       ├── kserve.yaml
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│       └── odh-model-controller.yaml
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>└── rhoai/
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    └── v3.3/
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        ├── dashboard.yaml
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        ├── kserve.yaml
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        └── odh-model-controller.yaml
+</code></pre></div>
+<h3 id="version-metadata-fields">Version Metadata Fields<a class="headerlink" href="#version-metadata-fields" title="Permanent link">&para;</a></h3>
+<p>Three new fields in the <code>operator</code> section identify the version:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nt">operator</span><span class="p">:</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dashboard</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redhat-ods-applications</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nt">repository</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/opendatahub-io/odh-dashboard</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.3.1&quot;</span><span class="w">           </span><span class="c1"># Operator version</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="nt">platform</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rhoai</span><span class="w">             </span><span class="c1"># Platform identifier (rhoai, odh, custom)</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span><span class="nt">olmChannel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stable-3.3</span><span class="w">      </span><span class="c1"># OLM subscription channel</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>version</code></td>
+<td>Yes</td>
+<td>Semantic version string (e.g., "3.3.1", "2.10.0")</td>
+</tr>
+<tr>
+<td><code>platform</code></td>
+<td>Yes</td>
+<td>Platform identifier used in diff output (e.g., "rhoai", "odh")</td>
+</tr>
+<tr>
+<td><code>olmChannel</code></td>
+<td>No</td>
+<td>OLM channel for subscription-based deployments</td>
+</tr>
+</tbody>
+</table>
+<h3 id="creating-a-version-snapshot">Creating a Version Snapshot<a class="headerlink" href="#creating-a-version-snapshot" title="Permanent link">&para;</a></h3>
+<p>To create a versioned knowledge snapshot from a live cluster:</p>
+<p><strong>1. Copy current knowledge files to a versioned directory:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>mkdir<span class="w"> </span>-p<span class="w"> </span>knowledge/rhoai/v3.3
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>cp<span class="w"> </span>knowledge/rhoai/*.yaml<span class="w"> </span>knowledge/rhoai/v3.3/
+</code></pre></div>
+<p><strong>2. Add version metadata to each file:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nt">operator</span><span class="p">:</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dashboard</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redhat-ods-applications</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.3.1&quot;</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="nt">platform</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rhoai</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="nt">olmChannel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stable-3.3</span>
+</code></pre></div>
+<p><strong>3. Validate the snapshot:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>odh-chaos<span class="w"> </span>validate<span class="w"> </span>--knowledge-dir<span class="w"> </span>knowledge/rhoai/v3.3/
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Version snapshots are immutable</p>
+<p>Once created, versioned knowledge directories should not be modified. They represent the architectural state at a specific release. To update for a new version, create a new versioned directory.</p>
+</div>
+<h2 id="comparing-versions">Comparing Versions<a class="headerlink" href="#comparing-versions" title="Permanent link">&para;</a></h2>
+<p>The <code>odh-chaos diff</code> command detects architectural changes between two knowledge snapshots:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>odh-chaos<span class="w"> </span>diff<span class="w"> </span>--source<span class="w"> </span>knowledge/odh/v2.10/<span class="w"> </span>--target<span class="w"> </span>knowledge/rhoai/v3.3/
+</code></pre></div>
+<h3 id="example-output">Example Output<a class="headerlink" href="#example-output" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>Comparing knowledge models:
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>  Source: knowledge/odh/v2.10/ (platform: odh, 15 operators)
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>  Target: knowledge/rhoai/v3.3/ (platform: rhoai, 11 operators)
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>Component Changes:
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>  dashboard.odh-dashboard → dashboard.rhods-dashboard [BREAKING: Component rename]
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    - Deployment: odh-dashboard → rhods-dashboard (namespace: opendatahub → redhat-ods-applications)
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    - Service: odh-dashboard → rhods-dashboard (namespace: opendatahub → redhat-ods-applications)
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    - ConfigMap: odh-dashboard-config → rhods-dashboard-config (namespace: opendatahub → redhat-ods-applications)
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>  kserve.kserve-controller-manager [BREAKING: Namespace move]
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    - Namespace: opendatahub → redhat-ods-applications
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>  odh-model-controller.odh-model-controller [BREAKING: Webhook added]
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>    + Webhook: validating.nim.account.odh-model-controller.opendatahub.io (type: validating)
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>Operator Changes:
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>  - codeflare [BREAKING: Operator removed]
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>  - modelmesh [BREAKING: Operator removed]
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>  - data-science-pipelines [BREAKING: Operator removed]
+<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>
+<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>Summary:
+<a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a>  15 breaking changes detected
+<a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a>  3 warnings
+<a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a>  8 informational changes
+</code></pre></div>
+<h3 id="filtering-by-severity">Filtering by Severity<a class="headerlink" href="#filtering-by-severity" title="Permanent link">&para;</a></h3>
+<p>Use <code>--breaking</code> to show only breaking changes:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>odh-chaos<span class="w"> </span>diff<span class="w"> </span>--source<span class="w"> </span>knowledge/odh/v2.10/<span class="w"> </span>--target<span class="w"> </span>knowledge/rhoai/v3.3/<span class="w"> </span>--breaking
+</code></pre></div>
+<h3 id="machine-readable-output">Machine-Readable Output<a class="headerlink" href="#machine-readable-output" title="Permanent link">&para;</a></h3>
+<p>For CI integration, use JSON format:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>odh-chaos<span class="w"> </span>diff<span class="w"> </span>--source<span class="w"> </span>knowledge/odh/v2.10/<span class="w"> </span>--target<span class="w"> </span>knowledge/rhoai/v3.3/<span class="w"> </span>--format<span class="w"> </span>json
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;knowledge/odh/v2.10/&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="nt">&quot;platform&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;odh&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="nt">&quot;operatorCount&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">  </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">    </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;knowledge/rhoai/v3.3/&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">    </span><span class="nt">&quot;platform&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rhoai&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">    </span><span class="nt">&quot;operatorCount&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">11</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">  </span><span class="nt">&quot;changes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ComponentRename&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="w">      </span><span class="nt">&quot;severity&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Breaking&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="w">      </span><span class="nt">&quot;operator&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dashboard&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="w">      </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;odh-dashboard&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="w">      </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rhods-dashboard&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="w">      </span><span class="nt">&quot;details&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="w">        </span><span class="nt">&quot;namespaceChanged&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a><span class="w">        </span><span class="nt">&quot;sourceNamespace&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;opendatahub&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a><span class="w">        </span><span class="nt">&quot;targetNamespace&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;redhat-ods-applications&quot;</span>
+<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a><span class="w">  </span><span class="p">],</span>
+<a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a><span class="w">  </span><span class="nt">&quot;summary&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a><span class="w">    </span><span class="nt">&quot;breaking&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span>
+<a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a><span class="w">    </span><span class="nt">&quot;warnings&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a><span class="w">    </span><span class="nt">&quot;info&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span>
+<a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-9-31" name="__codelineno-9-31" href="#__codelineno-9-31"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="crd-schema-diffing">CRD Schema Diffing<a class="headerlink" href="#crd-schema-diffing" title="Permanent link">&para;</a></h2>
+<p>The <code>odh-chaos diff-crds</code> command analyzes Custom Resource Definition schema changes between versions:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Extract CRDs from source cluster</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>oc<span class="w"> </span>get<span class="w"> </span>crd<span class="w"> </span>inferenceservices.serving.kserve.io<span class="w"> </span>-o<span class="w"> </span>yaml<span class="w"> </span>&gt;<span class="w"> </span>crds-source/inferenceservice.yaml
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># Extract CRDs from target cluster</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>oc<span class="w"> </span>get<span class="w"> </span>crd<span class="w"> </span>inferenceservices.serving.kserve.io<span class="w"> </span>-o<span class="w"> </span>yaml<span class="w"> </span>&gt;<span class="w"> </span>crds-target/inferenceservice.yaml
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="c1"># Diff the schemas</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>odh-chaos<span class="w"> </span>diff-crds<span class="w"> </span>--source<span class="w"> </span>crds-source/<span class="w"> </span>--target<span class="w"> </span>crds-target/
+</code></pre></div>
+<h3 id="example-output_1">Example Output<a class="headerlink" href="#example-output_1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>CRD Schema Changes:
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>  inferenceservices.serving.kserve.io
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    API Version: v1beta1
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>      spec.predictor.llm [BREAKING: Field removed]
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>      spec.predictor.runtime [INFO: Field added]
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>      spec.predictor.serviceAccountName [BREAKING: Required added]
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>      spec.transformer.timeout [WARNING: Default changed] (60s → 120s)
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>    API Version: v1alpha1 [BREAKING: API version removed]
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>Summary:
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>  3 breaking changes
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>  1 warning
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>  1 informational change
+</code></pre></div>
+<h3 id="severity-levels">Severity Levels<a class="headerlink" href="#severity-levels" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Severity</th>
+<th>Change Type</th>
+<th>Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Breaking</strong></td>
+<td>Field removal</td>
+<td>Existing resources with this field will fail validation</td>
+</tr>
+<tr>
+<td><strong>Breaking</strong></td>
+<td>Type change</td>
+<td>Field type incompatibility (e.g., string → integer)</td>
+</tr>
+<tr>
+<td><strong>Breaking</strong></td>
+<td>Required field added</td>
+<td>Resources without this field will be rejected</td>
+</tr>
+<tr>
+<td><strong>Breaking</strong></td>
+<td>Enum value removed</td>
+<td>Resources using removed values will fail</td>
+</tr>
+<tr>
+<td><strong>Breaking</strong></td>
+<td>API version removed</td>
+<td>Resources using removed version become inaccessible</td>
+</tr>
+<tr>
+<td><strong>Warning</strong></td>
+<td>Default value changed</td>
+<td>Behavior changes for resources that don't specify the field</td>
+</tr>
+<tr>
+<td><strong>Info</strong></td>
+<td>Field added</td>
+<td>New optional field available</td>
+</tr>
+<tr>
+<td><strong>Info</strong></td>
+<td>Enum value added</td>
+<td>New valid option available</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Breaking changes require migration</p>
+<p>CRD breaking changes typically require updating existing custom resources before or during the upgrade. Plan for migration scripts or admission webhooks that transform old resources to the new schema.</p>
+</div>
+<h2 id="simulating-upgrades">Simulating Upgrades<a class="headerlink" href="#simulating-upgrades" title="Permanent link">&para;</a></h2>
+<p>The <code>odh-chaos simulate-upgrade</code> command generates and executes chaos experiments based on detected architectural differences:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Preview experiments without executing</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>odh-chaos<span class="w"> </span>simulate-upgrade<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">  </span>--source<span class="w"> </span>knowledge/odh/v2.10/<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">  </span>--target<span class="w"> </span>knowledge/rhoai/v3.3/<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">  </span>--dry-run
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="c1"># Execute upgrade simulation</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>odh-chaos<span class="w"> </span>simulate-upgrade<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">  </span>--source<span class="w"> </span>knowledge/odh/v2.10/<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">  </span>--target<span class="w"> </span>knowledge/rhoai/v3.3/
+</code></pre></div>
+<h3 id="diff-to-experiment-mapping">Diff-to-Experiment Mapping<a class="headerlink" href="#diff-to-experiment-mapping" title="Permanent link">&para;</a></h3>
+<p>The simulation engine maps architectural changes to chaos injection types that test upgrade resilience:</p>
+<table>
+<thead>
+<tr>
+<th>Change Type</th>
+<th>Injection Type</th>
+<th>What It Tests</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Component rename</td>
+<td>PodKill</td>
+<td>Recovery after old-name pods are terminated</td>
+</tr>
+<tr>
+<td>Namespace move</td>
+<td>NetworkPartition</td>
+<td>Cross-namespace communication during migration</td>
+</tr>
+<tr>
+<td>Webhook removal</td>
+<td>WebhookDisrupt</td>
+<td>Behavior when validation is removed</td>
+</tr>
+<tr>
+<td>Webhook addition</td>
+<td>WebhookDisrupt</td>
+<td>Impact of new validation enforcement</td>
+</tr>
+<tr>
+<td>Dependency added</td>
+<td>PodKill</td>
+<td>Resilience when new dependency is unavailable</td>
+</tr>
+<tr>
+<td>Dependency removed</td>
+<td>NetworkPartition</td>
+<td>Isolation from removed dependencies</td>
+</tr>
+<tr>
+<td>Resource moved</td>
+<td>PodKill + NetworkPartition</td>
+<td>Recovery after resource relocation</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example:</strong> For the <code>odh-dashboard</code> → <code>rhods-dashboard</code> rename, the simulation:</p>
+<ol>
+<li>Terminates all <code>odh-dashboard</code> pods (simulating pod name change)</li>
+<li>Disrupts network to old namespace <code>opendatahub</code> (simulating namespace move)</li>
+<li>Validates that dependent components recover correctly</li>
+</ol>
+<h3 id="dry-run-mode">Dry-Run Mode<a class="headerlink" href="#dry-run-mode" title="Permanent link">&para;</a></h3>
+<p>Use <code>--dry-run</code> to preview generated experiments without executing them:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>odh-chaos<span class="w"> </span>simulate-upgrade<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">  </span>--source<span class="w"> </span>knowledge/odh/v2.10/<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">  </span>--target<span class="w"> </span>knowledge/rhoai/v3.3/<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">  </span>--dry-run
+</code></pre></div>
+<p>Output:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>Upgrade Simulation Plan (DRY RUN):
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>Experiment 1: dashboard-rename-recovery
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>  Type: PodKill
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>  Target: dashboard/rhods-dashboard
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>  Reason: Component rename detected (odh-dashboard → rhods-dashboard)
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>  Injection: Kill all pods matching label deployment=rhods-dashboard
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>  Validation: Verify rhods-dashboard Deployment reaches Available=True within 300s
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>Experiment 2: dashboard-namespace-migration
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>  Type: NetworkPartition
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>  Target: dashboard/rhods-dashboard
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>  Reason: Namespace move detected (opendatahub → redhat-ods-applications)
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>  Injection: Partition network between opendatahub and redhat-ods-applications
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>  Validation: Verify cross-namespace communication recovers
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a>
+<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>Experiment 3: odh-model-controller-webhook-enforcement
+<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a>  Type: WebhookDisrupt
+<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a>  Target: odh-model-controller/odh-model-controller
+<a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a>  Reason: Webhook added (validating.nim.account.odh-model-controller.opendatahub.io)
+<a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a>  Injection: Inject webhook failures for 60s
+<a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a>  Validation: Verify resources are validated correctly after webhook recovery
+<a id="__codelineno-14-23" name="__codelineno-14-23" href="#__codelineno-14-23"></a>
+<a id="__codelineno-14-24" name="__codelineno-14-24" href="#__codelineno-14-24"></a>Total experiments: 3
+<a id="__codelineno-14-25" name="__codelineno-14-25" href="#__codelineno-14-25"></a>Estimated runtime: 15m
+</code></pre></div>
+<p>Review the experiments for architectural correctness before executing.</p>
+<div class="admonition tip">
+<p class="admonition-title">Customize generated experiments</p>
+<p>The <code>simulate-upgrade</code> command writes experiment YAML files to <code>./upgrade-experiments/</code> by default. Use <code>--output-dir</code> to specify a custom location. You can edit these files before execution to adjust timeouts, injection parameters, or validation criteria.</p>
+</div>
+<h2 id="validating-cluster-version">Validating Cluster Version<a class="headerlink" href="#validating-cluster-version" title="Permanent link">&para;</a></h2>
+<p>The <code>odh-chaos validate-version</code> command verifies that a cluster matches a specific knowledge snapshot:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># Validate pre-upgrade state (cluster should match source version)</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>odh-chaos<span class="w"> </span>validate-version<span class="w"> </span>--knowledge-dir<span class="w"> </span>knowledge/odh/v2.10/
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="c1"># Validate post-upgrade state (cluster should match target version)</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>odh-chaos<span class="w"> </span>validate-version<span class="w"> </span>--knowledge-dir<span class="w"> </span>knowledge/rhoai/v3.3/
+</code></pre></div>
+<h3 id="example-output_2">Example Output<a class="headerlink" href="#example-output_2" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>Validating cluster against knowledge snapshot:
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>  Path: knowledge/rhoai/v3.3/
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>  Platform: rhoai
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>  Expected version: 3.3.1
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>Operator: dashboard (version: 3.3.1) [MATCH]
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>  Component: rhods-dashboard [OK]
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>    ✓ Deployment rhods-dashboard exists in redhat-ods-applications
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>    ✓ Deployment rhods-dashboard is Available
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>    ✓ Service rhods-dashboard exists
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>Operator: kserve (version: 0.13.1) [MATCH]
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>  Component: kserve-controller-manager [OK]
+<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>    ✓ Deployment kserve-controller-manager exists in redhat-ods-applications
+<a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a>    ✓ Deployment kserve-controller-manager is Available
+<a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a>
+<a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a>Validation: PASS
+<a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a>All components match target version 3.3.1
+</code></pre></div>
+<h3 id="use-cases">Use Cases<a class="headerlink" href="#use-cases" title="Permanent link">&para;</a></h3>
+<p><strong>Pre-upgrade gate</strong>: Validate that the source cluster is in the expected state before starting an upgrade. If validation fails, the cluster has drifted from the source version and may have unknown state.</p>
+<p><strong>Post-upgrade verification</strong>: Confirm that the upgrade completed successfully and the cluster now matches the target version. Validation failures indicate incomplete upgrades or rollback scenarios.</p>
+<div class="admonition warning">
+<p class="admonition-title">Version drift detection</p>
+<p>If <code>validate-version</code> fails on a cluster that should match the knowledge snapshot, investigate drift. Common causes: manual changes, partially-applied hotfixes, incomplete rollbacks, or OLM subscription channel mismatches.</p>
+</div>
+<h2 id="end-to-end-example">End-to-End Example<a class="headerlink" href="#end-to-end-example" title="Permanent link">&para;</a></h2>
+<p>Full workflow for testing an ODH 2.10 → RHOAI 3.3 upgrade:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Step 1: Compare versions to understand changes</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>odh-chaos<span class="w"> </span>diff<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">  </span>--source<span class="w"> </span>knowledge/odh/v2.10/<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">  </span>--target<span class="w"> </span>knowledge/rhoai/v3.3/
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="c1"># Step 2: Analyze CRD schema changes</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>odh-chaos<span class="w"> </span>diff-crds<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="w">  </span>--source<span class="w"> </span>crds-odh-2.10/<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="w">  </span>--target<span class="w"> </span>crds-rhoai-3.3/
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="c1"># Step 3: Preview upgrade experiments</span>
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>odh-chaos<span class="w"> </span>simulate-upgrade<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a><span class="w">  </span>--source<span class="w"> </span>knowledge/odh/v2.10/<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a><span class="w">  </span>--target<span class="w"> </span>knowledge/rhoai/v3.3/<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a><span class="w">  </span>--dry-run
+<a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a>
+<a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a><span class="c1"># Step 4: Validate pre-upgrade state</span>
+<a id="__codelineno-17-18" name="__codelineno-17-18" href="#__codelineno-17-18"></a>odh-chaos<span class="w"> </span>validate-version<span class="w"> </span>--knowledge-dir<span class="w"> </span>knowledge/odh/v2.10/
+<a id="__codelineno-17-19" name="__codelineno-17-19" href="#__codelineno-17-19"></a>
+<a id="__codelineno-17-20" name="__codelineno-17-20" href="#__codelineno-17-20"></a><span class="c1"># Step 5: Run upgrade simulation</span>
+<a id="__codelineno-17-21" name="__codelineno-17-21" href="#__codelineno-17-21"></a>odh-chaos<span class="w"> </span>simulate-upgrade<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-17-22" name="__codelineno-17-22" href="#__codelineno-17-22"></a><span class="w">  </span>--source<span class="w"> </span>knowledge/odh/v2.10/<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-17-23" name="__codelineno-17-23" href="#__codelineno-17-23"></a><span class="w">  </span>--target<span class="w"> </span>knowledge/rhoai/v3.3/
+<a id="__codelineno-17-24" name="__codelineno-17-24" href="#__codelineno-17-24"></a>
+<a id="__codelineno-17-25" name="__codelineno-17-25" href="#__codelineno-17-25"></a><span class="c1"># Step 6: Validate post-upgrade state</span>
+<a id="__codelineno-17-26" name="__codelineno-17-26" href="#__codelineno-17-26"></a>odh-chaos<span class="w"> </span>validate-version<span class="w"> </span>--knowledge-dir<span class="w"> </span>knowledge/rhoai/v3.3/
+</code></pre></div>
+<h3 id="expected-results">Expected Results<a class="headerlink" href="#expected-results" title="Permanent link">&para;</a></h3>
+<p><strong>Step 1 (diff)</strong>: Identifies 15 breaking changes, 3 warnings. Key changes are component renames and namespace moves.</p>
+<p><strong>Step 2 (diff-crds)</strong>: Detects 1 breaking CRD change (required field added to InferenceService). Plan to update existing InferenceService resources.</p>
+<p><strong>Step 3 (dry-run)</strong>: Generates 12 experiments covering renames, namespace migrations, and webhook changes. Estimated runtime 45 minutes.</p>
+<p><strong>Step 4 (validate pre-upgrade)</strong>: All components match ODH 2.10 baseline. Ready for upgrade.</p>
+<p><strong>Step 5 (simulate-upgrade)</strong>: Executes 12 experiments. Results:
+- 10 experiments: Resilient (components recovered within SLO)
+- 2 experiments: Degraded (odh-model-controller required 15 reconcile cycles after webhook addition)</p>
+<p><strong>Step 6 (validate post-upgrade)</strong>: All components match RHOAI 3.3 target. Upgrade successful.</p>
+<p><strong>Findings</strong>: The webhook addition to odh-model-controller causes inefficient reconciliation. Investigate controller logic for optimization before production rollout.</p>
+<div class="admonition tip">
+<p class="admonition-title">Run simulations in pre-production</p>
+<p>Upgrade simulations inject real chaos into the cluster. Run them in dedicated test environments that mirror production topology (same namespace layout, RBAC policies, NetworkPolicies). Do not run simulations in production.</p>
+</div>
+<h2 id="upgrade-playbooks">Upgrade Playbooks<a class="headerlink" href="#upgrade-playbooks" title="Permanent link">&para;</a></h2>
+<p>Upgrade playbooks automate multi-step upgrade paths by orchestrating OLM channel hops, pre-migration tasks, chaos-based resilience validation, and post-upgrade verification. Instead of manually triggering each step, define a YAML playbook that executes the entire upgrade workflow with resume-on-failure support.</p>
+<h3 id="playbook-format">Playbook Format<a class="headerlink" href="#playbook-format" title="Permanent link">&para;</a></h3>
+<p>An upgrade playbook is a YAML file defining the source version, target version, the OLM channel hop path, and a sequence of steps to execute:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chaos.opendatahub.io/v1alpha1</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">UpgradePlaybook</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rhoai-2.10-to-3.3</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Upgrade</span><span class="nv"> </span><span class="s">RHOAI</span><span class="nv"> </span><span class="s">from</span><span class="nv"> </span><span class="s">2.10</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">3.3</span><span class="nv"> </span><span class="s">with</span><span class="nv"> </span><span class="s">pre-migration</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">post-validation&quot;</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="nt">upgrade</span><span class="p">:</span>
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="w">  </span><span class="nt">source</span><span class="p">:</span>
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="w">    </span><span class="nt">knowledgeDir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">knowledge/rhoai/v2.10/</span>
+<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a><span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2.10&quot;</span>
+<a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a><span class="w">  </span><span class="nt">target</span><span class="p">:</span>
+<a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a><span class="w">    </span><span class="nt">knowledgeDir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">knowledge/rhoai/v3.3/</span>
+<a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a><span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.3&quot;</span>
+<a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a>
+<a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a><span class="w">  </span><span class="nt">path</span><span class="p">:</span>
+<a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a><span class="w">    </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rhods-operator</span>
+<a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a><span class="w">    </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redhat-ods-operator</span>
+<a id="__codelineno-18-18" name="__codelineno-18-18" href="#__codelineno-18-18"></a><span class="w">    </span><span class="nt">hops</span><span class="p">:</span>
+<a id="__codelineno-18-19" name="__codelineno-18-19" href="#__codelineno-18-19"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">channel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stable-2.16</span>
+<a id="__codelineno-18-20" name="__codelineno-18-20" href="#__codelineno-18-20"></a><span class="w">        </span><span class="nt">maxWait</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15m</span>
+<a id="__codelineno-18-21" name="__codelineno-18-21" href="#__codelineno-18-21"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">channel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stable-3.0</span>
+<a id="__codelineno-18-22" name="__codelineno-18-22" href="#__codelineno-18-22"></a><span class="w">        </span><span class="nt">maxWait</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20m</span>
+<a id="__codelineno-18-23" name="__codelineno-18-23" href="#__codelineno-18-23"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">channel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stable-3.3</span>
+<a id="__codelineno-18-24" name="__codelineno-18-24" href="#__codelineno-18-24"></a><span class="w">        </span><span class="nt">maxWait</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20m</span>
+<a id="__codelineno-18-25" name="__codelineno-18-25" href="#__codelineno-18-25"></a>
+<a id="__codelineno-18-26" name="__codelineno-18-26" href="#__codelineno-18-26"></a><span class="w">  </span><span class="nt">steps</span><span class="p">:</span>
+<a id="__codelineno-18-27" name="__codelineno-18-27" href="#__codelineno-18-27"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">validate-source-version</span>
+<a id="__codelineno-18-28" name="__codelineno-18-28" href="#__codelineno-18-28"></a><span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">validate-version</span>
+<a id="__codelineno-18-29" name="__codelineno-18-29" href="#__codelineno-18-29"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">migrate-dashboard-configmaps</span>
+<a id="__codelineno-18-30" name="__codelineno-18-30" href="#__codelineno-18-30"></a><span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubectl</span>
+<a id="__codelineno-18-31" name="__codelineno-18-31" href="#__codelineno-18-31"></a><span class="w">      </span><span class="nt">commands</span><span class="p">:</span>
+<a id="__codelineno-18-32" name="__codelineno-18-32" href="#__codelineno-18-32"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;oc</span><span class="nv"> </span><span class="s">get</span><span class="nv"> </span><span class="s">configmap</span><span class="nv"> </span><span class="s">-n</span><span class="nv"> </span><span class="s">opendatahub</span><span class="nv"> </span><span class="s">-l</span><span class="nv"> </span><span class="s">app=odh-dashboard</span><span class="nv"> </span><span class="s">--no-headers&quot;</span>
+<a id="__codelineno-18-33" name="__codelineno-18-33" href="#__codelineno-18-33"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trigger-upgrade</span>
+<a id="__codelineno-18-34" name="__codelineno-18-34" href="#__codelineno-18-34"></a><span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">olm</span>
+<a id="__codelineno-18-35" name="__codelineno-18-35" href="#__codelineno-18-35"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">post-upgrade-resilience</span>
+<a id="__codelineno-18-36" name="__codelineno-18-36" href="#__codelineno-18-36"></a><span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chaos</span>
+<a id="__codelineno-18-37" name="__codelineno-18-37" href="#__codelineno-18-37"></a><span class="w">      </span><span class="nt">experiments</span><span class="p">:</span>
+<a id="__codelineno-18-38" name="__codelineno-18-38" href="#__codelineno-18-38"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">experiments/dashboard/pod-kill.yaml</span>
+<a id="__codelineno-18-39" name="__codelineno-18-39" href="#__codelineno-18-39"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">validate-target-version</span>
+<a id="__codelineno-18-40" name="__codelineno-18-40" href="#__codelineno-18-40"></a><span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">validate-version</span>
+</code></pre></div>
+<h3 id="step-types">Step Types<a class="headerlink" href="#step-types" title="Permanent link">&para;</a></h3>
+<p>Playbooks support five step types:</p>
+<table>
+<thead>
+<tr>
+<th>Step Type</th>
+<th>Description</th>
+<th>Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>validate-version</code></td>
+<td>Verify cluster state matches knowledge snapshot</td>
+<td>Uses source/target <code>knowledgeDir</code> from playbook metadata</td>
+</tr>
+<tr>
+<td><code>kubectl</code></td>
+<td>Run kubectl/oc commands</td>
+<td><code>commands</code> (array of shell commands to execute)</td>
+</tr>
+<tr>
+<td><code>manual</code></td>
+<td>Pause for operator intervention</td>
+<td><code>description</code> (instructions for operator), optional <code>autoCheck</code> (command to auto-verify completion)</td>
+</tr>
+<tr>
+<td><code>olm</code></td>
+<td>Trigger OLM channel hops</td>
+<td>Uses <code>path.hops</code> from playbook metadata</td>
+</tr>
+<tr>
+<td><code>chaos</code></td>
+<td>Execute chaos experiments</td>
+<td><code>experiments</code> (array of experiment YAML file paths)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="running-a-playbook">Running a Playbook<a class="headerlink" href="#running-a-playbook" title="Permanent link">&para;</a></h3>
+<p>Execute an upgrade playbook with <code>odh-chaos upgrade run</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>odh-chaos<span class="w"> </span>upgrade<span class="w"> </span>run<span class="w"> </span>--playbook<span class="w"> </span>knowledge/rhoai/upgrades/v2.10-to-v3.3.yaml
+</code></pre></div>
+<p><strong>What happens:</strong></p>
+<ol>
+<li>Creates a state file in <code>.upgrade-state/</code> to track progress</li>
+<li>Executes each step sequentially</li>
+<li>For <code>validate-version</code> steps, compares cluster state to knowledge snapshot</li>
+<li>For <code>kubectl</code> steps, runs commands and captures output</li>
+<li>For <code>manual</code> steps, pauses and waits for operator confirmation (or runs <code>autoCheck</code> in CI mode)</li>
+<li>For <code>olm</code> steps, patches Subscription channel and monitors CSV installation</li>
+<li>For <code>chaos</code> steps, runs experiments and collects verdicts</li>
+<li>Saves state after each step for resume-on-failure</li>
+</ol>
+<h3 id="discovering-available-channels">Discovering Available Channels<a class="headerlink" href="#discovering-available-channels" title="Permanent link">&para;</a></h3>
+<p>Before writing a playbook, discover available OLM channels for an operator:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>odh-chaos<span class="w"> </span>upgrade<span class="w"> </span>discover<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">  </span>--operator<span class="w"> </span>rhods-operator<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">  </span>--namespace<span class="w"> </span>redhat-ods-operator
+</code></pre></div>
+<p>Output:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>Available channels for rhods-operator:
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>  stable-2.10 (installed: 2.10.0)
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>  stable-2.16 (latest: 2.16.3)
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>  stable-3.0 (latest: 3.0.2)
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>  stable-3.3 (latest: 3.3.1)
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>
+<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>Current subscription: stable-2.10
+</code></pre></div>
+<p>Use <code>--format json</code> for machine-readable output.</p>
+<h3 id="triggering-single-hops">Triggering Single Hops<a class="headerlink" href="#triggering-single-hops" title="Permanent link">&para;</a></h3>
+<p>For simple upgrades (single channel hop), use <code>odh-chaos upgrade trigger</code> instead of writing a full playbook:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>odh-chaos<span class="w"> </span>upgrade<span class="w"> </span>trigger<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="w">  </span>--operator<span class="w"> </span>rhods-operator<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">  </span>--namespace<span class="w"> </span>redhat-ods-operator<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="w">  </span>--channel<span class="w"> </span>stable-3.3
+</code></pre></div>
+<p>This patches the Subscription and monitors the upgrade until the new CSV is installed or the timeout expires.</p>
+<h3 id="monitoring-in-progress-upgrades">Monitoring In-Progress Upgrades<a class="headerlink" href="#monitoring-in-progress-upgrades" title="Permanent link">&para;</a></h3>
+<p>Attach to an already-running upgrade (triggered externally or by another process):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>odh-chaos<span class="w"> </span>upgrade<span class="w"> </span>monitor<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="w">  </span>--operator<span class="w"> </span>rhods-operator<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="w">  </span>--namespace<span class="w"> </span>redhat-ods-operator<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="w">  </span>--timeout<span class="w"> </span>30m
+</code></pre></div>
+<p>The monitor command watches CSV transitions and prints status updates until the upgrade completes or fails.</p>
+<h3 id="resume-on-failure">Resume on Failure<a class="headerlink" href="#resume-on-failure" title="Permanent link">&para;</a></h3>
+<p>If an upgrade playbook fails mid-execution, resume from the failed step:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="c1"># Resume from the last failed step</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>odh-chaos<span class="w"> </span>upgrade<span class="w"> </span>run<span class="w"> </span>--playbook<span class="w"> </span>playbook.yaml<span class="w"> </span>--resume-from<span class="w"> </span>migrate-dashboard-configmaps
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="c1"># Force resume (skip step validation and start from specified step)</span>
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>odh-chaos<span class="w"> </span>upgrade<span class="w"> </span>run<span class="w"> </span>--playbook<span class="w"> </span>playbook.yaml<span class="w"> </span>--force-resume<span class="w"> </span>--resume-from<span class="w"> </span>trigger-upgrade
+</code></pre></div>
+<p>State files are stored in <code>.upgrade-state/&lt;playbook-name&gt;/</code> with timestamps. Use <code>--state-dir</code> to customize the location.</p>
+<h3 id="ci-mode">CI Mode<a class="headerlink" href="#ci-mode" title="Permanent link">&para;</a></h3>
+<p>For unattended execution in CI pipelines:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>odh-chaos<span class="w"> </span>upgrade<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="w">  </span>--playbook<span class="w"> </span>playbook.yaml<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="w">  </span>--skip-manual<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="w">  </span>--allow-shell
+</code></pre></div>
+<p><strong>Flags:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--skip-manual</code></td>
+<td>Auto-proceed through manual steps using <code>autoCheck</code> commands</td>
+</tr>
+<tr>
+<td><code>--allow-shell</code></td>
+<td>Allow shell command execution (kubectl, oc) without prompts</td>
+</tr>
+</tbody>
+</table>
+<p>If a manual step lacks an <code>autoCheck</code> command, it is skipped with a warning in <code>--skip-manual</code> mode.</p>
+<h3 id="dry-run-mode_1">Dry-Run Mode<a class="headerlink" href="#dry-run-mode_1" title="Permanent link">&para;</a></h3>
+<p>Preview playbook execution without making changes:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>odh-chaos<span class="w"> </span>upgrade<span class="w"> </span>run<span class="w"> </span>--playbook<span class="w"> </span>playbook.yaml<span class="w"> </span>--dry-run
+</code></pre></div>
+<p>Dry-run mode prints the execution plan and validates all steps, but does not patch Subscriptions, run kubectl commands, or execute chaos experiments.</p>
+<h3 id="example-playbook">Example Playbook<a class="headerlink" href="#example-playbook" title="Permanent link">&para;</a></h3>
+<p>The following playbook upgrades RHOAI from 2.10 to 3.3 with pre-migration and post-validation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chaos.opendatahub.io/v1alpha1</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">UpgradePlaybook</span>
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rhoai-2.10-to-3.3</span>
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a><span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Upgrade</span><span class="nv"> </span><span class="s">RHOAI</span><span class="nv"> </span><span class="s">from</span><span class="nv"> </span><span class="s">2.10</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">3.3</span><span class="nv"> </span><span class="s">with</span><span class="nv"> </span><span class="s">pre-migration</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">post-validation&quot;</span>
+<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a>
+<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a><span class="nt">upgrade</span><span class="p">:</span>
+<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a><span class="w">  </span><span class="nt">source</span><span class="p">:</span>
+<a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a><span class="w">    </span><span class="nt">knowledgeDir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">knowledge/rhoai/v2.10/</span>
+<a id="__codelineno-27-10" name="__codelineno-27-10" href="#__codelineno-27-10"></a><span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2.10&quot;</span>
+<a id="__codelineno-27-11" name="__codelineno-27-11" href="#__codelineno-27-11"></a><span class="w">  </span><span class="nt">target</span><span class="p">:</span>
+<a id="__codelineno-27-12" name="__codelineno-27-12" href="#__codelineno-27-12"></a><span class="w">    </span><span class="nt">knowledgeDir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">knowledge/rhoai/v3.3/</span>
+<a id="__codelineno-27-13" name="__codelineno-27-13" href="#__codelineno-27-13"></a><span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.3&quot;</span>
+<a id="__codelineno-27-14" name="__codelineno-27-14" href="#__codelineno-27-14"></a>
+<a id="__codelineno-27-15" name="__codelineno-27-15" href="#__codelineno-27-15"></a><span class="w">  </span><span class="nt">path</span><span class="p">:</span>
+<a id="__codelineno-27-16" name="__codelineno-27-16" href="#__codelineno-27-16"></a><span class="w">    </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rhods-operator</span>
+<a id="__codelineno-27-17" name="__codelineno-27-17" href="#__codelineno-27-17"></a><span class="w">    </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redhat-ods-operator</span>
+<a id="__codelineno-27-18" name="__codelineno-27-18" href="#__codelineno-27-18"></a><span class="w">    </span><span class="nt">hops</span><span class="p">:</span>
+<a id="__codelineno-27-19" name="__codelineno-27-19" href="#__codelineno-27-19"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">channel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stable-2.16</span>
+<a id="__codelineno-27-20" name="__codelineno-27-20" href="#__codelineno-27-20"></a><span class="w">        </span><span class="nt">maxWait</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15m</span>
+<a id="__codelineno-27-21" name="__codelineno-27-21" href="#__codelineno-27-21"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">channel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stable-3.0</span>
+<a id="__codelineno-27-22" name="__codelineno-27-22" href="#__codelineno-27-22"></a><span class="w">        </span><span class="nt">maxWait</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20m</span>
+<a id="__codelineno-27-23" name="__codelineno-27-23" href="#__codelineno-27-23"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">channel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stable-3.3</span>
+<a id="__codelineno-27-24" name="__codelineno-27-24" href="#__codelineno-27-24"></a><span class="w">        </span><span class="nt">maxWait</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20m</span>
+<a id="__codelineno-27-25" name="__codelineno-27-25" href="#__codelineno-27-25"></a>
+<a id="__codelineno-27-26" name="__codelineno-27-26" href="#__codelineno-27-26"></a><span class="w">  </span><span class="nt">steps</span><span class="p">:</span>
+<a id="__codelineno-27-27" name="__codelineno-27-27" href="#__codelineno-27-27"></a><span class="w">    </span><span class="c1"># Pre-upgrade: verify cluster is at expected source version</span>
+<a id="__codelineno-27-28" name="__codelineno-27-28" href="#__codelineno-27-28"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">validate-source-version</span>
+<a id="__codelineno-27-29" name="__codelineno-27-29" href="#__codelineno-27-29"></a><span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">validate-version</span>
+<a id="__codelineno-27-30" name="__codelineno-27-30" href="#__codelineno-27-30"></a>
+<a id="__codelineno-27-31" name="__codelineno-27-31" href="#__codelineno-27-31"></a><span class="w">    </span><span class="c1"># Pre-upgrade: migrate dashboard ConfigMaps to new namespace</span>
+<a id="__codelineno-27-32" name="__codelineno-27-32" href="#__codelineno-27-32"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">migrate-dashboard-configmaps</span>
+<a id="__codelineno-27-33" name="__codelineno-27-33" href="#__codelineno-27-33"></a><span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubectl</span>
+<a id="__codelineno-27-34" name="__codelineno-27-34" href="#__codelineno-27-34"></a><span class="w">      </span><span class="nt">commands</span><span class="p">:</span>
+<a id="__codelineno-27-35" name="__codelineno-27-35" href="#__codelineno-27-35"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;oc</span><span class="nv"> </span><span class="s">get</span><span class="nv"> </span><span class="s">configmap</span><span class="nv"> </span><span class="s">-n</span><span class="nv"> </span><span class="s">opendatahub</span><span class="nv"> </span><span class="s">-l</span><span class="nv"> </span><span class="s">app=odh-dashboard</span><span class="nv"> </span><span class="s">--no-headers</span><span class="nv"> </span><span class="s">2&gt;/dev/null</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">wc</span><span class="nv"> </span><span class="s">-l</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">xargs</span><span class="nv"> </span><span class="s">-I{}</span><span class="nv"> </span><span class="s">echo</span><span class="nv"> </span><span class="s">&#39;{}</span><span class="nv"> </span><span class="s">configmaps</span><span class="nv"> </span><span class="s">found</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">opendatahub</span><span class="nv"> </span><span class="s">namespace&#39;&quot;</span>
+<a id="__codelineno-27-36" name="__codelineno-27-36" href="#__codelineno-27-36"></a><span class="w">      </span><span class="nt">verify</span><span class="p">:</span>
+<a id="__codelineno-27-37" name="__codelineno-27-37" href="#__codelineno-27-37"></a><span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">resourceExists</span>
+<a id="__codelineno-27-38" name="__codelineno-27-38" href="#__codelineno-27-38"></a><span class="w">        </span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<a id="__codelineno-27-39" name="__codelineno-27-39" href="#__codelineno-27-39"></a><span class="w">        </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
+<a id="__codelineno-27-40" name="__codelineno-27-40" href="#__codelineno-27-40"></a><span class="w">        </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redhat-ods-applications</span>
+<a id="__codelineno-27-41" name="__codelineno-27-41" href="#__codelineno-27-41"></a><span class="w">        </span><span class="nt">labelSelector</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app=odh-dashboard</span>
+<a id="__codelineno-27-42" name="__codelineno-27-42" href="#__codelineno-27-42"></a>
+<a id="__codelineno-27-43" name="__codelineno-27-43" href="#__codelineno-27-43"></a><span class="w">    </span><span class="c1"># Pre-upgrade: verify InferenceServices are healthy before touching kserve</span>
+<a id="__codelineno-27-44" name="__codelineno-27-44" href="#__codelineno-27-44"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">confirm-inferenceservices-healthy</span>
+<a id="__codelineno-27-45" name="__codelineno-27-45" href="#__codelineno-27-45"></a><span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">manual</span>
+<a id="__codelineno-27-46" name="__codelineno-27-46" href="#__codelineno-27-46"></a><span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Verify</span><span class="nv"> </span><span class="s">all</span><span class="nv"> </span><span class="s">InferenceServices</span><span class="nv"> </span><span class="s">are</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">Ready</span><span class="nv"> </span><span class="s">state</span><span class="nv"> </span><span class="s">before</span><span class="nv"> </span><span class="s">proceeding.</span><span class="nv"> </span><span class="s">Run:</span><span class="nv"> </span><span class="s">oc</span><span class="nv"> </span><span class="s">get</span><span class="nv"> </span><span class="s">isvc</span><span class="nv"> </span><span class="s">-A&quot;</span>
+<a id="__codelineno-27-47" name="__codelineno-27-47" href="#__codelineno-27-47"></a><span class="w">      </span><span class="nt">autoCheck</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;oc</span><span class="nv"> </span><span class="s">get</span><span class="nv"> </span><span class="s">isvc</span><span class="nv"> </span><span class="s">-A</span><span class="nv"> </span><span class="s">-o</span><span class="nv"> </span><span class="s">jsonpath=&#39;{.items[*].status.conditions[?(@.type==\&quot;Ready\&quot;)].status}&#39;</span><span class="nv"> </span><span class="s">2&gt;/dev/null</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">grep</span><span class="nv"> </span><span class="s">-v</span><span class="nv"> </span><span class="s">False</span><span class="nv"> </span><span class="s">||</span><span class="nv"> </span><span class="s">echo</span><span class="nv"> </span><span class="s">&#39;no</span><span class="nv"> </span><span class="s">InferenceServices</span><span class="nv"> </span><span class="s">found</span><span class="nv"> </span><span class="s">(ok)&#39;&quot;</span>
+<a id="__codelineno-27-48" name="__codelineno-27-48" href="#__codelineno-27-48"></a>
+<a id="__codelineno-27-49" name="__codelineno-27-49" href="#__codelineno-27-49"></a><span class="w">    </span><span class="c1"># Trigger the OLM upgrade through 3 channel hops</span>
+<a id="__codelineno-27-50" name="__codelineno-27-50" href="#__codelineno-27-50"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trigger-upgrade</span>
+<a id="__codelineno-27-51" name="__codelineno-27-51" href="#__codelineno-27-51"></a><span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">olm</span>
+<a id="__codelineno-27-52" name="__codelineno-27-52" href="#__codelineno-27-52"></a>
+<a id="__codelineno-27-53" name="__codelineno-27-53" href="#__codelineno-27-53"></a><span class="w">    </span><span class="c1"># Post-upgrade: run chaos experiments to verify resilience</span>
+<a id="__codelineno-27-54" name="__codelineno-27-54" href="#__codelineno-27-54"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">post-upgrade-resilience</span>
+<a id="__codelineno-27-55" name="__codelineno-27-55" href="#__codelineno-27-55"></a><span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chaos</span>
+<a id="__codelineno-27-56" name="__codelineno-27-56" href="#__codelineno-27-56"></a><span class="w">      </span><span class="nt">experiments</span><span class="p">:</span>
+<a id="__codelineno-27-57" name="__codelineno-27-57" href="#__codelineno-27-57"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">experiments/dashboard/pod-kill.yaml</span>
+<a id="__codelineno-27-58" name="__codelineno-27-58" href="#__codelineno-27-58"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">experiments/kserve/main-controller-kill.yaml</span>
+<a id="__codelineno-27-59" name="__codelineno-27-59" href="#__codelineno-27-59"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">experiments/odh-model-controller/pod-kill.yaml</span>
+<a id="__codelineno-27-60" name="__codelineno-27-60" href="#__codelineno-27-60"></a>
+<a id="__codelineno-27-61" name="__codelineno-27-61" href="#__codelineno-27-61"></a><span class="w">    </span><span class="c1"># Post-upgrade: verify cluster matches target version</span>
+<a id="__codelineno-27-62" name="__codelineno-27-62" href="#__codelineno-27-62"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">validate-target-version</span>
+<a id="__codelineno-27-63" name="__codelineno-27-63" href="#__codelineno-27-63"></a><span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">validate-version</span>
+</code></pre></div>
+<h2 id="olm-upgrade-path-considerations">OLM Upgrade Path Considerations<a class="headerlink" href="#olm-upgrade-path-considerations" title="Permanent link">&para;</a></h2>
+<p>When planning OLM-based upgrade testing, be aware that the RHOAI operator catalog has limited upgrade graph connectivity. Real-world testing on OCP 4.20 with RHOAI revealed:</p>
+<h3 id="channel-structure">Channel Structure<a class="headerlink" href="#channel-structure" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Channel</th>
+<th>Available Versions</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fast-3.x</code></td>
+<td>3.0.0, 3.2.0, 3.2.1, 3.3.0, 3.3.1</td>
+<td>Only channel containing 3.0.0</td>
+</tr>
+<tr>
+<td><code>stable-3.3</code></td>
+<td>3.3.0, 3.3.1</td>
+<td></td>
+</tr>
+<tr>
+<td><code>stable-3.x</code></td>
+<td>3.3.0, 3.3.1</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="upgrade-path-gaps">Upgrade Path Gaps<a class="headerlink" href="#upgrade-path-gaps" title="Permanent link">&para;</a></h3>
+<p>The RHOAI catalog entries lack explicit <code>replaces</code> fields in the package manifest. OLM resolves upgrades using semver ordering within a channel, but this has limitations:</p>
+<ul>
+<li><strong>Within <code>fast-3.x</code></strong>: OLM resolves 3.0.0 → 3.2.1 automatically (skips 3.2.0). The installed CSV sets <code>replaces: rhods-operator.3.0.0</code> at install time, even though the catalog metadata doesn't declare it.</li>
+<li><strong>3.2.1 → 3.3.x dead-end</strong>: OLM does not propose an upgrade from 3.2.1 to 3.3.x on any channel, because no 3.3.x entry declares <code>replaces: rhods-operator.3.2.1</code>.</li>
+<li><strong>Cross-channel upgrades</strong>: Switching from <code>fast-3.x</code> to <code>stable-3.3</code> does not trigger an upgrade if the current version (3.2.1) is not in the target channel.</li>
+</ul>
+<h3 id="workaround-subscription-recreation">Workaround: Subscription Recreation<a class="headerlink" href="#workaround-subscription-recreation" title="Permanent link">&para;</a></h3>
+<p>To force upgrade across the gap, delete the Subscription and CSV, then create a new Subscription targeting the desired version:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="c1"># Delete current subscription and CSV</span>
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>oc<span class="w"> </span>delete<span class="w"> </span>subscription<span class="w"> </span>rhods-operator<span class="w"> </span>-n<span class="w"> </span>redhat-ods-operator
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>oc<span class="w"> </span>delete<span class="w"> </span>csv<span class="w"> </span>rhods-operator.3.2.1<span class="w"> </span>-n<span class="w"> </span>redhat-ods-operator
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a>
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a><span class="c1"># Re-subscribe to target version</span>
+<a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a>cat<span class="w"> </span><span class="s">&lt;&lt;EOF | oc apply -f -</span>
+<a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a><span class="s">apiVersion: operators.coreos.com/v1alpha1</span>
+<a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a><span class="s">kind: Subscription</span>
+<a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a><span class="s">metadata:</span>
+<a id="__codelineno-28-10" name="__codelineno-28-10" href="#__codelineno-28-10"></a><span class="s">  name: rhods-operator</span>
+<a id="__codelineno-28-11" name="__codelineno-28-11" href="#__codelineno-28-11"></a><span class="s">  namespace: redhat-ods-operator</span>
+<a id="__codelineno-28-12" name="__codelineno-28-12" href="#__codelineno-28-12"></a><span class="s">spec:</span>
+<a id="__codelineno-28-13" name="__codelineno-28-13" href="#__codelineno-28-13"></a><span class="s">  channel: stable-3.3</span>
+<a id="__codelineno-28-14" name="__codelineno-28-14" href="#__codelineno-28-14"></a><span class="s">  installPlanApproval: Manual</span>
+<a id="__codelineno-28-15" name="__codelineno-28-15" href="#__codelineno-28-15"></a><span class="s">  name: rhods-operator</span>
+<a id="__codelineno-28-16" name="__codelineno-28-16" href="#__codelineno-28-16"></a><span class="s">  source: redhat-operators</span>
+<a id="__codelineno-28-17" name="__codelineno-28-17" href="#__codelineno-28-17"></a><span class="s">  sourceNamespace: openshift-marketplace</span>
+<a id="__codelineno-28-18" name="__codelineno-28-18" href="#__codelineno-28-18"></a><span class="s">  startingCSV: rhods-operator.3.3.1</span>
+<a id="__codelineno-28-19" name="__codelineno-28-19" href="#__codelineno-28-19"></a><span class="s">EOF</span>
+<a id="__codelineno-28-20" name="__codelineno-28-20" href="#__codelineno-28-20"></a>
+<a id="__codelineno-28-21" name="__codelineno-28-21" href="#__codelineno-28-21"></a><span class="c1"># Approve the install plan</span>
+<a id="__codelineno-28-22" name="__codelineno-28-22" href="#__codelineno-28-22"></a>oc<span class="w"> </span>get<span class="w"> </span>installplan<span class="w"> </span>-n<span class="w"> </span>redhat-ods-operator
+<a id="__codelineno-28-23" name="__codelineno-28-23" href="#__codelineno-28-23"></a>oc<span class="w"> </span>patch<span class="w"> </span>installplan<span class="w"> </span>&lt;plan-name&gt;<span class="w"> </span>-n<span class="w"> </span>redhat-ods-operator<span class="w"> </span>--type<span class="w"> </span>merge<span class="w"> </span>-p<span class="w"> </span><span class="s1">&#39;{&quot;spec&quot;:{&quot;approved&quot;:true}}&#39;</span>
+</code></pre></div>
+<h3 id="validated-upgrade-results">Validated Upgrade Results<a class="headerlink" href="#validated-upgrade-results" title="Permanent link">&para;</a></h3>
+<p>Real cluster validation (OCP 4.20 HyperShift, 2x m5.xlarge) confirmed operator resilience across versions:</p>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Upgrade Method</th>
+<th>PodKill Verdict</th>
+<th>Recovery Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RHOAI 3.0.0</td>
+<td>Fresh install (<code>fast-3.x</code>)</td>
+<td>Resilient</td>
+<td>1.36s</td>
+</tr>
+<tr>
+<td>RHOAI 3.2.1</td>
+<td>OLM auto-upgrade from 3.0.0</td>
+<td>Resilient</td>
+<td>1.27s</td>
+</tr>
+<tr>
+<td>RHOAI 3.3.1</td>
+<td>Subscription recreation</td>
+<td>Resilient</td>
+<td>1.79s</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Use <code>--namespace</code> for RHOAI clusters</p>
+<p>Experiment YAML files default to the <code>opendatahub</code> namespace. When running on RHOAI clusters, always pass <code>--namespace redhat-ods-applications</code> to override all namespace references in the experiment, including steady-state checks, blast radius validation, and reconciliation checks.</p>
+</div>
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Learn about <a href="../knowledge-models/">Knowledge Models</a> to create version snapshots</li>
+<li>Integrate upgrade testing into CI with <a href="../ci-integration/">CI Integration</a></li>
+<li>Explore example knowledge snapshots in the <a href="https://github.com/opendatahub-io/odh-platform-chaos/tree/main/knowledge">knowledge/</a> directory</li>
+</ul>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 17, 2026 08:40:13 UTC">April 17, 2026</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Created">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 17, 2026 08:40:13 UTC">April 17, 2026</span>
+  </span>
+
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
