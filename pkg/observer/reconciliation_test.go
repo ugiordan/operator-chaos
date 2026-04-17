@@ -121,7 +121,7 @@ func TestCheckReconciliation_ResourceExists(t *testing.T) {
 		},
 	}
 
-	result, err := rc.CheckReconciliation(context.Background(), component, "default", 100*time.Millisecond)
+	result, err := rc.CheckReconciliation(context.Background(), component, "test-ns", 100*time.Millisecond)
 	require.NoError(t, err)
 	assert.True(t, result.AllReconciled)
 	assert.Equal(t, 1, result.ReconcileCycles)
@@ -219,7 +219,7 @@ func TestCheckReconciliation_ExpectedSpecMatch(t *testing.T) {
 		},
 	}
 
-	result, err := rc.CheckReconciliation(context.Background(), component, "default", 100*time.Millisecond)
+	result, err := rc.CheckReconciliation(context.Background(), component, "test-ns", 100*time.Millisecond)
 	require.NoError(t, err)
 	assert.True(t, result.AllReconciled)
 	require.Len(t, result.Resources, 1)

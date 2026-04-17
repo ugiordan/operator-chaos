@@ -1,0 +1,61 @@
+operator:
+  name: codeflare
+  namespace: opendatahub
+  repository: https://github.com/project-codeflare/codeflare-operator
+  version: "2.10.0"
+  platform: odh
+  olmChannel: stable-2.10
+
+components:
+  - name: codeflare-operator-manager
+    controller: DataScienceCluster
+    managedResources:
+      - apiVersion: apps/v1
+        kind: Deployment
+        name: codeflare-operator-manager
+        namespace: opendatahub
+        labels:
+          control-plane: manager
+          app.kubernetes.io/name: codeflare-operator
+        expectedSpec:
+          replicas: 1
+      - apiVersion: v1
+        kind: ServiceAccount
+        name: codeflare-operator-manager
+        namespace: opendatahub
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRoleBinding
+        name: codeflare-operator-manager-rolebinding
+      - apiVersion: coordination.k8s.io/v1
+        kind: Lease
+        name: codeflare-operator-manager-leader-election
+        namespace: opendatahub
+      - apiVersion: v1
+        kind: Service
+        name: codeflare-operator-manager-metrics-service
+        namespace: opendatahub
+      - apiVersion: v1
+        kind: ConfigMap
+        name: codeflare-operator-config
+        namespace: opendatahub
+    webhooks:
+      - name: vappwrapper.codeflare.dev
+        type: validating
+        path: /validate-codeflare-dev-v1beta2-appwrapper
+    finalizers:
+      - codeflare.opendatahub.io/finalizer
+    dependencies:
+      - ray-operator-controller-manager
+    steadyState:
+      checks:
+        - type: conditionTrue
+          apiVersion: apps/v1
+          kind: Deployment
+          name: codeflare-operator-manager
+          namespace: opendatahub
+          conditionType: Available
+      timeout: "60s"
+
+recovery:
+  reconcileTimeout: "300s"
+  maxReconcileCycles: 10

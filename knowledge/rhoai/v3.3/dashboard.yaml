@@ -1,0 +1,56 @@
+operator:
+  name: dashboard
+  namespace: redhat-ods-applications
+  repository: https://github.com/opendatahub-io/odh-dashboard
+  version: "3.3.1"
+  platform: rhoai
+  olmChannel: stable-3.3
+
+components:
+  - name: rhods-dashboard
+    controller: DataScienceCluster
+    managedResources:
+      - apiVersion: apps/v1
+        kind: Deployment
+        name: rhods-dashboard
+        namespace: redhat-ods-applications
+        labels:
+          deployment: rhods-dashboard
+          app: rhods-dashboard
+          app.kubernetes.io/part-of: rhods-dashboard
+        expectedSpec:
+          replicas: 2
+      - apiVersion: v1
+        kind: ServiceAccount
+        name: rhods-dashboard
+        namespace: redhat-ods-applications
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRoleBinding
+        name: rhods-dashboard
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRoleBinding
+        name: rhods-dashboard-auth-delegator
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRoleBinding
+        name: rhods-dashboard-monitoring
+      - apiVersion: v1
+        kind: Service
+        name: rhods-dashboard
+        namespace: redhat-ods-applications
+      - apiVersion: v1
+        kind: ConfigMap
+        name: kube-rbac-proxy-config
+        namespace: redhat-ods-applications
+    steadyState:
+      checks:
+        - type: conditionTrue
+          apiVersion: apps/v1
+          kind: Deployment
+          name: rhods-dashboard
+          namespace: redhat-ods-applications
+          conditionType: Available
+      timeout: "60s"
+
+recovery:
+  reconcileTimeout: "300s"
+  maxReconcileCycles: 10

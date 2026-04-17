@@ -37,6 +37,12 @@ fault injection, not just that pods restart.`,
 		newPreflightCommand(),
 		newControllerCommand(),
 		newGenerateCommand(),
+		newDiffCommand(),
+		newDiffCRDsCommand(),
+		newValidateVersionCommand(),
+		newSimulateUpgradeCommand(),
+		newUpgradeCommand(),
+		newPlaybookCommand(),
 	)
 
 	return cmd

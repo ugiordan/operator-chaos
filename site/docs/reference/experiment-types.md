@@ -529,8 +529,153 @@ flowchart TD
     style RR fill:#ef9a9a,stroke:#c62828
 ```
 
+---
+
+## Upgrade Simulation Experiments
+
+The upgrade diff engine auto-generates chaos experiments from structural changes detected between operator versions. These experiments test upgrade-specific failure modes like CRD schema migrations, resource ownership shifts, and dependency graph changes.
+
+### How They're Generated
+
+The diff engine analyzes versioned knowledge models and maps detected changes to targeted injections:
+
+| Detected Change | Generated Injection | Purpose |
+|-----------------|---------------------|---------|
+| Component Added | `PodKill` | Test crash recovery for new components |
+| Managed Resource Added | `ConfigDrift` or `CRDMutation` | Test reconciliation for new resource types |
+| CRD Breaking Change | `CRDMutation` | Simulate upgrade-time schema violations |
+| Webhook Added | `WebhookDisrupt` | Test webhook failure policies and timeouts |
+| Finalizer Added | `FinalizerBlock` | Verify cleanup logic handles stuck resources |
+| Dependency Added | `PodKill` with collateral checks | Test cascading failure detection |
+
+### Example: Auto-Generated CRD Migration Test
+
+**Source Diff:**
+
+```json
+{
+  "path": "spec.storage",
+  "type": "FieldRemoved",
+  "severity": "Breaking",
+  "oldVersion": "v2.20",
+  "newVersion": "v2.21"
+}
+```
+
+**Generated Experiment:**
+
+```yaml
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: upgrade-test-storage-field-removed
+  annotations:
+    chaos.opendatahub.io/generated-by: diff-engine
+    chaos.opendatahub.io/upgrade-version: v2.20-to-v2.21
+spec:
+  target:
+    operator: kserve-operator
+    component: kserve-controller-manager
+  injection:
+    type: CRDMutation
+    parameters:
+      apiVersion: serving.kserve.io/v1beta1
+      kind: InferenceService
+      name: test-isvc
+      field: storage
+      value: '{"type": "s3", "bucket": "models"}'
+  hypothesis:
+    description: "Operator should migrate spec.storage data without loss during upgrade"
+    recoveryTimeout: 300s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces: [kserve]
+```
+
+**What It Tests:**
+
+- Does the operator migrate data from removed fields to new schema?
+- Are existing CRs preserved across CRD version updates?
+- Does the operator handle schema validation errors gracefully?
+- No crash-loops due to unrecognized fields?
+
+### Running Upgrade Simulation Suites
+
+Generate experiments from version diffs:
+
+```bash
+# Generate suite without running
+odh-chaos simulate-upgrade \
+  --from knowledge/v2.20/ \
+  --to knowledge/v2.21/ \
+  --output experiments/upgrade-suite/
+
+# Generate and run
+odh-chaos simulate-upgrade \
+  --from knowledge/v2.20/ \
+  --to knowledge/v2.21/ \
+  --execute \
+  --report-dir reports/upgrade-v2.20-to-v2.21/
+```
+
+**Output Structure:**
+
+```
+experiments/upgrade-suite/
+├── component-added-llmisvc.yaml
+├── crd-breaking-storage-removed.yaml
+├── webhook-added-llmisvc-validator.yaml
+├── dependency-added-modelregistry.yaml
+└── suite-manifest.yaml
+```
+
+### Experiment Annotations
+
+Auto-generated experiments include metadata annotations:
+
+```yaml
+metadata:
+  annotations:
+    chaos.opendatahub.io/generated-by: "diff-engine"
+    chaos.opendatahub.io/upgrade-version: "v2.20-to-v2.21"
+    chaos.opendatahub.io/diff-type: "CRDSchemaChange"
+    chaos.opendatahub.io/severity: "Breaking"
+```
+
+Use these to:
+
+- Track which diff triggered the experiment
+- Filter experiments by severity (`Breaking` vs `Warning`)
+- Group experiments by upgrade path
+
+### Best Practices
+
+**For Release Qualification:**
+
+1. Generate upgrade suite from latest two versions
+2. Run suite against a staging cluster with the old version installed
+3. Perform the actual upgrade (OLM, Helm, or manual)
+4. Evaluate verdicts (expect `Resilient` for all `Breaking` changes)
+
+**For CI/CD:**
+
+```yaml
+# GitLab CI example
+upgrade-chaos-test:
+  stage: test
+  script:
+    - odh-chaos simulate-upgrade --from knowledge/v${OLD_VERSION}/ --to knowledge/v${NEW_VERSION}/ --execute
+  artifacts:
+    reports:
+      junit: reports/upgrade-test-results.xml
+```
+
+See [Upgrade Testing Guide](../guides/upgrade-testing.md) for full workflow.
+
 ## Next Steps
 
 - [CRD Schema Reference](crd-schema.md) — Full CRD specification
+- [Upgrade Diff Engine Architecture](../architecture/upgrade-diff-engine.md) — Deep dive into diff algorithms
+- [Upgrade Testing Guide](../guides/upgrade-testing.md) — Step-by-step upgrade testing workflow
 - [Architecture: Injection Engine](../architecture/injection-engine.md) — How injections are implemented
 - [Contributing: Adding Injection Types](../contributing/adding-injection-types.md) — Implement your own injection type

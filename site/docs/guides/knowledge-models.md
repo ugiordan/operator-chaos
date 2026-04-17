@@ -32,6 +32,9 @@ operator:
   name: string          # required: operator name
   namespace: string     # required: namespace where the operator runs
   repository: string    # optional: source repository URL
+  version: string       # optional: operator version (e.g., "2.21.0") - required for versioned knowledge models
+  platform: string      # optional: platform name (e.g., "OpenShift", "Kubernetes") - required for versioned knowledge models
+  olmChannel: string    # optional: OLM channel (e.g., "stable", "fast") - required for versioned knowledge models
 
 components:
   - name: string        # required: unique component name
@@ -56,6 +59,9 @@ operator:
   name: odh-model-controller
   namespace: opendatahub
   repository: https://github.com/opendatahub-io/odh-model-controller
+  version: "2.21.0"
+  platform: "OpenShift"
+  olmChannel: "stable"
 ```
 
 | Field | Required | Description |
@@ -63,6 +69,11 @@ operator:
 | `name` | Yes | Operator name (must be unique across knowledge files) |
 | `namespace` | Yes | Namespace where the operator's control plane runs |
 | `repository` | No | Source repository URL for documentation purposes |
+| `version` | No* | Operator version (e.g., "2.21.0") - **required for versioned knowledge models** |
+| `platform` | No* | Platform name (e.g., "OpenShift", "Kubernetes") - **required for versioned knowledge models** |
+| `olmChannel` | No* | OLM channel (e.g., "stable", "fast") - **required for versioned knowledge models** |
+
+\* **Versioned knowledge models** (used with the upgrade diff engine) require `version`, `platform`, and `olmChannel` fields.
 
 ### Components
 
@@ -641,8 +652,115 @@ The generator reads your knowledge model and produces:
 
 See the [Fuzz Quick Start](../getting-started/fuzz-quickstart.md) for details on the generated test structure, and the [CLI Reference](../reference/cli-commands.md#odh-chaos-generate-fuzz-targets) for command options.
 
+## Versioned Knowledge Models
+
+Versioned knowledge models enable the upgrade diff engine to detect structural changes between operator releases. They follow a directory layout convention with version metadata.
+
+### Directory Layout
+
+```
+knowledge/
+├── v2.20/
+│   ├── kserve.yaml
+│   ├── odh-model-controller.yaml
+│   └── crds/
+│       ├── inferenceservice.yaml
+│       └── llminferenceservice.yaml
+├── v2.21/
+│   ├── kserve.yaml
+│   ├── odh-model-controller.yaml
+│   └── crds/
+│       ├── inferenceservice.yaml
+│       └── llminferenceservice.yaml
+└── v2.22/
+    └── ...
+```
+
+**Conventions:**
+
+- Directory name matches the operator version (e.g., `v2.20`, `v2.21`)
+- Each directory contains knowledge YAML files for all operators in that release
+- CRD definitions live in a `crds/` subdirectory
+- All knowledge models in a versioned directory must include `version`, `platform`, and `olmChannel` metadata
+
+### Metadata Fields
+
+Versioned knowledge models require three additional fields in the `operator` section:
+
+```yaml
+operator:
+  name: kserve-operator
+  namespace: kserve
+  repository: https://github.com/kserve/kserve
+  version: "2.21.0"          # Semantic version matching directory name
+  platform: "OpenShift"       # Platform (OpenShift, Kubernetes, etc.)
+  olmChannel: "stable"        # OLM channel (stable, fast, candidate)
+```
+
+| Field | Format | Description |
+|-------|--------|-------------|
+| `version` | Semantic version | Operator version (e.g., "2.21.0"). Must match directory name prefix |
+| `platform` | String | Target platform (e.g., "OpenShift", "Kubernetes"). Used for platform-specific diffs |
+| `olmChannel` | String | OLM channel (e.g., "stable", "fast"). Tracks release stream |
+
+### CRD Files
+
+Place CRD manifests in the `crds/` subdirectory. The diff engine uses these for deep schema analysis.
+
+```yaml
+# knowledge/v2.21/crds/inferenceservice.yaml
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: inferenceservices.serving.kserve.io
+spec:
+  versions:
+    - name: v1beta1
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                predictor:
+                  type: object
+                # ... full CRD schema
+```
+
+### Validation
+
+Validate versioned knowledge models with:
+
+```bash
+odh-chaos validate-version knowledge/v2.21/
+```
+
+Checks:
+
+- All knowledge models have required metadata fields
+- CRD files exist and are valid
+- Directory name matches `version` field
+- No duplicate operator names
+
+### Using Versioned Models with Diff Engine
+
+```bash
+# Compare two versions
+odh-chaos diff --old knowledge/v2.20/ --new knowledge/v2.21/
+
+# Generate upgrade test suite
+odh-chaos simulate-upgrade \
+  --from knowledge/v2.20/ \
+  --to knowledge/v2.21/ \
+  --output experiments/upgrade-suite/
+```
+
+See [Upgrade Testing Guide](upgrade-testing.md) for full workflow.
+
 ## Next Steps
 
 - Learn about [Controller Mode](controller-mode.md) to run experiments as CRDs
 - Generate fuzz tests with [Fuzz Quick Start](../getting-started/fuzz-quickstart.md)
+- Test operator upgrades with [Upgrade Testing Guide](upgrade-testing.md)
 - Explore the [knowledge/](https://github.com/opendatahub-io/odh-platform-chaos/tree/main/knowledge) directory for real-world examples

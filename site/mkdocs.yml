@@ -70,6 +70,7 @@ nav:
     - Dashboard: guides/dashboard.md
     - Knowledge Models: guides/knowledge-models.md
     - Controller Mode: guides/controller-mode.md
+    - Upgrade Testing: guides/upgrade-testing.md
   - Reference:
     - CRD Schema: reference/crd-schema.md
     - Go SDK: reference/go-sdk.md
@@ -79,6 +80,7 @@ nav:
     - Design Overview: architecture/overview.md
     - Injection Engine: architecture/injection-engine.md
     - Observer & Blackboard: architecture/observer-blackboard.md
+    - Upgrade Diff Engine: architecture/upgrade-diff-engine.md
   - Contributing:
     - Development Setup: contributing/development-setup.md
     - Adding Injection Types: contributing/adding-injection-types.md

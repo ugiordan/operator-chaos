@@ -75,9 +75,9 @@ func (r *ReconciliationChecker) CheckReconciliation(
 		result.Resources = nil
 
 		for _, mr := range component.ManagedResources {
-			ns := mr.Namespace
+			ns := namespace
 			if ns == "" {
-				ns = namespace
+				ns = mr.Namespace
 			}
 
 			obj := &unstructured.Unstructured{}

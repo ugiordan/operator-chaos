@@ -88,7 +88,7 @@ func TestCheckSteadyState_ConditionTrue_Passed(t *testing.T) {
 		},
 	}
 
-	result, err := obs.CheckSteadyState(context.Background(), checks, "default")
+	result, err := obs.CheckSteadyState(context.Background(), checks, "test-ns")
 	require.NoError(t, err)
 	assert.True(t, result.Passed)
 	assert.Equal(t, int32(1), result.ChecksRun)
@@ -114,7 +114,7 @@ func TestCheckSteadyState_ConditionTrue_Failed(t *testing.T) {
 		},
 	}
 
-	result, err := obs.CheckSteadyState(context.Background(), checks, "default")
+	result, err := obs.CheckSteadyState(context.Background(), checks, "test-ns")
 	require.NoError(t, err)
 	assert.False(t, result.Passed)
 	assert.Equal(t, int32(1), result.ChecksRun)
@@ -140,7 +140,7 @@ func TestCheckSteadyState_ConditionTrue_NotFound(t *testing.T) {
 		},
 	}
 
-	result, err := obs.CheckSteadyState(context.Background(), checks, "default")
+	result, err := obs.CheckSteadyState(context.Background(), checks, "test-ns")
 	require.NoError(t, err)
 	assert.False(t, result.Passed)
 	require.Len(t, result.Details, 1)
@@ -163,7 +163,7 @@ func TestCheckSteadyState_ConditionTrue_ResourceNotFound(t *testing.T) {
 		},
 	}
 
-	result, err := obs.CheckSteadyState(context.Background(), checks, "default")
+	result, err := obs.CheckSteadyState(context.Background(), checks, "test-ns")
 	require.NoError(t, err)
 	assert.False(t, result.Passed)
 	require.Len(t, result.Details, 1)
@@ -187,7 +187,7 @@ func TestCheckSteadyState_ConditionTrue_NoConditions(t *testing.T) {
 		},
 	}
 
-	result, err := obs.CheckSteadyState(context.Background(), checks, "default")
+	result, err := obs.CheckSteadyState(context.Background(), checks, "test-ns")
 	require.NoError(t, err)
 	assert.False(t, result.Passed)
 	require.Len(t, result.Details, 1)
@@ -209,7 +209,7 @@ func TestCheckSteadyState_ResourceExists_Exists(t *testing.T) {
 		},
 	}
 
-	result, err := obs.CheckSteadyState(context.Background(), checks, "default")
+	result, err := obs.CheckSteadyState(context.Background(), checks, "test-ns")
 	require.NoError(t, err)
 	assert.True(t, result.Passed)
 	assert.Equal(t, int32(1), result.ChecksRun)
@@ -231,7 +231,7 @@ func TestCheckSteadyState_ResourceExists_NotFound(t *testing.T) {
 		},
 	}
 
-	result, err := obs.CheckSteadyState(context.Background(), checks, "default")
+	result, err := obs.CheckSteadyState(context.Background(), checks, "test-ns")
 	require.NoError(t, err)
 	assert.False(t, result.Passed)
 	assert.Equal(t, int32(1), result.ChecksRun)
@@ -253,7 +253,7 @@ func TestCheckSteadyState_UnknownType(t *testing.T) {
 		},
 	}
 
-	result, err := obs.CheckSteadyState(context.Background(), checks, "default")
+	result, err := obs.CheckSteadyState(context.Background(), checks, "test-ns")
 	require.NoError(t, err)
 	assert.False(t, result.Passed)
 	require.Len(t, result.Details, 1)
@@ -294,7 +294,7 @@ func TestCheckSteadyState_MixedChecks(t *testing.T) {
 		},
 	}
 
-	result, err := obs.CheckSteadyState(context.Background(), checks, "default")
+	result, err := obs.CheckSteadyState(context.Background(), checks, "test-ns")
 	require.NoError(t, err)
 	assert.False(t, result.Passed, "overall should fail because one check failed")
 	assert.Equal(t, int32(3), result.ChecksRun)
@@ -369,7 +369,7 @@ func TestCheckSteadyState_AllChecksPassed(t *testing.T) {
 		},
 	}
 
-	result, err := obs.CheckSteadyState(context.Background(), checks, "default")
+	result, err := obs.CheckSteadyState(context.Background(), checks, "ns")
 	require.NoError(t, err)
 	assert.True(t, result.Passed)
 	assert.Equal(t, int32(2), result.ChecksRun)
@@ -399,7 +399,7 @@ func TestCheckSteadyState_ResourceExists_NonNotFoundError(t *testing.T) {
 		},
 	}
 
-	result, err := obs.CheckSteadyState(context.Background(), checks, "default")
+	result, err := obs.CheckSteadyState(context.Background(), checks, "test-ns")
 	require.NoError(t, err) // CheckSteadyState wraps check errors in details, not top-level
 	assert.False(t, result.Passed)
 	require.Len(t, result.Details, 1)

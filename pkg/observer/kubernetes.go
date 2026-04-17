@@ -63,9 +63,9 @@ func (o *KubernetesObserver) CheckSteadyState(ctx context.Context, checks []v1al
 
 // checkCondition verifies that a specific condition on a Kubernetes resource has status "True".
 func (o *KubernetesObserver) checkCondition(ctx context.Context, check v1alpha1.SteadyStateCheck, namespace string) (bool, string, error) {
-	ns := check.Namespace
+	ns := namespace
 	if ns == "" {
-		ns = namespace
+		ns = check.Namespace
 	}
 
 	obj := &unstructured.Unstructured{}
@@ -105,9 +105,9 @@ func (o *KubernetesObserver) checkCondition(ctx context.Context, check v1alpha1.
 
 // checkResourceExists verifies that a specific Kubernetes resource exists in the cluster.
 func (o *KubernetesObserver) checkResourceExists(ctx context.Context, check v1alpha1.SteadyStateCheck, namespace string) (bool, error) {
-	ns := check.Namespace
+	ns := namespace
 	if ns == "" {
-		ns = namespace
+		ns = check.Namespace
 	}
 
 	obj := &unstructured.Unstructured{}

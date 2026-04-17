@@ -1,0 +1,64 @@
+operator:
+  name: modelmesh
+  namespace: opendatahub
+  repository: https://github.com/kserve/modelmesh-serving
+  version: "2.10.0"
+  platform: odh
+  olmChannel: stable-2.10
+
+components:
+  - name: modelmesh-controller
+    controller: DataScienceCluster
+    managedResources:
+      - apiVersion: apps/v1
+        kind: Deployment
+        name: modelmesh-controller
+        namespace: opendatahub
+        labels:
+          control-plane: modelmesh-controller
+          app.kubernetes.io/name: modelmesh-controller
+        expectedSpec:
+          replicas: 1
+      - apiVersion: v1
+        kind: ServiceAccount
+        name: modelmesh-controller
+        namespace: opendatahub
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRoleBinding
+        name: modelmesh-controller-rolebinding
+      - apiVersion: coordination.k8s.io/v1
+        kind: Lease
+        name: modelmesh-controller-leader-election
+        namespace: opendatahub
+      - apiVersion: v1
+        kind: Service
+        name: modelmesh-controller-metrics-service
+        namespace: opendatahub
+      - apiVersion: v1
+        kind: ConfigMap
+        name: modelmesh-serving-config
+        namespace: opendatahub
+    webhooks:
+      - name: vservingruntime.modelmesh.io
+        type: validating
+        path: /validate-serving-kserve-io-v1alpha1-servingruntime
+      - name: mservingruntime.modelmesh.io
+        type: mutating
+        path: /mutate-serving-kserve-io-v1alpha1-servingruntime
+    finalizers:
+      - modelmesh.serving.kserve.io/finalizer
+    dependencies:
+      - kserve-controller-manager
+    steadyState:
+      checks:
+        - type: conditionTrue
+          apiVersion: apps/v1
+          kind: Deployment
+          name: modelmesh-controller
+          namespace: opendatahub
+          conditionType: Available
+      timeout: "60s"
+
+recovery:
+  reconcileTimeout: "300s"
+  maxReconcileCycles: 10

@@ -70,6 +70,45 @@ func TestManagedResourceExpectedSpec(t *testing.T) {
 	assert.NotNil(t, deploy.ExpectedSpec)
 }
 
+func TestOperatorMetaVersionFields(t *testing.T) {
+	yamlData := `
+operator:
+  name: dashboard
+  namespace: redhat-ods-applications
+  repository: https://github.com/opendatahub-io/odh-dashboard
+  version: "3.3.1"
+  platform: rhoai
+  olmChannel: stable-3.3
+components:
+  - name: rhods-dashboard
+    controller: DataScienceCluster
+    managedResources:
+      - apiVersion: apps/v1
+        kind: Deployment
+        name: rhods-dashboard
+        namespace: redhat-ods-applications
+recovery:
+  reconcileTimeout: "300s"
+  maxReconcileCycles: 10
+`
+	var k OperatorKnowledge
+	err := yaml.UnmarshalStrict([]byte(yamlData), &k)
+	require.NoError(t, err)
+	assert.Equal(t, "3.3.1", k.Operator.Version)
+	assert.Equal(t, "rhoai", k.Operator.Platform)
+	assert.Equal(t, "stable-3.3", k.Operator.OLMChannel)
+}
+
+func TestOperatorMetaVersionFieldsOptional(t *testing.T) {
+	// Existing knowledge files without version fields must still load
+	k, err := LoadKnowledge("../../knowledge/dashboard.yaml")
+	require.NoError(t, err)
+	assert.Equal(t, "dashboard", k.Operator.Name)
+	assert.Empty(t, k.Operator.Version)
+	assert.Empty(t, k.Operator.Platform)
+	assert.Empty(t, k.Operator.OLMChannel)
+}
+
 // parseKnowledgeBytes unmarshals YAML bytes into an OperatorKnowledge, bypassing file I/O.
 func parseKnowledgeBytes(data []byte) (*OperatorKnowledge, error) {
 	var k OperatorKnowledge

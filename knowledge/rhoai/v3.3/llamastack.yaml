@@ -1,0 +1,57 @@
+operator:
+  name: llamastack
+  namespace: redhat-ods-applications
+  repository: https://github.com/meta-llama/llama-stack-k8s-operator
+  version: "3.3.1"
+  platform: rhoai
+  olmChannel: stable-3.3
+
+components:
+  - name: llama-stack-k8s-operator-controller-manager
+    controller: DataScienceCluster
+    managedResources:
+      - apiVersion: apps/v1
+        kind: Deployment
+        name: llama-stack-k8s-operator-controller-manager
+        namespace: redhat-ods-applications
+        labels:
+          control-plane: controller-manager
+          app.kubernetes.io/name: llama-stack-k8s-operator
+        expectedSpec:
+          replicas: 1
+      - apiVersion: v1
+        kind: ServiceAccount
+        name: llama-stack-k8s-operator-controller-manager
+        namespace: redhat-ods-applications
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRoleBinding
+        name: llama-stack-k8s-operator-manager-rolebinding
+      - apiVersion: coordination.k8s.io/v1
+        kind: Lease
+        name: 54e06e98.llamastack.io
+        namespace: redhat-ods-applications
+      - apiVersion: v1
+        kind: Service
+        name: llama-stack-k8s-operator-controller-manager-metrics-service
+        namespace: redhat-ods-applications
+    webhooks:
+      - name: vllamastackdistribution.meta.com
+        type: validating
+        path: /validate-llamastack-meta-com-v1alpha1-llamastackdistribution
+    finalizers:
+      - llamastack.meta.com/finalizer
+    dependencies:
+      - kserve-controller-manager
+    steadyState:
+      checks:
+        - type: conditionTrue
+          apiVersion: apps/v1
+          kind: Deployment
+          name: llama-stack-k8s-operator-controller-manager
+          namespace: redhat-ods-applications
+          conditionType: Available
+      timeout: "60s"
+
+recovery:
+  reconcileTimeout: "300s"
+  maxReconcileCycles: 10

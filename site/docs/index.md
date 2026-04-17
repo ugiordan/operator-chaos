@@ -47,13 +47,14 @@ flowchart LR
     style F fill:#ef9a9a,stroke:#c62828
 ```
 
-## Three Usage Modes
+## Four Usage Modes
 
 | Mode | What It Tests | Cluster? | When to Use |
 |------|--------------|----------|-------------|
 | **CLI Experiments** | Full operator recovery on a live cluster | Yes | Pre-release validation, CI/CD |
 | **SDK Middleware** | Operator behavior under API-level faults | Yes (or fake client) | Integration tests |
 | **Fuzz Testing** | Reconciler correctness under random faults | No | Development, unit tests, CI |
+| **Upgrade Testing** | Structural changes between operator versions | Yes | Release qualification, upgrade testing |
 
 <div class="grid cards" markdown>
 
@@ -80,6 +81,14 @@ flowchart LR
     Test reconciler correctness under random faults. No cluster needed — uses fake client.
 
     [:octicons-arrow-right-24: Fuzz Quick Start](getting-started/fuzz-quickstart.md)
+
+- :material-upload: **Upgrade Testing**
+
+    ---
+
+    Auto-generate chaos experiments from version diffs. Test CRD schema changes, resource ownership shifts, and dependency mutations.
+
+    [:octicons-arrow-right-24: Upgrade Testing Guide](guides/upgrade-testing.md)
 
 </div>
 

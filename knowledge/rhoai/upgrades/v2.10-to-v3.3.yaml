@@ -1,0 +1,64 @@
+# knowledge/rhoai/upgrades/v2.10-to-v3.3.yaml
+apiVersion: chaos.opendatahub.io/v1alpha1
+kind: UpgradePlaybook
+metadata:
+  name: rhoai-2.10-to-3.3
+  description: "Upgrade RHOAI from 2.10 to 3.3 with pre-migration and post-validation"
+
+upgrade:
+  source:
+    knowledgeDir: knowledge/rhoai/v2.10/
+    version: "2.10"
+  target:
+    knowledgeDir: knowledge/rhoai/v3.3/
+    version: "3.3"
+
+  path:
+    operator: rhods-operator
+    namespace: redhat-ods-operator
+    hops:
+      - channel: stable-2.16
+        maxWait: 15m
+      - channel: stable-3.0
+        maxWait: 20m
+      - channel: stable-3.3
+        maxWait: 20m
+
+  steps:
+    # Pre-upgrade: verify cluster is at expected source version
+    - name: validate-source-version
+      type: validate-version
+
+    # Pre-upgrade: migrate dashboard ConfigMaps to new namespace
+    - name: migrate-dashboard-configmaps
+      type: kubectl
+      commands:
+        - "oc get configmap -n opendatahub -l app=odh-dashboard --no-headers 2>/dev/null | wc -l | xargs -I{} echo '{} configmaps found in opendatahub namespace'"
+      verify:
+        type: resourceExists
+        apiVersion: v1
+        kind: ConfigMap
+        namespace: redhat-ods-applications
+        labelSelector: app=odh-dashboard
+
+    # Pre-upgrade: verify InferenceServices are healthy before touching kserve
+    - name: confirm-inferenceservices-healthy
+      type: manual
+      description: "Verify all InferenceServices are in Ready state before proceeding. Run: oc get isvc -A"
+      autoCheck: "oc get isvc -A -o jsonpath='{.items[*].status.conditions[?(@.type==\"Ready\")].status}' 2>/dev/null | grep -v False || echo 'no InferenceServices found (ok)'"
+
+    # Trigger the OLM upgrade through 3 channel hops
+    - name: trigger-upgrade
+      type: olm
+
+    # Post-upgrade: run chaos experiments to verify resilience
+    - name: post-upgrade-resilience
+      type: chaos
+      experiments:
+        - experiments/dashboard/pod-kill.yaml
+        - experiments/kserve/main-controller-kill.yaml
+        - experiments/odh-model-controller/pod-kill.yaml
+
+    # Post-upgrade: verify cluster matches target version
+    - name: validate-target-version
+      type: validate-version

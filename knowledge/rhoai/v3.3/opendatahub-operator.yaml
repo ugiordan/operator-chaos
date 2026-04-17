@@ -1,0 +1,62 @@
+operator:
+  name: opendatahub-operator
+  namespace: redhat-ods-operator
+  repository: https://github.com/opendatahub-io/opendatahub-operator
+  version: "3.3.1"
+  platform: rhoai
+  olmChannel: stable-3.3
+
+components:
+  - name: opendatahub-operator
+    controller: DSCInitialization
+    managedResources:
+      - apiVersion: apps/v1
+        kind: Deployment
+        name: rhods-operator
+        namespace: redhat-ods-operator
+        labels:
+          name: opendatahub-operator
+          control-plane: controller-manager
+        expectedSpec:
+          replicas: 3
+      - apiVersion: v1
+        kind: ServiceAccount
+        name: redhat-ods-operator-controller-manager
+        namespace: redhat-ods-operator
+      - apiVersion: v1
+        kind: Secret
+        name: rhods-operator-service-cert
+        namespace: redhat-ods-operator
+      - apiVersion: coordination.k8s.io/v1
+        kind: Lease
+        name: 07ed84f7.opendatahub.io
+        namespace: redhat-ods-operator
+      - apiVersion: v1
+        kind: Service
+        name: rhods-operator-service
+        namespace: redhat-ods-operator
+    webhooks:
+      - name: mutating.datasciencecluster.opendatahub.io
+        type: mutating
+        path: /mutate-datasciencecluster-v1
+      - name: validating.datasciencecluster.opendatahub.io
+        type: validating
+        path: /validate-datasciencecluster-v1
+      - name: validating.dscinitialization.opendatahub.io
+        type: validating
+        path: /validate-dscinitialization-v1
+    finalizers:
+      - platform.opendatahub.io/finalizer
+    steadyState:
+      checks:
+        - type: conditionTrue
+          apiVersion: apps/v1
+          kind: Deployment
+          name: rhods-operator
+          namespace: redhat-ods-operator
+          conditionType: Available
+      timeout: "60s"
+
+recovery:
+  reconcileTimeout: "300s"
+  maxReconcileCycles: 10

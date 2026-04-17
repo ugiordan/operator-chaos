@@ -1,0 +1,89 @@
+operator:
+  name: workbenches
+  namespace: redhat-ods-applications
+  repository: https://github.com/opendatahub-io/opendatahub-operator
+  version: "3.3.1"
+  platform: rhoai
+  olmChannel: stable-3.3
+
+components:
+  - name: odh-notebook-controller
+    controller: DataScienceCluster
+    managedResources:
+      - apiVersion: apps/v1
+        kind: Deployment
+        name: odh-notebook-controller-manager
+        namespace: redhat-ods-applications
+        labels:
+          app: odh-notebook-controller
+          app.kubernetes.io/part-of: odh-notebook-controller
+          component.opendatahub.io/name: odh-notebook-controller
+        expectedSpec:
+          replicas: 1
+      - apiVersion: v1
+        kind: ServiceAccount
+        name: odh-notebook-controller-manager
+        namespace: redhat-ods-applications
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRoleBinding
+        name: odh-notebook-controller-manager-rolebinding
+      - apiVersion: v1
+        kind: Service
+        name: odh-notebook-controller-webhook-service
+        namespace: redhat-ods-applications
+      - apiVersion: v1
+        kind: Secret
+        name: odh-notebook-controller-webhook-cert
+        namespace: redhat-ods-applications
+    webhooks:
+      - name: notebooks.opendatahub.io
+        type: mutating
+        path: /mutate-notebook-v1
+      - name: connection-notebook.opendatahub.io
+        type: mutating
+        path: /platform-connection-notebook
+    steadyState:
+      checks:
+        - type: conditionTrue
+          apiVersion: apps/v1
+          kind: Deployment
+          name: odh-notebook-controller-manager
+          namespace: redhat-ods-applications
+          conditionType: Available
+      timeout: "60s"
+
+  - name: notebook-controller
+    controller: DataScienceCluster
+    managedResources:
+      - apiVersion: apps/v1
+        kind: Deployment
+        name: notebook-controller-deployment
+        namespace: redhat-ods-applications
+        labels:
+          app.kubernetes.io/part-of: odh-notebook-controller
+          component.opendatahub.io/name: kf-notebook-controller
+        expectedSpec:
+          replicas: 1
+      - apiVersion: v1
+        kind: ServiceAccount
+        name: notebook-controller-service-account
+        namespace: redhat-ods-applications
+      - apiVersion: v1
+        kind: ConfigMap
+        name: notebook-controller-culler-config
+        namespace: redhat-ods-applications
+    dependencies:
+      - odh-notebook-controller
+    steadyState:
+      checks:
+        - type: conditionTrue
+          apiVersion: apps/v1
+          kind: Deployment
+          name: notebook-controller-deployment
+          namespace: redhat-ods-applications
+          conditionType: Available
+      timeout: "60s"
+
+recovery:
+  reconcileTimeout: "300s"
+  maxReconcileCycles: 10

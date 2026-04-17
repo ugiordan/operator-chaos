@@ -1,0 +1,45 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: odh-chaos-upgrade-gate
+spec:
+  params:
+    - name: playbook
+      type: string
+      description: "Path to playbook YAML"
+    - name: image
+      type: string
+      default: quay.io/opendatahub/odh-chaos:latest
+    - name: allow-shell
+      type: string
+      default: "true"
+    - name: skip-manual
+      type: string
+      default: "true"
+  steps:
+    - name: run-playbook
+      image: $(params.image)
+      script: |
+        #!/bin/sh
+        FLAGS=""
+        if [ "$(params.allow-shell)" = "true" ]; then
+          FLAGS="$FLAGS --allow-shell"
+        fi
+        if [ "$(params.skip-manual)" = "true" ]; then
+          FLAGS="$FLAGS --skip-manual"
+        fi
+        if odh-chaos playbook run \
+          --playbook $(params.playbook) \
+          $FLAGS \
+          --report-dir $(workspaces.results.path)/; then
+          echo -n "pass" > $(results.verdict.path)
+        else
+          echo -n "fail" > $(results.verdict.path)
+          exit 1
+        fi
+  results:
+    - name: verdict
+      description: "pass or fail"
+  workspaces:
+    - name: results
+      description: "Directory for test results and JUnit XML"

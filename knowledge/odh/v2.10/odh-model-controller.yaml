@@ -1,0 +1,81 @@
+operator:
+  name: odh-model-controller
+  namespace: opendatahub
+  repository: https://github.com/opendatahub-io/odh-model-controller
+  version: "2.10.0"
+  platform: odh
+  olmChannel: stable-2.10
+
+components:
+  - name: odh-model-controller
+    controller: DataScienceCluster
+    managedResources:
+      - apiVersion: apps/v1
+        kind: Deployment
+        name: odh-model-controller
+        namespace: opendatahub
+        labels:
+          control-plane: odh-model-controller
+          app: odh-model-controller
+        expectedSpec:
+          replicas: 1
+      - apiVersion: v1
+        kind: ConfigMap
+        name: inferenceservice-config
+        namespace: opendatahub
+      - apiVersion: v1
+        kind: ServiceAccount
+        name: odh-model-controller
+        namespace: opendatahub
+      - apiVersion: v1
+        kind: Secret
+        name: odh-model-controller-webhook-cert
+        namespace: opendatahub
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRoleBinding
+        name: odh-model-controller-rolebinding-opendatahub
+      - apiVersion: coordination.k8s.io/v1
+        kind: Lease
+        name: odh-model-controller.opendatahub.io
+        namespace: opendatahub
+    webhooks:
+      - name: mutating.pod.odh-model-controller.opendatahub.io
+        type: mutating
+        path: /mutate--v1-pod
+      - name: minferencegraph-v1alpha1.odh-model-controller.opendatahub.io
+        type: mutating
+        path: /mutate-serving-kserve-io-v1alpha1-inferencegraph
+      - name: minferenceservice-v1beta1.odh-model-controller.opendatahub.io
+        type: mutating
+        path: /mutate-serving-kserve-io-v1beta1-inferenceservice
+      - name: validating.nim.account.odh-model-controller.opendatahub.io
+        type: validating
+        path: /validate-nim-opendatahub-io-v1-account
+      - name: validating.llmisvc.odh-model-controller.opendatahub.io
+        type: validating
+        path: /validate-serving-kserve-io-v1alpha1-llminferenceservice
+      - name: vinferencegraph-v1alpha1.odh-model-controller.opendatahub.io
+        type: validating
+        path: /validate-serving-kserve-io-v1alpha1-inferencegraph
+      - name: validating.isvc.odh-model-controller.opendatahub.io
+        type: validating
+        path: /validate-serving-kserve-io-v1beta1-inferenceservice
+    finalizers:
+      - odh.inferenceservice.finalizers
+      - modelregistry.opendatahub.io/finalizer
+      - runtimes.opendatahub.io/nim-cleanup-finalizer
+    dependencies:
+      - kserve
+    steadyState:
+      checks:
+        - type: conditionTrue
+          apiVersion: apps/v1
+          kind: Deployment
+          name: odh-model-controller
+          namespace: opendatahub
+          conditionType: Available
+      timeout: "60s"
+
+recovery:
+  reconcileTimeout: "300s"
+  maxReconcileCycles: 10

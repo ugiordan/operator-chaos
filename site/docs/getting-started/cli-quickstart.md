@@ -93,6 +93,18 @@ The framework will:
 4. Evaluate verdict (Resilient, Degraded, Failed, or Inconclusive)
 5. Clean up chaos artifacts
 
+#### Running on RHOAI Clusters
+
+Experiment YAML files default to the `opendatahub` namespace. When running on RHOAI clusters (which use `redhat-ods-applications`), use the `--namespace` flag to override all namespace references in the experiment:
+
+```bash
+odh-chaos run experiment.yaml \
+  --knowledge knowledge.yaml \
+  --namespace redhat-ods-applications
+```
+
+The `--namespace` flag overrides the experiment's metadata namespace, steady-state check namespaces, blast radius `allowedNamespaces`, and reconciliation checker namespace. This means you can use the same experiment YAML files for both ODH and RHOAI clusters without modification.
+
 ## Example: Experiment YAML
 
 Here's a complete example of a PodKill experiment:

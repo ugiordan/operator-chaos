@@ -1,16 +1,16 @@
 # ODH Platform Chaos
 
-Chaos engineering framework for OpenDataHub operators. Tests operator reconciliation semantics --- not just that pods restart, but that operators correctly restore all managed resources.
+Chaos engineering framework for OpenDataHub operators. Tests operator reconciliation semantics, not just that pods restart, but that operators correctly restore all managed resources.
 
 ## Why ODH Platform Chaos?
 
-Existing chaos tools (Krkn, Litmus, Chaos Mesh) test infrastructure resilience: kill a pod, verify it comes back. But Kubernetes operators manage complex resource graphs --- Deployments, Services, ConfigMaps, CRDs --- where the real question is:
+Existing chaos tools (Krkn, Litmus, Chaos Mesh) test infrastructure resilience: kill a pod, verify it comes back. But Kubernetes operators manage complex resource graphs (Deployments, Services, ConfigMaps, CRDs) where the real question is:
 
 **"When something breaks, does the operator put everything back the way it should be?"**
 
 ODH Platform Chaos answers this by:
 - **Testing reconciliation**: Verifying operators restore resources to their intended state
-- **Operator-semantic faults**: CRD mutation, config drift, RBAC revocation --- faults specific to operators
+- **Operator-semantic faults**: CRD mutation, config drift, RBAC revocation, faults specific to operators
 - **Knowledge-driven**: Understanding what each operator manages via knowledge models
 - **Structured verdicts**: Resilient, Degraded, Failed, or Inconclusive
 
@@ -21,15 +21,16 @@ ODH Platform Chaos answers this by:
 - **cluster-admin RBAC** (CLI experiments perform destructive operations: pod deletion, RBAC revocation, webhook mutation, NetworkPolicy creation)
 - **controller-runtime v0.23+** (for SDK and fuzz testing integration)
 
-## Three Usage Modes
+## Four Usage Modes
 
-ODH Platform Chaos provides three distinct ways to test operator resilience, each suited to different stages of the development lifecycle:
+ODH Platform Chaos provides four distinct ways to test operator resilience, each suited to different stages of the development lifecycle:
 
 | Mode | What It Tests | Requires Cluster? | When to Use |
-|------|--------------|-------------------|-------------|
+|------|---------------|-------------------|-------------|
 | **CLI Experiments** | Full operator recovery on a live cluster | Yes | Pre-release validation, CI/CD pipelines |
 | **SDK Middleware** | Operator behavior under API-level faults | Yes (or fake client) | Integration tests, staging environments |
 | **Fuzz Testing** | Reconciler correctness under random faults | No (uses fake client) | Development, unit tests, CI |
+| **Upgrade Testing** | Breaking changes between versions | No (offline analysis) | Pre-upgrade validation, release qualification |
 
 ### Mode 1: CLI Experiments (Cluster-Level Chaos)
 
@@ -49,7 +50,7 @@ odh-chaos run experiment.yaml --dry-run --knowledge knowledge.yaml
 odh-chaos run experiment.yaml --knowledge knowledge.yaml
 ```
 
-**Use this when**: You need to verify that a real operator recovers correctly on a real cluster --- the definitive resilience test before shipping.
+**Use this when**: You need to verify that a real operator recovers correctly on a real cluster. The definitive resilience test before shipping.
 
 ### Mode 2: SDK Middleware (ChaosClient Wrapper)
 
@@ -243,6 +244,31 @@ The `DecodeFaultConfig` function maps three fuzz primitives to a valid `*sdk.Fau
 
 **Use this when**: You want to find edge cases in your reconciler's error handling during development. The fuzz engine explores thousands of fault combinations automatically, finding panics and logic bugs that manual tests miss.
 
+### Mode 4: Upgrade Testing (Version Diff Analysis)
+
+Compare operator knowledge models between versions to detect breaking changes and simulate upgrade-like disruptions. Works entirely offline, no cluster needed for analysis.
+
+```bash
+# Compare ODH 2.10 to RHOAI 3.3
+odh-chaos diff --source knowledge/odh/v2.10/ --target knowledge/rhoai/v3.3/
+
+# Show only breaking changes
+odh-chaos diff --source knowledge/odh/v2.10/ --target knowledge/rhoai/v3.3/ --breaking
+
+# Compare CRD schemas
+odh-chaos diff-crds --source-crds crds/v2.10/ --target-crds crds/v3.3/
+
+# Generate upgrade simulation experiments (preview)
+odh-chaos simulate-upgrade --source knowledge/odh/v2.10/ --target knowledge/rhoai/v3.3/ --dry-run
+
+# Validate cluster matches expected version
+odh-chaos validate-version --knowledge-dir knowledge/rhoai/v3.3/
+```
+
+The diff engine detects: component renames (odh-dashboard to rhods-dashboard), namespace moves (opendatahub to redhat-ods-applications), webhook changes, dependency ordering shifts, and CRD schema breaking changes (field removals, type changes, enum removals).
+
+**Use this when**: You're planning an operator upgrade and want to identify breaking changes before they hit production. The simulate-upgrade command generates chaos experiments that mimic each detected change type.
+
 ## Knowledge Models
 
 A knowledge model describes what an operator manages. The chaos framework uses this to understand which resources to check during steady-state verification and what "recovered" means.
@@ -254,6 +280,9 @@ operator:
   name: string          # required: operator name
   namespace: string     # required: namespace where the operator runs
   repository: string    # optional: source repository URL
+  version: string       # optional: operator version (e.g. "3.3.1")
+  platform: string      # optional: platform identifier ("rhoai" or "odh")
+  olmChannel: string    # optional: OLM subscription channel (e.g. "stable-3.3")
 
 components:
   - name: string        # required: unique component name
@@ -538,6 +567,14 @@ injection:
 | `types` | List available injection types |
 | `preflight` | Pre-flight checks for knowledge models |
 | `controller start` | Start the ChaosExperiment controller |
+| `diff` | Compare versioned knowledge model directories |
+| `diff-crds` | Compare CRD schemas between versions |
+| `validate-version` | Validate cluster state against versioned knowledge |
+| `simulate-upgrade` | Generate and run upgrade simulation experiments |
+| `upgrade discover` | Show available OLM channels and versions |
+| `upgrade trigger` | Trigger a single OLM channel hop |
+| `upgrade monitor` | Watch an in-progress OLM upgrade |
+| `upgrade run` | Execute an upgrade playbook |
 | `version` | Print the version |
 
 ### Global Flags
@@ -732,7 +769,7 @@ odh-chaos run experiment.yaml --knowledge kserve.yaml --knowledge odh-model-cont
 
 ```mermaid
 graph TD
-    CLI["CLI Layer<br/>run | validate | init | clean | analyze | suite | report | types | version"]
+    CLI["CLI Layer<br/>run | validate | init | clean | analyze | suite | report | types | diff | version"]
     ORCH["Orchestrator<br/>Experiment Lifecycle State Machine"]
     INJ["Injection Engine<br/>8 injection types"]
     OBS["Observer<br/>Reconciliation + K8s watches"]
@@ -741,11 +778,13 @@ graph TD
     SAFE["Safety<br/>Blast radius, TTL, rollback, locks"]
     SDK["SDK Middleware<br/>ChaosClient + WrapReconciler + TestChaos"]
     FUZZ["Fuzz Testing<br/>Harness + DecodeFaultConfig + Invariants"]
+    DIFF["Diff Engine<br/>Version comparison + CRD schema walker"]
     KNOW["Knowledge Models<br/>Operator YAML specs"]
     EXP["Experiment Specs<br/>ChaosExperiment YAML"]
     DASH["Dashboard<br/>Web UI + REST API + SSE"]
 
     CLI --> ORCH
+    CLI --> DIFF
     ORCH --> INJ
     ORCH --> OBS
     ORCH --> EVAL
@@ -753,6 +792,8 @@ graph TD
     ORCH --> SAFE
     SDK -.-> INJ
     FUZZ -.-> SDK
+    DIFF --> KNOW
+    DIFF --> INJ
     KNOW --> ORCH
     KNOW --> DASH
     EXP --> CLI
@@ -786,6 +827,7 @@ internal/cli/           Command implementations
 api/v1alpha1/           ChaosExperiment CRD types
 pkg/
   analyzer/             Go source code analysis
+  diff/               Version diff engine, CRD schema walker, upgrade simulation
   evaluator/            Verdict engine
   experiment/           Experiment loading and validation
   injection/            8 injection type implementations
@@ -806,7 +848,7 @@ dashboard/
     convert/            CR-to-model conversion
   ui/                   React 18 + TypeScript frontend (Vite)
   embed.go              go:embed for serving built UI assets
-knowledge/              Operator knowledge YAML files (7 operators)
+knowledge/              Operator knowledge YAML files (versioned: odh/v2.10, rhoai/v3.3)
 experiments/            Pre-built experiment suites (40 experiments)
 ```
 
@@ -816,12 +858,12 @@ A web dashboard for visualizing chaos experiment results, live monitoring, and o
 
 ### Features
 
-- **Overview** --- cluster-wide resilience health with trend indicators, verdict timeline, and recovery metrics
-- **Live Monitoring** --- real-time experiment progress via Server-Sent Events with phase stepper visualization
-- **Experiment Browser** --- filterable, sortable table with drill-down to full experiment detail (7 tabs: Summary, Evaluation, Steady State, Injection Log, Conditions, YAML, Debug)
-- **Suite Comparison** --- version-to-version comparison with delta indicators (improved/regressed/no change)
-- **Operator Insights** --- per-operator health bars, component accordion, injection coverage matrix
-- **Knowledge Graph** --- interactive SVG dependency graph with chaos coverage overlays
+- **Overview**: cluster-wide resilience health with trend indicators, verdict timeline, and recovery metrics
+- **Live Monitoring**: real-time experiment progress via Server-Sent Events with phase stepper visualization
+- **Experiment Browser**: filterable, sortable table with drill-down to full experiment detail (7 tabs: Summary, Evaluation, Steady State, Injection Log, Conditions, YAML, Debug)
+- **Suite Comparison**: version-to-version comparison with delta indicators (improved/regressed/no change)
+- **Operator Insights**: per-operator health bars, component accordion, injection coverage matrix
+- **Knowledge Graph**: interactive SVG dependency graph with chaos coverage overlays
 
 ### Running the Dashboard
 
@@ -923,10 +965,10 @@ go test ./... -fuzz=FuzzMyReconciler -fuzztime=30s
 
 ## Further Reading
 
-- [End-to-End Testing Guide](docs/e2e-testing-guide.md) --- Full walkthrough with knowledge models, all injection types, suite execution, and expected verdicts for odh-model-controller and kserve
-- [Dashboard Guide](docs/dashboard-guide.md) --- Detailed dashboard setup, views, API reference, and deployment options
-- [CI Integration Guide](docs/ci-integration-guide.md) --- GitHub Actions, Tekton, JUnit reporting, and exit code conventions
-- [Go Fuzz Testing](https://go.dev/doc/security/fuzz/) --- Go's native fuzz testing documentation (required for understanding `testing.F`)
+- [End-to-End Testing Guide](docs/e2e-testing-guide.md) - Full walkthrough with knowledge models, all injection types, suite execution, and expected verdicts for odh-model-controller and kserve
+- [Dashboard Guide](docs/dashboard-guide.md) - Detailed dashboard setup, views, API reference, and deployment options
+- [CI Integration Guide](docs/ci-integration-guide.md) - GitHub Actions, Tekton, JUnit reporting, and exit code conventions
+- [Go Fuzz Testing](https://go.dev/doc/security/fuzz/) - Go's native fuzz testing documentation (required for understanding `testing.F`)
 
 ## Contributing
 

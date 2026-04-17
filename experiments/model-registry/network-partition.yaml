@@ -19,7 +19,7 @@ spec:
   injection:
     type: NetworkPartition
     parameters:
-      labelSelector: control-plane=controller-manager
+      labelSelector: control-plane=model-registry-operator
     ttl: "300s"
   hypothesis:
     description: >-

@@ -84,6 +84,32 @@ graph TB
     style Evaluator fill:#ef9a9a,stroke:#c62828
 ```
 
+### Upgrade Diff Engine
+
+Analyzes structural changes between operator releases to auto-generate upgrade test suites.
+
+**Responsibilities:**
+
+- Compare versioned knowledge models using two-pass matching (exact + fuzzy)
+- Walk CRD OpenAPI v3 schemas to detect breaking changes, warnings, and safe migrations
+- Map detected diffs to targeted chaos experiments
+- Generate upgrade simulation suites
+
+**Key Algorithms:**
+
+- **Component Matching**: Weighted similarity scoring (resource kinds, labels, controller, count)
+- **Schema Walking**: Recursive traversal with severity classification (breaking, warning, info)
+- **Experiment Generation**: Diff-to-injection mapping (CRD changes → `CRDMutation`, webhook changes → `WebhookDisrupt`)
+
+**CLI Commands:**
+
+- `odh-chaos diff` — Compare two versioned directories
+- `odh-chaos diff-crds` — Deep CRD schema analysis
+- `odh-chaos validate-version` — Validate versioned knowledge model structure
+- `odh-chaos simulate-upgrade` — Generate and run upgrade test suites
+
+See [Upgrade Diff Engine Deep Dive](upgrade-diff-engine.md) for implementation details.
+
 ## Component Breakdown
 
 ### 1. Control Plane

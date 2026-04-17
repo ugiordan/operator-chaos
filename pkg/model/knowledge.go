@@ -20,6 +20,9 @@ type OperatorMeta struct {
 	Name       string `json:"name" yaml:"name"`
 	Namespace  string `json:"namespace" yaml:"namespace"`
 	Repository string `json:"repository,omitempty" yaml:"repository,omitempty"`
+	Version    string `json:"version,omitempty" yaml:"version,omitempty"`
+	Platform   string `json:"platform,omitempty" yaml:"platform,omitempty"`
+	OLMChannel string `json:"olmChannel,omitempty" yaml:"olmChannel,omitempty"`
 }
 
 // ComponentModel describes a single component managed by the operator,

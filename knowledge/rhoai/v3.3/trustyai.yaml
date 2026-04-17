@@ -1,0 +1,55 @@
+operator:
+  name: trustyai
+  namespace: redhat-ods-applications
+  repository: https://github.com/trustyai-explainability/trustyai-service-operator
+  version: "3.3.1"
+  platform: rhoai
+  olmChannel: stable-3.3
+
+components:
+  - name: trustyai-service-operator-controller-manager
+    controller: DataScienceCluster
+    managedResources:
+      - apiVersion: apps/v1
+        kind: Deployment
+        name: trustyai-service-operator-controller-manager
+        namespace: redhat-ods-applications
+        labels:
+          control-plane: controller-manager
+          app.kubernetes.io/name: trustyai-service-operator
+        expectedSpec:
+          replicas: 1
+      - apiVersion: v1
+        kind: ServiceAccount
+        name: trustyai-service-operator-controller-manager
+        namespace: redhat-ods-applications
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRoleBinding
+        name: trustyai-service-operator-manager-rolebinding
+      - apiVersion: coordination.k8s.io/v1
+        kind: Lease
+        name: b7e9931f.trustyai.opendatahub.io
+        namespace: redhat-ods-applications
+      - apiVersion: v1
+        kind: Service
+        name: trustyai-service-operator-controller-manager-metrics-service
+        namespace: redhat-ods-applications
+    webhooks:
+      - name: vtrustyaiservice.trustyai.opendatahub.io
+        type: validating
+        path: /validate-trustyai-opendatahub-io-v1alpha1-trustyaiservice
+    finalizers:
+      - trustyai.opendatahub.io/finalizer
+    steadyState:
+      checks:
+        - type: conditionTrue
+          apiVersion: apps/v1
+          kind: Deployment
+          name: trustyai-service-operator-controller-manager
+          namespace: redhat-ods-applications
+          conditionType: Available
+      timeout: "60s"
+
+recovery:
+  reconcileTimeout: "300s"
+  maxReconcileCycles: 10

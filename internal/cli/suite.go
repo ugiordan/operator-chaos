@@ -19,12 +19,13 @@ import (
 
 // suiteResult captures the outcome of running a single experiment in the suite.
 type suiteResult struct {
-	file     string
-	name     string
-	verdict  string
-	status   string // "pass", "fail", "skip"
-	err      error
+	file       string
+	name       string
+	verdict    string
+	status     string // "pass", "fail", "skip"
+	err        error
 	orchResult *orchestrator.ExperimentResult
+	target     v1alpha1.TargetSpec
 }
 
 func newSuiteCommand() *cobra.Command {
@@ -79,12 +80,14 @@ func newSuiteCommand() *cobra.Command {
 				}
 			}
 
+			namespace, _ := cmd.Flags().GetString("namespace")
+
 			var results []suiteResult
 
 			if parallel > 1 && !dryRun {
-				results = runParallel(cmd.Context(), experimentFiles, deps, timeout, parallel)
+				results = runParallel(cmd.Context(), experimentFiles, deps, timeout, parallel, namespace)
 			} else {
-				results = runSequential(cmd.Context(), experimentFiles, deps, dryRun, timeout)
+				results = runSequential(cmd.Context(), experimentFiles, deps, dryRun, timeout, namespace)
 			}
 
 			// Print results and count verdicts
@@ -135,11 +138,11 @@ func newSuiteCommand() *cobra.Command {
 }
 
 // runSequential executes experiments one at a time.
-func runSequential(parentCtx context.Context, files []string, deps *orchestratorDeps, dryRun bool, timeout time.Duration) []suiteResult {
+func runSequential(parentCtx context.Context, files []string, deps *orchestratorDeps, dryRun bool, timeout time.Duration, namespace string) []suiteResult {
 	results := make([]suiteResult, 0, len(files))
 
 	for _, file := range files {
-		r := runSingleExperiment(parentCtx, file, deps, dryRun, timeout)
+		r := runSingleExperiment(parentCtx, file, deps, dryRun, timeout, namespace)
 		results = append(results, r)
 	}
 
@@ -147,7 +150,7 @@ func runSequential(parentCtx context.Context, files []string, deps *orchestrator
 }
 
 // runParallel executes experiments concurrently with a semaphore limiting concurrency.
-func runParallel(parentCtx context.Context, files []string, deps *orchestratorDeps, timeout time.Duration, maxConcurrent int) []suiteResult {
+func runParallel(parentCtx context.Context, files []string, deps *orchestratorDeps, timeout time.Duration, maxConcurrent int, namespace string) []suiteResult {
 	results := make([]suiteResult, len(files))
 	sem := make(chan struct{}, maxConcurrent)
 	var wg sync.WaitGroup
@@ -159,7 +162,7 @@ func runParallel(parentCtx context.Context, files []string, deps *orchestratorDe
 			sem <- struct{}{}        // acquire
 			defer func() { <-sem }() // release
 
-			results[idx] = runSingleExperiment(parentCtx, f, deps, false, timeout)
+			results[idx] = runSingleExperiment(parentCtx, f, deps, false, timeout, namespace)
 		}(i, file)
 	}
 
@@ -168,7 +171,7 @@ func runParallel(parentCtx context.Context, files []string, deps *orchestratorDe
 }
 
 // runSingleExperiment loads, validates, and optionally executes a single experiment file.
-func runSingleExperiment(parentCtx context.Context, file string, deps *orchestratorDeps, dryRun bool, timeout time.Duration) suiteResult {
+func runSingleExperiment(parentCtx context.Context, file string, deps *orchestratorDeps, dryRun bool, timeout time.Duration, namespace string) suiteResult {
 	r := suiteResult{file: file}
 
 	exp, err := experiment.Load(file)
@@ -180,6 +183,12 @@ func runSingleExperiment(parentCtx context.Context, file string, deps *orchestra
 		return r
 	}
 	r.name = exp.Name
+	r.target = exp.Spec.Target
+
+	// Override namespace from CLI flag
+	if namespace != "" {
+		overrideExperimentNamespace(exp, namespace)
+	}
 
 	errs := experiment.Validate(exp)
 	if len(errs) > 0 {
@@ -289,6 +298,10 @@ func suiteResultToReport(r suiteResult) reporter.ExperimentReport {
 	report := reporter.ExperimentReport{
 		Experiment: r.name,
 		Timestamp:  time.Now(),
+		Target: reporter.TargetReport{
+			Operator:  r.target.Operator,
+			Component: r.target.Component,
+		},
 	}
 
 	switch r.status {

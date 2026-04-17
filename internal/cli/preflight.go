@@ -216,10 +216,12 @@ func checkClusterResources(ctx context.Context, k8sClient client.Client, k *mode
 			var ns string
 			if clusterScopedKinds[mr.Kind] {
 				ns = ""
+			} else if namespace != "" {
+				ns = namespace
 			} else if mr.Namespace != "" {
 				ns = mr.Namespace
 			} else {
-				ns = namespace
+				ns = "opendatahub"
 			}
 
 			status, errMsg := checkSingleResource(ctx, k8sClient, mr, ns)

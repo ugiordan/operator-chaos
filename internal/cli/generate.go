@@ -2,15 +2,23 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"go/format"
+	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"text/template"
 	"unicode"
 
+	upgrade "github.com/opendatahub-io/odh-platform-chaos/internal/cli/upgrade"
 	"github.com/opendatahub-io/odh-platform-chaos/pkg/model"
+	"github.com/opendatahub-io/odh-platform-chaos/pkg/olm"
 	"github.com/spf13/cobra"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/config"
+	syaml "sigs.k8s.io/yaml"
 )
 
 func newGenerateCommand() *cobra.Command {
@@ -20,6 +28,8 @@ func newGenerateCommand() *cobra.Command {
 	}
 
 	cmd.AddCommand(newGenerateFuzzTargetsCommand())
+	cmd.AddCommand(newGenerateUpgradeCommand())
+	cmd.AddCommand(newGenerateChaosCommand())
 
 	return cmd
 }
@@ -244,3 +254,215 @@ func {{.FuncName}}(f *testing.F) {
 	})
 }
 {{end}}`
+
+func newGenerateUpgradeCommand() *cobra.Command {
+	var (
+		source    string
+		target    string
+		operator  string
+		namespace string
+		output    string
+		discover  bool
+	)
+
+	cmd := &cobra.Command{
+		Use:   "upgrade",
+		Short: "Generate an upgrade playbook from knowledge directories",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			// Load source knowledge to get version
+			sourceModels, err := model.LoadKnowledgeDir(source)
+			if err != nil {
+				return fmt.Errorf("loading source knowledge: %w", err)
+			}
+			if len(sourceModels) == 0 {
+				return fmt.Errorf("no knowledge models found in %s", source)
+			}
+
+			// Load target knowledge to get version
+			targetModels, err := model.LoadKnowledgeDir(target)
+			if err != nil {
+				return fmt.Errorf("loading target knowledge: %w", err)
+			}
+			if len(targetModels) == 0 {
+				return fmt.Errorf("no knowledge models found in %s", target)
+			}
+
+			sourceVersion := sourceModels[0].Operator.Version
+			targetVersion := targetModels[0].Operator.Version
+
+			if operator == "" {
+				operator = sourceModels[0].Operator.Name
+			}
+			if namespace == "" {
+				namespace = sourceModels[0].Operator.Namespace
+			}
+
+			var channels []string
+			if discover {
+				channels, _ = discoverChannels(operator, namespace)
+			}
+
+			opts := upgrade.GenerateUpgradeOpts{
+				SourceDir:     source,
+				TargetDir:     target,
+				SourceVersion: sourceVersion,
+				TargetVersion: targetVersion,
+				Operator:      operator,
+				Namespace:     namespace,
+				Channels:      channels,
+			}
+
+			pb, err := upgrade.GenerateUpgradePlaybook(opts)
+			if err != nil {
+				return fmt.Errorf("generating playbook: %w", err)
+			}
+
+			data, err := syaml.Marshal(pb)
+			if err != nil {
+				return fmt.Errorf("marshaling playbook: %w", err)
+			}
+
+			if output == "" {
+				fmt.Print(string(data))
+				return nil
+			}
+
+			return os.WriteFile(output, data, 0644)
+		},
+	}
+
+	cmd.Flags().StringVar(&source, "source", "", "source knowledge directory (required)")
+	cmd.Flags().StringVar(&target, "target", "", "target knowledge directory (required)")
+	cmd.Flags().StringVar(&operator, "operator", "", "operator name (defaults to first model's operator)")
+	cmd.Flags().StringVar(&namespace, "namespace", "", "operator namespace (defaults to first model's namespace)")
+	cmd.Flags().StringVar(&output, "output", "", "output file path (defaults to stdout)")
+	cmd.Flags().BoolVar(&discover, "discover", true, "try to discover OLM channels from cluster")
+	_ = cmd.MarkFlagRequired("source")
+	_ = cmd.MarkFlagRequired("target")
+
+	return cmd
+}
+
+// discoverChannels attempts to connect to a cluster and discover OLM channels.
+// Returns nil on any error (best-effort).
+func discoverChannels(operator, namespace string) ([]string, error) {
+	cfg, err := config.GetConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	c, err := client.New(cfg, client.Options{})
+	if err != nil {
+		return nil, err
+	}
+
+	olmClient := olm.NewClient(c, log.Default())
+	infos, err := olmClient.Discover(context.Background(), operator, namespace)
+	if err != nil {
+		return nil, err
+	}
+
+	var channels []string
+	for _, info := range infos {
+		channels = append(channels, info.Name)
+	}
+	return channels, nil
+}
+
+func newGenerateChaosCommand() *cobra.Command {
+	var (
+		knowledge      string
+		experimentsDir string
+		danger         string
+		output         string
+	)
+
+	cmd := &cobra.Command{
+		Use:   "chaos",
+		Short: "Generate a chaos playbook from knowledge models and experiments",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			models, err := model.LoadKnowledgeDir(knowledge)
+			if err != nil {
+				return fmt.Errorf("loading knowledge: %w", err)
+			}
+			if len(models) == 0 {
+				return fmt.Errorf("no knowledge models found in %s", knowledge)
+			}
+
+			experiments := scanExperiments(experimentsDir, models)
+
+			pb, err := upgrade.GenerateChaosPlaybook(models, experiments, knowledge, danger)
+			if err != nil {
+				return fmt.Errorf("generating playbook: %w", err)
+			}
+
+			data, err := syaml.Marshal(pb)
+			if err != nil {
+				return fmt.Errorf("marshaling playbook: %w", err)
+			}
+
+			if output == "" {
+				fmt.Print(string(data))
+				return nil
+			}
+
+			return os.WriteFile(output, data, 0644)
+		},
+	}
+
+	cmd.Flags().StringVar(&knowledge, "knowledge", "", "knowledge directory (required)")
+	cmd.Flags().StringVar(&experimentsDir, "experiments", "", "experiments directory (required)")
+	cmd.Flags().StringVar(&danger, "danger", "all", "danger filter: all, low, medium, high")
+	cmd.Flags().StringVar(&output, "output", "", "output file path (defaults to stdout)")
+	_ = cmd.MarkFlagRequired("knowledge")
+	_ = cmd.MarkFlagRequired("experiments")
+
+	return cmd
+}
+
+// scanExperiments scans the experiments directory for YAML files organized by component.
+// Convention: experiments/{component-name}/*.yaml
+func scanExperiments(dir string, models []*model.OperatorKnowledge) map[string][]string {
+	result := make(map[string][]string)
+
+	// Build set of known component names
+	componentNames := make(map[string]bool)
+	for _, m := range models {
+		for _, c := range m.Components {
+			componentNames[c.Name] = true
+		}
+	}
+
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return result
+	}
+
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+		compName := entry.Name()
+		if !componentNames[compName] {
+			continue
+		}
+
+		compDir := filepath.Join(dir, compName)
+		files, err := os.ReadDir(compDir)
+		if err != nil {
+			continue
+		}
+
+		for _, f := range files {
+			if f.IsDir() {
+				continue
+			}
+			name := f.Name()
+			if strings.HasSuffix(name, ".yaml") || strings.HasSuffix(name, ".yml") {
+				result[compName] = append(result[compName], filepath.Join(compDir, name))
+			}
+		}
+	}
+
+	return result
+}

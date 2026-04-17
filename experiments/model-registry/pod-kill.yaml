@@ -19,7 +19,7 @@ spec:
   injection:
     type: PodKill
     parameters:
-      labelSelector: control-plane=controller-manager
+      labelSelector: control-plane=model-registry-operator
     count: 1
     ttl: "300s"
   hypothesis:

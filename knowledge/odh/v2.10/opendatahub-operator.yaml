@@ -1,0 +1,65 @@
+operator:
+  name: opendatahub-operator
+  namespace: opendatahub-operator-system
+  repository: https://github.com/opendatahub-io/opendatahub-operator
+  version: "2.10.0"
+  platform: odh
+  olmChannel: stable-2.10
+
+components:
+  - name: opendatahub-operator
+    controller: DSCInitialization
+    managedResources:
+      - apiVersion: apps/v1
+        kind: Deployment
+        name: opendatahub-operator-controller-manager
+        namespace: opendatahub-operator-system
+        labels:
+          name: opendatahub-operator
+          control-plane: controller-manager
+        expectedSpec:
+          replicas: 3
+      - apiVersion: v1
+        kind: ServiceAccount
+        name: opendatahub-operator-controller-manager
+        namespace: opendatahub-operator-system
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRoleBinding
+        name: opendatahub-operator-controller-manager-rolebinding
+      - apiVersion: v1
+        kind: Secret
+        name: opendatahub-operator-controller-webhook-cert
+        namespace: opendatahub-operator-system
+      - apiVersion: coordination.k8s.io/v1
+        kind: Lease
+        name: 07ed84f7.opendatahub.io
+        namespace: opendatahub-operator-system
+      - apiVersion: v1
+        kind: Service
+        name: opendatahub-operator-webhook-service
+        namespace: opendatahub-operator-system
+    webhooks:
+      - name: mutating.datasciencecluster.opendatahub.io
+        type: mutating
+        path: /mutate-datasciencecluster-v1
+      - name: validating.datasciencecluster.opendatahub.io
+        type: validating
+        path: /validate-datasciencecluster-v1
+      - name: validating.dscinitialization.opendatahub.io
+        type: validating
+        path: /validate-dscinitialization-v1
+    finalizers:
+      - platform.opendatahub.io/finalizer
+    steadyState:
+      checks:
+        - type: conditionTrue
+          apiVersion: apps/v1
+          kind: Deployment
+          name: opendatahub-operator-controller-manager
+          namespace: opendatahub-operator-system
+          conditionType: Available
+      timeout: "60s"
+
+recovery:
+  reconcileTimeout: "300s"
+  maxReconcileCycles: 10

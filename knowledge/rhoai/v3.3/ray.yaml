@@ -1,0 +1,54 @@
+operator:
+  name: ray
+  namespace: redhat-ods-applications
+  repository: https://github.com/ray-project/kuberay
+  version: "3.3.1"
+  platform: rhoai
+  olmChannel: stable-3.3
+
+components:
+  - name: kuberay-operator
+    controller: DataScienceCluster
+    managedResources:
+      - apiVersion: apps/v1
+        kind: Deployment
+        name: kuberay-operator
+        namespace: redhat-ods-applications
+        labels:
+          app.kubernetes.io/name: kuberay-operator
+        expectedSpec:
+          replicas: 1
+      - apiVersion: v1
+        kind: ServiceAccount
+        name: kuberay-operator
+        namespace: redhat-ods-applications
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRoleBinding
+        name: kuberay-operator
+      - apiVersion: coordination.k8s.io/v1
+        kind: Lease
+        name: ray-operator-leader
+        namespace: redhat-ods-applications
+      - apiVersion: v1
+        kind: Service
+        name: kuberay-operator
+        namespace: redhat-ods-applications
+    webhooks:
+      - name: vraycluster.ray.io
+        type: validating
+        path: /validate-ray-io-v1-raycluster
+    finalizers:
+      - ray.io/finalizer
+    steadyState:
+      checks:
+        - type: conditionTrue
+          apiVersion: apps/v1
+          kind: Deployment
+          name: kuberay-operator
+          namespace: redhat-ods-applications
+          conditionType: Available
+      timeout: "60s"
+
+recovery:
+  reconcileTimeout: "300s"
+  maxReconcileCycles: 10

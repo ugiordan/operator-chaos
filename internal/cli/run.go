@@ -45,6 +45,12 @@ func newRunCommand() *cobra.Command {
 				return fmt.Errorf("%d validation errors", len(errs))
 			}
 
+			// Override namespace from CLI flag
+			namespace, _ := cmd.Flags().GetString("namespace")
+			if namespace != "" {
+				overrideExperimentNamespace(exp, namespace)
+			}
+
 			// Override dry-run from CLI flag
 			if dryRun {
 				exp.Spec.BlastRadius.DryRun = true
@@ -83,6 +89,7 @@ func newRunCommand() *cobra.Command {
 	}
 
 	cmd.Flags().StringArrayVar(&knowledgePaths, "knowledge", nil, "path to operator knowledge YAML (repeatable)")
+
 	cmd.Flags().StringVar(&knowledgeDir, "knowledge-dir", "", "directory of operator knowledge YAMLs")
 	cmd.Flags().StringVar(&reportDir, "report-dir", "", "directory for report output")
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "validate without injecting")
@@ -91,4 +98,36 @@ func newRunCommand() *cobra.Command {
 	cmd.Flags().StringVar(&lockNamespace, "lock-namespace", v1alpha1.DefaultNamespace, "namespace for distributed lock leases")
 
 	return cmd
+}
+
+// overrideExperimentNamespace updates the experiment's metadata namespace,
+// steady-state check namespaces, and blast radius allowedNamespaces to use
+// the given namespace. This allows the --namespace CLI flag to fully override
+// hardcoded namespace references in experiment YAML files.
+func overrideExperimentNamespace(exp *v1alpha1.ChaosExperiment, namespace string) {
+	exp.Namespace = namespace
+
+	// Override steady-state check namespaces
+	for i := range exp.Spec.SteadyState.Checks {
+		if exp.Spec.SteadyState.Checks[i].Namespace != "" {
+			exp.Spec.SteadyState.Checks[i].Namespace = namespace
+		}
+	}
+
+	// Override allowedNamespaces in blast radius
+	if len(exp.Spec.BlastRadius.AllowedNamespaces) > 0 {
+		seen := make(map[string]bool)
+		updated := make([]string, 0, len(exp.Spec.BlastRadius.AllowedNamespaces))
+		for _, ns := range exp.Spec.BlastRadius.AllowedNamespaces {
+			replacement := namespace
+			if ns == "" {
+				replacement = ns
+			}
+			if !seen[replacement] {
+				seen[replacement] = true
+				updated = append(updated, replacement)
+			}
+		}
+		exp.Spec.BlastRadius.AllowedNamespaces = updated
+	}
 }
