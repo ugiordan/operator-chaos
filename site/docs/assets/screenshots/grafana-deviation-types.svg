@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 300">
+  <rect width="600" height="300" fill="#1a1a1a" rx="4"/>
+  <text x="10" y="25" font-family="Arial" font-size="14" font-weight="bold" fill="#fff">Injection Types</text>
+  <text x="300" y="290" text-anchor="middle" font-family="Arial" font-size="9" fill="#999">PLACEHOLDER - Replace with Grafana screenshot</text>
+
+  <!-- Axes -->
+  <line x1="100" y1="250" x2="550" y2="250" stroke="#555" stroke-width="1"/>
+  <line x1="100" y1="60" x2="100" y2="250" stroke="#555" stroke-width="1"/>
+
+  <!-- Horizontal bars -->
+  <rect x="105" y="70" width="280" height="25" fill="#1565C0" fill-opacity="0.8"/>
+  <text x="110" y="87" font-family="Arial" font-size="10" fill="#fff">PodFailure</text>
+  <text x="390" y="87" font-family="Arial" font-size="10" fill="#fff">28</text>
+
+  <rect x="105" y="105" width="210" height="25" fill="#2E7D32" fill-opacity="0.8"/>
+  <text x="110" y="122" font-family="Arial" font-size="10" fill="#fff">NetworkChaos</text>
+  <text x="320" y="122" font-family="Arial" font-size="10" fill="#fff">21</text>
+
+  <rect x="105" y="140" width="180" height="25" fill="#F57C00" fill-opacity="0.8"/>
+  <text x="110" y="157" font-family="Arial" font-size="10" fill="#fff">StressChaos</text>
+  <text x="290" y="157" font-family="Arial" font-size="10" fill="#fff">18</text>
+
+  <rect x="105" y="175" width="140" height="25" fill="#5E35B1" fill-opacity="0.8"/>
+  <text x="110" y="192" font-family="Arial" font-size="10" fill="#fff">IOChaos</text>
+  <text x="250" y="192" font-family="Arial" font-size="10" fill="#fff">14</text>
+
+  <rect x="105" y="210" width="90" height="25" fill="#C62828" fill-opacity="0.8"/>
+  <text x="110" y="227" font-family="Arial" font-size="10" fill="#fff">TimeChaos</text>
+  <text x="200" y="227" font-family="Arial" font-size="10" fill="#fff">9</text>
+</svg>

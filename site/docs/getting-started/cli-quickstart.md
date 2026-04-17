@@ -212,5 +212,5 @@ odh-chaos types
 
 ## Next Steps
 
-- Learn about all [injection types and parameters](../reference/experiment-types.md)
+- Learn about all [failure modes and parameters](../failure-modes/index.md)
 - Understand [knowledge models](../guides/knowledge-models.md)

@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400">
+  <rect width="800" height="400" fill="#f5f5f5" rx="8"/>
+  <text x="400" y="30" text-anchor="middle" font-family="Arial" font-size="16" font-weight="bold" fill="#333">Operator Dashboard</text>
+  <text x="400" y="390" text-anchor="middle" font-family="Arial" font-size="11" fill="#999">PLACEHOLDER - Replace with actual screenshot</text>
+
+  <!-- Operator cards -->
+  <rect x="20" y="50" width="230" height="100" fill="white" stroke="#ddd" stroke-width="1" rx="6"/>
+  <text x="30" y="75" font-family="Arial" font-size="12" font-weight="bold" fill="#333">dashboard-controller</text>
+  <text x="30" y="92" font-family="Arial" font-size="9" fill="#666">Status: Healthy</text>
+  <text x="30" y="107" font-family="Arial" font-size="9" fill="#666">Experiments: 12</text>
+  <text x="30" y="122" font-family="Arial" font-size="9" fill="#666">Resilience: 87%</text>
+  <circle cx="220" cy="70" r="8" fill="#2E7D32"/>
+
+  <rect x="265" y="50" width="230" height="100" fill="white" stroke="#ddd" stroke-width="1" rx="6"/>
+  <text x="275" y="75" font-family="Arial" font-size="12" font-weight="bold" fill="#333">kserve-controller</text>
+  <text x="275" y="92" font-family="Arial" font-size="9" fill="#666">Status: Degraded</text>
+  <text x="275" y="107" font-family="Arial" font-size="9" fill="#666">Experiments: 8</text>
+  <text x="275" y="122" font-family="Arial" font-size="9" fill="#666">Resilience: 62%</text>
+  <circle cx="465" cy="70" r="8" fill="#F57C00"/>
+
+  <rect x="510" y="50" width="230" height="100" fill="white" stroke="#ddd" stroke-width="1" rx="6"/>
+  <text x="520" y="75" font-family="Arial" font-size="12" font-weight="bold" fill="#333">model-mesh</text>
+  <text x="520" y="92" font-family="Arial" font-size="9" fill="#666">Status: Healthy</text>
+  <text x="520" y="107" font-family="Arial" font-size="9" fill="#666">Experiments: 15</text>
+  <text x="520" y="122" font-family="Arial" font-size="9" fill="#666">Resilience: 93%</text>
+  <circle cx="710" cy="70" r="8" fill="#2E7D32"/>
+
+  <!-- Dependency graph -->
+  <rect x="20" y="170" width="750" height="200" fill="white" stroke="#ddd" stroke-width="1" rx="6"/>
+  <text x="30" y="195" font-family="Arial" font-size="13" font-weight="bold" fill="#333">Component Dependency Graph</text>
+
+  <!-- Nodes -->
+  <rect x="100" y="220" width="120" height="40" fill="#1565C0" fill-opacity="0.1" stroke="#1565C0" stroke-width="2" rx="4"/>
+  <text x="160" y="244" text-anchor="middle" font-family="Arial" font-size="10" fill="#1565C0">dashboard-controller</text>
+
+  <rect x="340" y="220" width="120" height="40" fill="#F57C00" fill-opacity="0.1" stroke="#F57C00" stroke-width="2" rx="4"/>
+  <text x="400" y="244" text-anchor="middle" font-family="Arial" font-size="10" fill="#F57C00">kserve-controller</text>
+
+  <rect x="580" y="220" width="120" height="40" fill="#2E7D32" fill-opacity="0.1" stroke="#2E7D32" stroke-width="2" rx="4"/>
+  <text x="640" y="244" text-anchor="middle" font-family="Arial" font-size="10" fill="#2E7D32">model-mesh</text>
+
+  <rect x="220" y="300" width="120" height="40" fill="#5E35B1" fill-opacity="0.1" stroke="#5E35B1" stroke-width="2" rx="4"/>
+  <text x="280" y="324" text-anchor="middle" font-family="Arial" font-size="10" fill="#5E35B1">workbenches</text>
+
+  <rect x="460" y="300" width="120" height="40" fill="#C62828" fill-opacity="0.1" stroke="#C62828" stroke-width="2" rx="4"/>
+  <text x="520" y="324" text-anchor="middle" font-family="Arial" font-size="10" fill="#C62828">pipelines</text>
+
+  <!-- Edges -->
+  <line x1="220" y1="240" x2="340" y2="240" stroke="#999" stroke-width="1" marker-end="url(#arrowhead)"/>
+  <line x1="460" y1="240" x2="580" y2="240" stroke="#999" stroke-width="1" marker-end="url(#arrowhead)"/>
+  <line x1="160" y1="260" x2="280" y2="300" stroke="#999" stroke-width="1" marker-end="url(#arrowhead)"/>
+  <line x1="400" y1="260" x2="520" y2="300" stroke="#999" stroke-width="1" marker-end="url(#arrowhead)"/>
+
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#999"/>
+    </marker>
+  </defs>
+</svg>

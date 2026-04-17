@@ -476,7 +476,7 @@ spec:
 
 ## Step 7: Update Documentation
 
-Add to `site/docs/reference/experiment-types.md`:
+Add a metadata fragment to `hack/failure-mode-metadata/` which will be used to generate documentation pages in the failure-modes section:
 
 ````markdown
 ## ResourceQuotaDisrupt

@@ -348,6 +348,6 @@ func NewReconciler(mgr manager.Manager) *MyReconciler {
 
 ## Next Steps
 
-- [Experiment Types Reference](experiment-types.md) — Learn about cluster-level chaos experiments
+- [Failure Modes Reference](../failure-modes/index.md) — Learn about cluster-level chaos experiments
 - [Architecture: Injection Engine](../architecture/injection-engine.md) — Understand how injections are implemented
 - [Contributing: Development Setup](../contributing/development-setup.md) — Set up a local development environment

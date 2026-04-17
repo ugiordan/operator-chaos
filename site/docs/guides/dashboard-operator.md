@@ -1,6 +1,6 @@
-# ODH Chaos Dashboard Guide
+# Dashboard (Chaos Operator)
 
-The chaos dashboard provides a web interface for monitoring chaos experiments, tracking operator resilience over time, and visualizing operator dependency graphs with chaos coverage overlays.
+The chaos operator dashboard provides a web interface for monitoring chaos experiments, tracking operator resilience over time, and visualizing operator dependency graphs with chaos coverage overlays.
 
 ## Overview
 
@@ -105,32 +105,38 @@ The repository ships with knowledge models for 7 operators in the `knowledge/` d
 
 Cluster-wide resilience health at a glance:
 
-- **Summary cards** --- Total, Resilient, Degraded, Failed, Running experiment counts
-- **Trend indicators** --- Comparison to previous period (up/down arrows with delta)
-- **Verdict timeline** --- 30-day sparkline of daily verdict counts
-- **Recovery metrics** --- Average recovery time by injection type
-- **Running experiments** --- Currently active experiments with phase and component
-- **Recent experiments** --- Latest completed experiments table
+- **Summary cards**: Total, Resilient, Degraded, Failed, Running experiment counts
+- **Trend indicators**: Comparison to previous period (up/down arrows with delta)
+- **Verdict timeline**: 30-day sparkline of daily verdict counts
+- **Recovery metrics**: Average recovery time by injection type
+- **Running experiments**: Currently active experiments with phase and component
+- **Recent experiments**: Latest completed experiments table
+
+![Overview](../assets/screenshots/dashboard-overview.svg){: .glightbox }
 
 ### Live (`/live`)
 
 Real-time monitoring of running experiments via SSE:
 
-- **Phase stepper** --- Horizontal dot-and-line visualization showing experiment progress through 7 phases (Pending, Pre-check, Injecting, Observing, Post-check, Evaluating, Complete)
-- **Active phase pulse** --- Blue pulsing animation on the current phase
-- **Aborted state** --- Red indicator on the phase where the experiment was aborted
-- **Elapsed time** --- Auto-updating timer showing how long the experiment has been running
-- **Reconnection banner** --- Warning when SSE connection drops, with automatic exponential backoff reconnection (1s, 2s, 4s, ... up to 30s max)
+- **Phase stepper**: Horizontal dot-and-line visualization showing experiment progress through 7 phases (Pending, Pre-check, Injecting, Observing, Post-check, Evaluating, Complete)
+- **Active phase pulse**: Blue pulsing animation on the current phase
+- **Aborted state**: Red indicator on the phase where the experiment was aborted
+- **Elapsed time**: Auto-updating timer showing how long the experiment has been running
+- **Reconnection banner**: Warning when SSE connection drops, with automatic exponential backoff reconnection (1s, 2s, 4s, ... up to 30s max)
+
+![Live](../assets/screenshots/dashboard-live.svg){: .glightbox }
 
 ### All Experiments (`/experiments`)
 
 Filterable, sortable table of all experiments:
 
-- **Filters** --- Namespace, Operator, Component, Type, Verdict, Phase
-- **Search** --- Name substring search with 300ms debounce
-- **Sorting** --- By name, date, or recovery time (ascending/descending)
-- **Pagination** --- Configurable page size (10, 25, 50)
-- **Verdict badges** --- Color-coded badges (green=Resilient, yellow=Degraded, red=Failed, purple=Inconclusive)
+- **Filters**: Namespace, Operator, Component, Type, Verdict, Phase
+- **Search**: Name substring search with 300ms debounce
+- **Sorting**: By name, date, or recovery time (ascending/descending)
+- **Pagination**: Configurable page size (10, 25, 50)
+- **Verdict badges**: Color-coded badges (green=Resilient, yellow=Degraded, red=Failed, purple=Inconclusive)
+
+![Experiments](../assets/screenshots/dashboard-experiments.svg){: .glightbox }
 
 ### Experiment Detail (`/experiments/:namespace/:name`)
 
@@ -146,37 +152,45 @@ Deep dive into a single experiment across 7 tabs:
 | **YAML** | Full CR YAML with copy and download buttons |
 | **Debug** | observedGeneration, cleanupError, raw status JSON |
 
+![Experiment Detail](../assets/screenshots/dashboard-detail.svg){: .glightbox }
+
 ### Suites (`/suites`)
 
 Suite run history and version comparison:
 
-- **Suite cards** --- Each suite run shows name, version, experiment count, and a stacked progress bar (green/yellow/red proportional to Resilient/Degraded/Failed)
-- **Expandable table** --- Click a suite card to see its experiments with verdict and recovery time
-- **Version comparison** --- Select two runs of the same suite to compare results side-by-side with delta indicators (improved, regressed, no change)
+- **Suite cards**: Each suite run shows name, version, experiment count, and a stacked progress bar (green/yellow/red proportional to Resilient/Degraded/Failed)
+- **Expandable table**: Click a suite card to see its experiments with verdict and recovery time
+- **Version comparison**: Select two runs of the same suite to compare results side-by-side with delta indicators (improved, regressed, no change)
+
+![Suites](../assets/screenshots/dashboard-suites.svg){: .glightbox }
 
 ### Operators (`/operators`)
 
 Per-operator resilience insights:
 
-- **Operator cards** --- Health bar showing Resilient/Degraded/Failed proportions
-- **Component accordion** --- Expandable list of components per operator
-- **Coverage matrix** --- 8-column grid (one per injection type) showing best verdict per type (green=all Resilient, yellow=any Degraded, red=any Failed, gray=untested)
-- **Recent experiments** --- Latest 5 experiments per component with links to detail
+- **Operator cards**: Health bar showing Resilient/Degraded/Failed proportions
+- **Component accordion**: Expandable list of components per operator
+- **Coverage matrix**: 8-column grid (one per injection type) showing best verdict per type (green=all Resilient, yellow=any Degraded, red=any Failed, gray=untested)
+- **Recent experiments**: Latest 5 experiments per component with links to detail
+
+![Operators](../assets/screenshots/dashboard-operators.svg){: .glightbox }
 
 ### Knowledge (`/knowledge`)
 
 Interactive dependency graph visualization:
 
-- **Operator/Component selectors** --- Dropdown toolbars to navigate the knowledge model
-- **SVG dependency graph** --- Deterministic layout with central controller node and managed resources arranged around it
-- **Coverage coloring** --- Nodes colored by chaos test coverage (green=Resilient, yellow=Degraded, red=Failed, gray=untested)
-- **Experiment count badges** --- Number of experiments run against each resource
-- **Detail panel** --- Side panel showing managed resources list, coverage tags, and chaos coverage summary
-- **Zoom controls** --- +/- buttons for graph navigation
+- **Operator/Component selectors**: Dropdown toolbars to navigate the knowledge model
+- **SVG dependency graph**: Deterministic layout with central controller node and managed resources arranged around it
+- **Coverage coloring**: Nodes colored by chaos test coverage (green=Resilient, yellow=Degraded, red=Failed, gray=untested)
+- **Experiment count badges**: Number of experiments run against each resource
+- **Detail panel**: Side panel showing managed resources list, coverage tags, and chaos coverage summary
+- **Zoom controls**: +/- buttons for graph navigation
+
+![Knowledge](../assets/screenshots/dashboard-knowledge.svg){: .glightbox }
 
 ## REST API Reference
 
-All endpoints are read-only (`GET`), prefixed with `/api/v1/`. The dashboard is strictly read-only --- it cannot create, modify, or delete experiments.
+All endpoints are read-only (`GET`), prefixed with `/api/v1/`. The dashboard is strictly read-only: it cannot create, modify, or delete experiments.
 
 ### Experiments
 

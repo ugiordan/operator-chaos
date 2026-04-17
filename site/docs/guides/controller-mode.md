@@ -240,7 +240,7 @@ spec:
 **Key fields:**
 
 - **`target`**: Which operator/component to fault
-- **`injection`**: Fault type and parameters (see [Injection Types](../reference/experiment-types.md))
+- **`injection`**: Fault type and parameters (see [Failure Modes](../failure-modes/index.md))
 - **`hypothesis`**: Expected behavior and recovery timeout
 - **`steadyState`**: Checks to run pre/post injection
 - **`blastRadius`**: Safety constraints
@@ -751,5 +751,5 @@ kubectl patch chaosexperiment my-experiment -p '{"metadata":{"finalizers":[]}}' 
 ## Next Steps
 
 - Learn about [Knowledge Models](knowledge-models.md) to define operator semantics
-- See [Injection Types](../reference/experiment-types.md) for all available fault types
+- See [Failure Modes](../failure-modes/index.md) for all available fault types
 - Read [CI Integration Guide](ci-integration.md) for pipeline integration

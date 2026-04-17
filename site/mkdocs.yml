@@ -34,6 +34,12 @@ plugins:
   - search
   - git-revision-date-localized:
       enable_creation_date: true
+  - glightbox:
+      touchNavigation: true
+      zoomable: true
+      draggable: true
+      effect: zoom
+      width: "100%"
 
 markdown_extensions:
   - admonition
@@ -64,10 +70,99 @@ nav:
     - CLI Quick Start: getting-started/cli-quickstart.md
     - SDK Quick Start: getting-started/sdk-quickstart.md
     - Fuzz Quick Start: getting-started/fuzz-quickstart.md
+  - Components:
+    - components/index.md
+    - odh-model-controller:
+      - components/odh-model-controller/index.md
+      - Failure Modes: components/odh-model-controller/failure-modes.md
+      - Validation Results: components/odh-model-controller/validation-results.md
+      - Custom Experiments: components/odh-model-controller/custom-experiments.md
+    - ODH Dashboard:
+      - components/dashboard/index.md
+      - Failure Modes: components/dashboard/failure-modes.md
+      - Validation Results: components/dashboard/validation-results.md
+      - Custom Experiments: components/dashboard/custom-experiments.md
+    - KServe:
+      - components/kserve/index.md
+      - Failure Modes: components/kserve/failure-modes.md
+      - Validation Results: components/kserve/validation-results.md
+      - Custom Experiments: components/kserve/custom-experiments.md
+    - Model Registry:
+      - components/model-registry/index.md
+      - Failure Modes: components/model-registry/failure-modes.md
+      - Validation Results: components/model-registry/validation-results.md
+      - Custom Experiments: components/model-registry/custom-experiments.md
+    - Workbenches:
+      - components/workbenches/index.md
+      - Failure Modes: components/workbenches/failure-modes.md
+      - Validation Results: components/workbenches/validation-results.md
+      - Custom Experiments: components/workbenches/custom-experiments.md
+    - Data Science Pipelines:
+      - components/data-science-pipelines/index.md
+      - Failure Modes: components/data-science-pipelines/failure-modes.md
+      - Validation Results: components/data-science-pipelines/validation-results.md
+      - Custom Experiments: components/data-science-pipelines/custom-experiments.md
+    - OpenDataHub Operator:
+      - components/opendatahub-operator/index.md
+      - Failure Modes: components/opendatahub-operator/failure-modes.md
+      - Validation Results: components/opendatahub-operator/validation-results.md
+      - Custom Experiments: components/opendatahub-operator/custom-experiments.md
+    - CodeFlare:
+      - components/codeflare/index.md
+      - Failure Modes: components/codeflare/failure-modes.md
+      - Validation Results: components/codeflare/validation-results.md
+      - Custom Experiments: components/codeflare/custom-experiments.md
+    - ModelMesh:
+      - components/modelmesh/index.md
+      - Failure Modes: components/modelmesh/failure-modes.md
+      - Validation Results: components/modelmesh/validation-results.md
+      - Custom Experiments: components/modelmesh/custom-experiments.md
+    - Feast:
+      - components/feast/index.md
+      - Failure Modes: components/feast/failure-modes.md
+      - Validation Results: components/feast/validation-results.md
+      - Custom Experiments: components/feast/custom-experiments.md
+    - Kueue:
+      - components/kueue/index.md
+      - Failure Modes: components/kueue/failure-modes.md
+      - Validation Results: components/kueue/validation-results.md
+      - Custom Experiments: components/kueue/custom-experiments.md
+    - LlamaStack:
+      - components/llamastack/index.md
+      - Failure Modes: components/llamastack/failure-modes.md
+      - Validation Results: components/llamastack/validation-results.md
+      - Custom Experiments: components/llamastack/custom-experiments.md
+    - Ray:
+      - components/ray/index.md
+      - Failure Modes: components/ray/failure-modes.md
+      - Validation Results: components/ray/validation-results.md
+      - Custom Experiments: components/ray/custom-experiments.md
+    - Training Operator:
+      - components/training-operator/index.md
+      - Failure Modes: components/training-operator/failure-modes.md
+      - Validation Results: components/training-operator/validation-results.md
+      - Custom Experiments: components/training-operator/custom-experiments.md
+    - TrustyAI:
+      - components/trustyai/index.md
+      - Failure Modes: components/trustyai/failure-modes.md
+      - Validation Results: components/trustyai/validation-results.md
+      - Custom Experiments: components/trustyai/custom-experiments.md
+  - Failure Modes:
+    - failure-modes/index.md
+    - PodKill: failure-modes/podkill.md
+    - NetworkPartition: failure-modes/network-partition.md
+    - ConfigDrift: failure-modes/config-drift.md
+    - CRDMutation: failure-modes/crd-mutation.md
+    - WebhookDisrupt: failure-modes/webhook-disrupt.md
+    - RBACRevoke: failure-modes/rbac-revoke.md
+    - FinalizerBlock: failure-modes/finalizer-block.md
+    - ClientFault: failure-modes/client-fault.md
+    - Creating Custom Failure Modes: failure-modes/custom-failure-modes.md
   - Guides:
     - E2E Testing: guides/e2e-testing.md
     - CI Integration: guides/ci-integration.md
-    - Dashboard: guides/dashboard.md
+    - Dashboard (Chaos Operator): guides/dashboard-operator.md
+    - Dashboard (Grafana): guides/dashboard-grafana.md
     - Knowledge Models: guides/knowledge-models.md
     - Controller Mode: guides/controller-mode.md
     - Upgrade Testing: guides/upgrade-testing.md
@@ -75,7 +170,6 @@ nav:
     - CRD Schema: reference/crd-schema.md
     - Go SDK: reference/go-sdk.md
     - CLI Commands: reference/cli-commands.md
-    - Experiment Types: reference/experiment-types.md
   - Architecture:
     - Design Overview: architecture/overview.md
     - Injection Engine: architecture/injection-engine.md
@@ -83,4 +177,4 @@ nav:
     - Upgrade Diff Engine: architecture/upgrade-diff-engine.md
   - Contributing:
     - Development Setup: contributing/development-setup.md
-    - Adding Injection Types: contributing/adding-injection-types.md
+    - Adding Injection Types (Go): contributing/adding-injection-types.md

@@ -522,4 +522,4 @@ if err != nil {
 
 - [Observer Blackboard Pattern](observer-blackboard.md) — How observations are collected
 - [Contributing: Adding Injection Types](../contributing/adding-injection-types.md) — Implement a new injector
-- [Experiment Types Reference](../reference/experiment-types.md) — See all 8 injection types in action
+- [Failure Modes Reference](../failure-modes/index.md) — See all 8 injection types in action
