@@ -112,7 +112,7 @@ Cluster-wide resilience health at a glance:
 - **Running experiments**: Currently active experiments with phase and component
 - **Recent experiments**: Latest completed experiments table
 
-![Overview](../assets/screenshots/dashboard-overview.svg){: .glightbox }
+![Overview](../assets/screenshots/dashboard-overview.png){: .glightbox }
 
 ### Live (`/live`)
 
@@ -124,7 +124,7 @@ Real-time monitoring of running experiments via SSE:
 - **Elapsed time**: Auto-updating timer showing how long the experiment has been running
 - **Reconnection banner**: Warning when SSE connection drops, with automatic exponential backoff reconnection (1s, 2s, 4s, ... up to 30s max)
 
-![Live](../assets/screenshots/dashboard-live.svg){: .glightbox }
+![Live](../assets/screenshots/dashboard-live.png){: .glightbox }
 
 ### All Experiments (`/experiments`)
 
@@ -136,7 +136,7 @@ Filterable, sortable table of all experiments:
 - **Pagination**: Configurable page size (10, 25, 50)
 - **Verdict badges**: Color-coded badges (green=Resilient, yellow=Degraded, red=Failed, purple=Inconclusive)
 
-![Experiments](../assets/screenshots/dashboard-experiments.svg){: .glightbox }
+![Experiments](../assets/screenshots/dashboard-experiments.png){: .glightbox }
 
 ### Experiment Detail (`/experiments/:namespace/:name`)
 
@@ -152,7 +152,7 @@ Deep dive into a single experiment across 7 tabs:
 | **YAML** | Full CR YAML with copy and download buttons |
 | **Debug** | observedGeneration, cleanupError, raw status JSON |
 
-![Experiment Detail](../assets/screenshots/dashboard-detail.svg){: .glightbox }
+![Experiment Detail](../assets/screenshots/dashboard-detail.png){: .glightbox }
 
 ### Suites (`/suites`)
 
@@ -162,7 +162,7 @@ Suite run history and version comparison:
 - **Expandable table**: Click a suite card to see its experiments with verdict and recovery time
 - **Version comparison**: Select two runs of the same suite to compare results side-by-side with delta indicators (improved, regressed, no change)
 
-![Suites](../assets/screenshots/dashboard-suites.svg){: .glightbox }
+![Suites](../assets/screenshots/dashboard-suites.png){: .glightbox }
 
 ### Operators (`/operators`)
 
@@ -173,7 +173,7 @@ Per-operator resilience insights:
 - **Coverage matrix**: 11-column grid (one per injection type) showing best verdict per type (green=all Resilient, yellow=any Degraded, red=any Failed, gray=untested)
 - **Recent experiments**: Latest 5 experiments per component with links to detail
 
-![Operators](../assets/screenshots/dashboard-operators.svg){: .glightbox }
+![Operators](../assets/screenshots/dashboard-operators.png){: .glightbox }
 
 ### Knowledge (`/knowledge`)
 
@@ -186,7 +186,7 @@ Interactive dependency graph visualization:
 - **Detail panel**: Side panel showing managed resources list, coverage tags, and chaos coverage summary
 - **Zoom controls**: +/- buttons for graph navigation
 
-![Knowledge](../assets/screenshots/dashboard-knowledge.svg){: .glightbox }
+![Knowledge](../assets/screenshots/dashboard-knowledge.png){: .glightbox }
 
 ## REST API Reference
 

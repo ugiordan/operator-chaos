@@ -187,7 +187,7 @@ func (s *SQLiteStore) AvgRecoveryByType(since *time.Time) ([]RecoveryAvg, error)
 	whereClause := "WHERE recovery_ms IS NOT NULL"
 	var args []interface{}
 	if since != nil { whereClause += " AND start_time >= ?"; args = append(args, since.Format(time.RFC3339)) }
-	rows, err := s.db.Query(fmt.Sprintf("SELECT injection_type, AVG(recovery_ms) FROM experiments %s GROUP BY injection_type ORDER BY injection_type", whereClause), args...)
+	rows, err := s.db.Query(fmt.Sprintf("SELECT injection_type, CAST(AVG(recovery_ms) AS INTEGER) FROM experiments %s GROUP BY injection_type ORDER BY injection_type", whereClause), args...)
 	if err != nil { return nil, err }
 	defer func() { _ = rows.Close() }()
 	result := []RecoveryAvg{}
