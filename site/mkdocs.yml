@@ -41,6 +41,12 @@ plugins:
       effect: zoom
       width: "100%"
 
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/diagram-zoom.js
+
 markdown_extensions:
   - admonition
   - pymdownx.details
