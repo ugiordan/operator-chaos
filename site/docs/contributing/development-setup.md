@@ -327,9 +327,9 @@ Open a pull request on GitHub.
 
 ## Testing Against a Real Cluster
 
-### 1. Deploy ODH Operators
+### 1. Deploy Target Operators
 
-Follow the [ODH installation guide](https://opendatahub.io/docs/getting-started/quick-installation.html) to install OpenDataHub in your cluster.
+Deploy the operators you want to test. For example, to test with OpenDataHub, follow the [ODH installation guide](https://opendatahub.io/docs/getting-started/quick-installation.html).
 
 ### 2. Apply Operator Knowledge
 

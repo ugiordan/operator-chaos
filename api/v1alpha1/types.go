@@ -203,7 +203,7 @@ func (e *ChaosExperiment) ResolvedRecoveryTimeout() time.Duration {
 
 // DefaultNamespace is the default Kubernetes namespace used by
 // the chaos framework when no namespace is explicitly specified.
-const DefaultNamespace = "opendatahub"
+const DefaultNamespace = "default"
 
 type BlastRadiusSpec struct {
 	// +kubebuilder:validation:Minimum=1

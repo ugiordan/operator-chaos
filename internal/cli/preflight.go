@@ -13,6 +13,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 
+	v1alpha1 "github.com/opendatahub-io/operator-chaos/api/v1alpha1"
 	"github.com/opendatahub-io/operator-chaos/pkg/model"
 	"github.com/spf13/cobra"
 )
@@ -221,7 +222,7 @@ func checkClusterResources(ctx context.Context, k8sClient client.Client, k *mode
 			} else if mr.Namespace != "" {
 				ns = mr.Namespace
 			} else {
-				ns = "opendatahub"
+				ns = v1alpha1.DefaultNamespace
 			}
 
 			status, errMsg := checkSingleResource(ctx, k8sClient, mr, ns)

@@ -1,6 +1,6 @@
 # Custom Failure Modes
 
-This guide covers how to extend odh-platform-chaos with custom failure modes. There are two paths depending on your use case:
+This guide covers how to extend operator-chaos with custom failure modes. There are two paths depending on your use case:
 
 1. **YAML Composition (no code)**: Write custom experiments using existing injection types
 2. **Go Plugin Development**: Add entirely new injection types to the framework
@@ -139,7 +139,7 @@ Use custom commands sparingly. Prefer `conditionTrue` and `podReady` when possib
 
 ### Parameterizing for Different Environments
 
-The framework supports ODH and RHOAI deployments, which differ in namespaces, labels, and resource names.
+The framework supports any Kubernetes operator deployment. Different deployments may differ in namespaces, labels, and resource names. For example, ODH and RHOAI use different defaults:
 
 #### Namespace Differences
 

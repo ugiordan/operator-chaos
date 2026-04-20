@@ -23,7 +23,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: controller
-          image: quay.io/opendatahub/operator-chaos:latest
+          image: quay.io/operator-chaos/operator-chaos:latest
           args:
             - controller
             - start

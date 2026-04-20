@@ -9,7 +9,7 @@ spec:
       description: "Path to playbook YAML"
     - name: image
       type: string
-      default: quay.io/opendatahub/operator-chaos:latest
+      default: quay.io/operator-chaos/operator-chaos:latest
     - name: allow-shell
       type: string
       default: "true"

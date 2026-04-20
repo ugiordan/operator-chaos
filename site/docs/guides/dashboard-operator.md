@@ -12,26 +12,46 @@ The dashboard runs as a single Go binary that:
 4. **Streams** live experiment updates via Server-Sent Events (SSE)
 5. **Embeds** the compiled React build as static assets (single binary deployment)
 
-```
-                  +-----------+
-                  | K8s API   |
-                  | (watch)   |
-                  +-----+-----+
-                        |
-               +--------v--------+
-               |  Dashboard      |
-               |  Backend (Go)   |
-               |                 |
-               |  - REST API     |
-               |  - SSE Stream   |
-               |  - SQLite (WAL) |
-               +--------+--------+
-                        |
-               +--------v--------+
-               |  Dashboard      |
-               |  Frontend       |
-               |  (React + TS)   |
-               +-----------------+
+```mermaid
+graph TB
+    subgraph Cluster["Kubernetes Cluster"]
+        API["K8s API Server"]
+        CRs["ChaosExperiment CRs"]
+        CRs --> API
+    end
+
+    subgraph Binary["Dashboard Binary (single Go process)"]
+        direction TB
+        Watcher["K8s Watcher<br/>(poll interval)"]
+        Store["SQLite Store<br/>(WAL mode)"]
+        REST["REST API<br/>/api/v1/*"]
+        SSE["SSE Stream<br/>/api/v1/experiments/live"]
+        Static["Embedded Static Assets<br/>(go:embed)"]
+
+        Watcher --> Store
+        Store --> REST
+        Store --> SSE
+    end
+
+    subgraph Frontend["React Frontend (TypeScript)"]
+        Overview["Overview"]
+        Experiments["Experiments"]
+        Operators["Operators"]
+        Knowledge["Knowledge"]
+        Live["Live Monitor"]
+        Suites["Suites"]
+    end
+
+    API -- "list/watch" --> Watcher
+    REST -- "JSON" --> Frontend
+    SSE -- "events" --> Live
+    Static -- "serves" --> Frontend
+
+    KnowledgeDir["knowledge/*.yaml"] -. "loaded at startup" .-> Binary
+
+    style Cluster fill:#e8f0fe,stroke:#4285f4
+    style Binary fill:#fef7e0,stroke:#f9ab00
+    style Frontend fill:#e6f4ea,stroke:#34a853
 ```
 
 ## Prerequisites

@@ -7,7 +7,7 @@ LDFLAGS := -X $(PKG)/internal/cli.Version=$(VERSION)
 
 # Container image settings
 CONTAINER_TOOL ?= podman
-IMAGE_REGISTRY ?= quay.io/opendatahub
+IMAGE_REGISTRY ?= quay.io/operator-chaos
 IMAGE_NAME ?= operator-chaos
 IMAGE_TAG ?= $(VERSION)
 IMAGE ?= $(IMAGE_REGISTRY)/$(IMAGE_NAME):$(IMAGE_TAG)

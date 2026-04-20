@@ -23,7 +23,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: dashboard
-          image: quay.io/opendatahub/operator-chaos-dashboard:latest
+          image: quay.io/operator-chaos/operator-chaos-dashboard:latest
           args:
             - -addr=:8080
             - -db=/data/dashboard.db

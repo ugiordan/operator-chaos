@@ -30,7 +30,7 @@ export function Layout() {
     <div className="app-layout">
       <nav className="app-sidebar">
         <div className="app-logo">
-          <span>ODH</span> Chaos Dashboard
+          Operator <span>Chaos</span>
         </div>
         {NAV_GROUPS.map((group) => (
           <div key={group.title}>

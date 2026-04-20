@@ -13,8 +13,19 @@ import (
 )
 
 // executeInit runs the init command with the given args and returns stdout output.
+// If --operator is not provided, it defaults to "test-operator".
 func executeInit(t *testing.T, args ...string) string {
 	t.Helper()
+	hasOperator := false
+	for _, a := range args {
+		if a == "--operator" {
+			hasOperator = true
+			break
+		}
+	}
+	if !hasOperator {
+		args = append(args, "--operator", "test-operator")
+	}
 	cmd := newInitCommand()
 	buf := new(bytes.Buffer)
 	cmd.SetOut(buf)

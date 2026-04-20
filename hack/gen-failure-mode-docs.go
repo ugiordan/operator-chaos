@@ -380,7 +380,7 @@ var typePageTmpl = `# {{ .Meta.Name }}
 
 var overviewTmpl = `# Failure Modes Overview
 
-Overview of all failure injection types available in ODH Platform Chaos.
+Overview of all failure injection types available in Operator Chaos.
 
 ## Quick Reference
 

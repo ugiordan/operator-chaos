@@ -64,7 +64,7 @@ func TestInitOutputGoesToStdout_NotStderr(t *testing.T) {
 	stderrBuf := new(bytes.Buffer)
 	cmd.SetOut(stdoutBuf)
 	cmd.SetErr(stderrBuf)
-	cmd.SetArgs([]string{"--component", "dashboard"})
+	cmd.SetArgs([]string{"--component", "dashboard", "--operator", "my-operator"})
 
 	require.NoError(t, cmd.Execute())
 
