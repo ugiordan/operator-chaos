@@ -2,6 +2,7 @@ package diff
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -23,34 +24,38 @@ func GenerateUpgradeExperiments(
 	tgtByOp := groupByOperator(targetKnowledge)
 
 	var experiments []v1alpha1.ChaosExperiment
+	nameCount := make(map[string]int)
+
+	addExperiment := func(exp *v1alpha1.ChaosExperiment) {
+		if exp == nil {
+			return
+		}
+		nameCount[exp.Name]++
+		if nameCount[exp.Name] > 1 {
+			exp.Name = fmt.Sprintf("%s-%d", exp.Name, nameCount[exp.Name])
+		}
+		experiments = append(experiments, *exp)
+	}
 
 	for _, cd := range diff.Components {
 		srcK := srcByOp[cd.Operator]
 		tgtK := tgtByOp[cd.Operator]
 
 		if cd.ChangeType == ComponentRenamed {
-			if exp := generateRenameExperiment(cd, diff, srcK, tgtK); exp != nil {
-				experiments = append(experiments, *exp)
-			}
+			addExperiment(generateRenameExperiment(cd, diff, srcK, tgtK))
 		}
 
 		if cd.NamespaceChange != nil {
-			if exp := generateNamespaceMoveExperiment(cd, diff, srcK); exp != nil {
-				experiments = append(experiments, *exp)
-			}
+			addExperiment(generateNamespaceMoveExperiment(cd, diff, srcK))
 		}
 
 		for _, wd := range cd.WebhookDiffs {
-			if exp := generateWebhookExperiment(cd, diff, wd); exp != nil {
-				experiments = append(experiments, *exp)
-			}
+			addExperiment(generateWebhookExperiment(cd, diff, wd))
 		}
 
 		for _, dd := range cd.DependencyDiffs {
 			if dd.ChangeType == DiffAdded {
-				if exp := generateDependencyExperiment(cd, diff, dd, tgtByOp); exp != nil {
-					experiments = append(experiments, *exp)
-				}
+				addExperiment(generateDependencyExperiment(cd, diff, dd, tgtByOp))
 			}
 		}
 	}
@@ -190,6 +195,7 @@ func generateWebhookExperiment(
 			"value":       value,
 		},
 		DangerLevel: v1alpha1.DangerLevelHigh,
+		TTL:         metav1.Duration{Duration: 120 * time.Second},
 	}
 
 	exp.Spec.BlastRadius.AllowDangerous = true
@@ -249,7 +255,7 @@ func generateDependencyExperiment(
 func baseExperiment(name, operator, component string, diff *UpgradeDiff) v1alpha1.ChaosExperiment {
 	return v1alpha1.ChaosExperiment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: sanitizeName(name),
+			Name: name,
 			Labels: map[string]string{
 				"chaos.operatorchaos.io/upgrade-simulation": "true",
 				"chaos.operatorchaos.io/operator":           operator,
@@ -277,12 +283,18 @@ func findComponent(k *model.OperatorKnowledge, name string) *model.ComponentMode
 
 // primaryDeploymentLabels finds the first Deployment in a component's managed
 // resources that has labels, and returns them as a "k=v,k=v" selector string.
+// Keys are sorted for deterministic output.
 func primaryDeploymentLabels(comp *model.ComponentModel) string {
 	for _, r := range comp.ManagedResources {
 		if r.Kind == "Deployment" && len(r.Labels) > 0 {
+			keys := make([]string, 0, len(r.Labels))
+			for k := range r.Labels {
+				keys = append(keys, k)
+			}
+			sort.Strings(keys)
 			var parts []string
-			for k, v := range r.Labels {
-				parts = append(parts, fmt.Sprintf("%s=%s", k, v))
+			for _, k := range keys {
+				parts = append(parts, fmt.Sprintf("%s=%s", k, r.Labels[k]))
 			}
 			return strings.Join(parts, ",")
 		}
