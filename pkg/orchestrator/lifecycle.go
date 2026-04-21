@@ -617,10 +617,16 @@ func (o *Orchestrator) Run(ctx context.Context, exp *v1alpha1.ChaosExperiment) (
 	if o.reportDir != "" {
 		htmlPath := filepath.Join(o.reportDir, "report.html")
 		htmlFile, err := os.Create(htmlPath)
-		if err == nil {
+		if err != nil {
+			o.logger.Warn("creating HTML report file", "path", htmlPath, "error", err)
+		} else {
 			h := reporter.NewHTMLReporter("")
-			_ = h.WriteReport(htmlFile, []reporter.ExperimentReport{report})
-			_ = htmlFile.Close()
+			if writeErr := h.WriteReport(htmlFile, []reporter.ExperimentReport{report}); writeErr != nil {
+				o.logger.Warn("writing HTML report", "path", htmlPath, "error", writeErr)
+			}
+			if closeErr := htmlFile.Close(); closeErr != nil {
+				o.logger.Warn("closing HTML report file", "path", htmlPath, "error", closeErr)
+			}
 		}
 	}
 

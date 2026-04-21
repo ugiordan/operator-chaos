@@ -17,6 +17,8 @@ type ConsolidatedReport struct {
 // all experiment reports and an aggregated summary.
 type ConsolidatedJSONReporter struct{}
 
+var _ Reporter = (*ConsolidatedJSONReporter)(nil)
+
 // WriteReport serializes all reports into a ConsolidatedReport and writes it as JSON.
 func (c *ConsolidatedJSONReporter) WriteReport(w io.Writer, reports []ExperimentReport) error {
 	if reports == nil {
