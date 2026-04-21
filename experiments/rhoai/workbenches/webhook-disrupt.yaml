@@ -1,37 +1,37 @@
 apiVersion: chaos.operatorchaos.io/v1alpha1
 kind: ChaosExperiment
 metadata:
-  name: workbenches-webhook-disrupt
+  name: rhoai-workbenches-webhook-disrupt
 spec:
   target:
     operator: workbenches
     component: odh-notebook-controller
-    resource: MutatingWebhookConfiguration/notebooks.opendatahub.io
+    resource: MutatingWebhookConfiguration/odh-notebook-controller-mutating-webhook-configuration
   steadyState:
     checks:
       - type: conditionTrue
         apiVersion: apps/v1
         kind: Deployment
         name: odh-notebook-controller-manager
-        namespace: opendatahub
+        namespace: redhat-ods-applications
         conditionType: Available
     timeout: "30s"
   injection:
     type: WebhookDisrupt
     dangerLevel: high
     parameters:
-      webhookName: notebooks.opendatahub.io
+      webhookName: odh-notebook-controller-mutating-webhook-configuration
       webhookType: mutating
       action: setFailurePolicy
       value: Ignore
     ttl: "60s"
   hypothesis:
     description: >-
-      When the notebook mutating webhook failurePolicy is weakened from
-      Fail to Ignore, new notebooks may be created without the required
-      sidecar injection and OAuth proxy configuration. The chaos framework
-      restores the original failurePolicy via TTL-based cleanup after 60s.
+      When the notebook controller's mutating webhook failure policy is
+      changed, notebook creation should either fail or proceed without
+      mutations. The operator should reconcile the webhook configuration
+      back to its expected state.
     recoveryTimeout: 120s
   blastRadius:
-    maxPodsAffected: 1
+    maxPodsAffected: 5
     allowDangerous: true

@@ -371,6 +371,98 @@ func TestWebhookDisruptNotFound(t *testing.T) {
 	assert.Contains(t, err.Error(), "nonexistent-webhook")
 }
 
+func TestWebhookDisruptMutatingInjectAndCleanup(t *testing.T) {
+	scheme := runtime.NewScheme()
+	require.NoError(t, admissionv1.AddToScheme(scheme))
+
+	failPolicy := admissionv1.Fail
+	webhook := &admissionv1.MutatingWebhookConfiguration{
+		ObjectMeta: metav1.ObjectMeta{Name: "my-mutating-webhook"},
+		Webhooks: []admissionv1.MutatingWebhook{
+			{
+				Name:                    "mutate.test.io",
+				FailurePolicy:           &failPolicy,
+				ClientConfig:            admissionv1.WebhookClientConfig{URL: strPtr("https://example.com")},
+				SideEffects:             sideEffectPtr(admissionv1.SideEffectClassNone),
+				AdmissionReviewVersions: []string{"v1"},
+			},
+		},
+	}
+
+	fakeClient := fake.NewClientBuilder().WithScheme(scheme).WithObjects(webhook).Build()
+	injector := NewWebhookDisruptInjector(fakeClient)
+
+	spec := v1alpha1.InjectionSpec{
+		Type: v1alpha1.WebhookDisrupt,
+		Parameters: map[string]string{
+			"webhookName": "my-mutating-webhook",
+			"webhookType": "mutating",
+			"action":      "setFailurePolicy",
+			"value":       "Ignore",
+		},
+	}
+
+	ctx := context.Background()
+
+	// Inject
+	cleanup, events, err := injector.Inject(ctx, spec, "default")
+	require.NoError(t, err)
+	assert.NotEmpty(t, events)
+	assert.Equal(t, "mutating", events[0].Details["webhookType"])
+
+	// Verify the webhook was modified
+	modified := &admissionv1.MutatingWebhookConfiguration{}
+	require.NoError(t, fakeClient.Get(ctx, client.ObjectKey{Name: "my-mutating-webhook"}, modified))
+	require.NotNil(t, modified.Webhooks[0].FailurePolicy)
+	assert.Equal(t, admissionv1.Ignore, *modified.Webhooks[0].FailurePolicy)
+
+	// Cleanup should restore
+	require.NoError(t, cleanup(ctx))
+	restored := &admissionv1.MutatingWebhookConfiguration{}
+	require.NoError(t, fakeClient.Get(ctx, client.ObjectKey{Name: "my-mutating-webhook"}, restored))
+	require.NotNil(t, restored.Webhooks[0].FailurePolicy)
+	assert.Equal(t, admissionv1.Fail, *restored.Webhooks[0].FailurePolicy)
+}
+
+func TestWebhookDisruptValidateWebhookType(t *testing.T) {
+	injector := NewWebhookDisruptInjector(nil)
+	blast := v1alpha1.BlastRadiusSpec{MaxPodsAffected: 1}
+
+	tests := []struct {
+		name    string
+		wtype   string
+		wantErr bool
+	}{
+		{"valid validating", "validating", false},
+		{"valid mutating", "mutating", false},
+		{"omitted defaults to validating", "", false},
+		{"invalid type", "unknown", true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			params := map[string]string{
+				"webhookName": "test-webhook",
+				"action":      "setFailurePolicy",
+			}
+			if tt.wtype != "" {
+				params["webhookType"] = tt.wtype
+			}
+			spec := v1alpha1.InjectionSpec{
+				Type:       v1alpha1.WebhookDisrupt,
+				Parameters: params,
+			}
+			err := injector.Validate(spec, blast)
+			if tt.wantErr {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), "webhookType")
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
 func strPtr(s string) *string { return &s }
 
 func sideEffectPtr(se admissionv1.SideEffectClass) *admissionv1.SideEffectClass { return &se }

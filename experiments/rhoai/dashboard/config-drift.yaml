@@ -1,0 +1,38 @@
+apiVersion: chaos.operatorchaos.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: rhoai-dashboard-config-drift
+spec:
+  target:
+    operator: dashboard
+    component: rhods-dashboard
+    resource: ConfigMap/rhoai-dashboard-params
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: rhods-dashboard
+        namespace: redhat-ods-applications
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: ConfigDrift
+    dangerLevel: high
+    parameters:
+      name: rhoai-dashboard-params
+      key: section-title
+      value: "CHAOS-CORRUPTED-VALUE"
+      resourceType: ConfigMap
+    ttl: "300s"
+  hypothesis:
+    description: >-
+      When the dashboard params ConfigMap is corrupted, the operator
+      should detect the drift and reconcile the ConfigMap back to its
+      expected state within the recovery timeout.
+    recoveryTimeout: 180s
+  blastRadius:
+    maxPodsAffected: 5
+    allowedNamespaces:
+      - redhat-ods-applications
+    allowDangerous: true

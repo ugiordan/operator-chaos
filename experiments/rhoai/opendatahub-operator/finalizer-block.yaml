@@ -1,0 +1,36 @@
+apiVersion: chaos.operatorchaos.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: rhoai-operator-finalizer-block
+spec:
+  target:
+    operator: opendatahub-operator
+    component: rhods-operator
+    resource: Deployment/rhods-operator
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: rhods-operator
+        namespace: redhat-ods-operator
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: FinalizerBlock
+    parameters:
+      apiVersion: datasciencecluster.opendatahub.io/v1
+      kind: DataScienceCluster
+      name: default-dsc
+      finalizer: chaos.operatorchaos.io/block-test
+    ttl: "120s"
+  hypothesis:
+    description: >-
+      When a blocking finalizer is added to the operator Deployment,
+      it should not affect normal operation. The finalizer should be
+      cleanly removed after the TTL expires.
+    recoveryTimeout: 120s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - redhat-ods-operator

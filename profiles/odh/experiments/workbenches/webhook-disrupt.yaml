@@ -21,6 +21,7 @@ spec:
     dangerLevel: high
     parameters:
       webhookName: notebooks.opendatahub.io
+      webhookType: mutating
       action: setFailurePolicy
       value: Ignore
     ttl: "60s"

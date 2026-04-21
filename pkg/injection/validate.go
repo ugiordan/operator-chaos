@@ -429,6 +429,12 @@ func validateWebhookDisruptParams(spec v1alpha1.InjectionSpec) error {
 		return fmt.Errorf("unsupported action %q; supported actions: setFailurePolicy", action)
 	}
 
+	if wt, ok := spec.Parameters["webhookType"]; ok {
+		if wt != "validating" && wt != "mutating" {
+			return fmt.Errorf("invalid webhookType %q; must be 'validating' or 'mutating'", wt)
+		}
+	}
+
 	return nil
 }
 
