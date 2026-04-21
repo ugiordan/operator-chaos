@@ -613,6 +613,17 @@ func (o *Orchestrator) Run(ctx context.Context, exp *v1alpha1.ChaosExperiment) (
 		}
 	}
 
+	// Write HTML report if reportDir specified
+	if o.reportDir != "" {
+		htmlPath := filepath.Join(o.reportDir, "report.html")
+		htmlFile, err := os.Create(htmlPath)
+		if err == nil {
+			h := reporter.NewHTMLReporter("")
+			_ = h.WriteReport(htmlFile, []reporter.ExperimentReport{report})
+			_ = htmlFile.Close()
+		}
+	}
+
 	// Store result as ConfigMap in cluster
 	if o.k8sClient != nil {
 		o.storeResultConfigMap(ctx, exp, namespace, report)

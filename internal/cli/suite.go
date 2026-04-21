@@ -123,6 +123,13 @@ func newSuiteCommand() *cobra.Command {
 				}
 			}
 
+			// Generate HTML report if reportDir is specified
+			if reportDir != "" {
+				if err := writeSuiteHTMLReport(reportDir, results); err != nil {
+					fmt.Fprintf(os.Stderr, "Warning: failed to write HTML report: %v\n", err)
+				}
+			}
+
 			if failed > 0 {
 				return fmt.Errorf("%d experiment(s) failed", failed)
 			}
@@ -287,6 +294,29 @@ func writeSuiteJUnitReport(reportDir, suiteName string, results []suiteResult) e
 	}
 
 	fmt.Fprintf(os.Stderr, "JUnit report written to %s\n", outPath)
+	return nil
+}
+
+// writeSuiteHTMLReport generates an HTML report from suite results.
+func writeSuiteHTMLReport(reportDir string, results []suiteResult) error {
+	var reports []reporter.ExperimentReport
+	for _, r := range results {
+		reports = append(reports, suiteResultToReport(r))
+	}
+
+	outPath := filepath.Join(reportDir, "report.html")
+	f, err := os.Create(outPath)
+	if err != nil {
+		return fmt.Errorf("creating HTML report: %w", err)
+	}
+	defer func() { _ = f.Close() }()
+
+	h := reporter.NewHTMLReporter(Version)
+	if err := h.WriteReport(f, reports); err != nil {
+		return fmt.Errorf("writing HTML report: %w", err)
+	}
+
+	fmt.Fprintf(os.Stderr, "HTML report written to %s\n", outPath)
 	return nil
 }
 
