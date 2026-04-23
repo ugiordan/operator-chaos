@@ -97,7 +97,7 @@ sum(chaosexperiment_active_experiments)
 
 **Description:** Current count of running experiments. Shows the last non-null value.
 
-![Active Experiments](../assets/screenshots/grafana-active-experiments.svg){: .glightbox }
+![Active Experiments](../assets/screenshots/grafana-active-experiments.png){: .glightbox }
 
 ### Total Injections
 
@@ -110,7 +110,7 @@ sum(chaosexperiment_injections)
 
 **Description:** Total injection count across all experiments. Shows the last non-null value.
 
-![Total Injections](../assets/screenshots/grafana-total-injections.svg){: .glightbox }
+![Total Injections](../assets/screenshots/grafana-total-injections.png){: .glightbox }
 
 ### Deviations per Experiment
 
@@ -123,7 +123,7 @@ sum(chaosexperiment_deviations) / sum(chaosexperiment_verdicts)
 
 **Description:** Average number of deviations per experiment. Shows `-` if no experiments have completed.
 
-![Deviations per Experiment](../assets/screenshots/grafana-deviations-per-experiment.svg){: .glightbox }
+![Deviations per Experiment](../assets/screenshots/grafana-deviations-per-experiment.png){: .glightbox }
 
 ### Verdict Distribution
 
@@ -140,7 +140,7 @@ sum by (verdict)(chaosexperiment_verdicts)
 - Failed: red (#f44336)
 - Inconclusive: gray (#9e9e9e)
 
-![Verdict Distribution](../assets/screenshots/grafana-verdict-distribution.svg){: .glightbox }
+![Verdict Distribution](../assets/screenshots/grafana-verdict-distribution.png){: .glightbox }
 
 ### Injections by Type
 
@@ -153,7 +153,7 @@ sum by (injection_type)(chaosexperiment_injections)
 
 **Description:** Total injections grouped by type (PodKill, ConfigDrift, etc.). Bars show gradient fill with unfilled track.
 
-![Injections by Type](../assets/screenshots/grafana-injections-by-type.svg){: .glightbox }
+![Injections by Type](../assets/screenshots/grafana-injections-by-type.png){: .glightbox }
 
 ### Verdicts Over Time
 
@@ -166,7 +166,7 @@ sum by (verdict)(chaosexperiment_verdicts)
 
 **Description:** Stacked area chart showing verdict counts over time. Uses the same color overrides as the pie chart. Stacking mode: normal.
 
-![Verdicts Over Time](../assets/screenshots/grafana-verdicts-over-time.svg){: .glightbox }
+![Verdicts Over Time](../assets/screenshots/grafana-verdicts-over-time.png){: .glightbox }
 
 ### Deviations by Type
 
@@ -179,7 +179,7 @@ sum by (deviation_type)(chaosexperiment_deviations)
 
 **Description:** Stacked area chart showing deviation counts over time, grouped by type.
 
-![Deviations by Type](../assets/screenshots/grafana-deviations-by-type.svg){: .glightbox }
+![Deviations by Type](../assets/screenshots/grafana-deviations-by-type.png){: .glightbox }
 
 ### Recovery Time
 
@@ -199,7 +199,7 @@ histogram_quantile(0.99, sum by (le)(chaosexperiment_recovery_seconds_bucket))
 
 **Description:** Recovery time percentiles (p50, p90, p99) in seconds. Shows how long it takes for operators to recover from chaos injections.
 
-![Recovery Time](../assets/screenshots/grafana-recovery-time.svg){: .glightbox }
+![Recovery Time](../assets/screenshots/grafana-recovery-time.png){: .glightbox }
 
 ### Reconcile Cycles
 
@@ -219,7 +219,7 @@ histogram_quantile(0.99, sum by (le)(chaosexperiment_recovery_cycles_bucket))
 
 **Description:** Reconcile cycle percentiles (p50, p90, p99). Shows how many reconciliation loops are required for recovery.
 
-![Reconcile Cycles](../assets/screenshots/grafana-reconcile-cycles.svg){: .glightbox }
+![Reconcile Cycles](../assets/screenshots/grafana-reconcile-cycles.png){: .glightbox }
 
 ## Alerting Examples
 
