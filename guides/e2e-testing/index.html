@@ -5,7 +5,7 @@
       
       
       
-        <link rel="canonical" href="https://ugiordan.github.io/odh-platform-chaos/guides/e2e-testing/">
+        <link rel="canonical" href="https://ugiordan.github.io/operator-chaos/guides/e2e-testing/">
       
       
         <link rel="prev" href="../../failure-modes/custom-failure-modes/">
@@ -22,7 +22,7 @@
     
     
       
-        <title>E2E Testing - ODH Platform Chaos</title>
+        <title>E2E Testing - Operator Chaos</title>
       
     
     
@@ -47,6 +47,8 @@
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
     
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -97,7 +99,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="ODH Platform Chaos" class="md-header__button md-logo" aria-label="ODH Platform Chaos" data-md-component="logo">
+    <a href="../.." title="Operator Chaos" class="md-header__button md-logo" aria-label="Operator Chaos" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
@@ -111,7 +113,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            ODH Platform Chaos
+            Operator Chaos
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -199,13 +201,13 @@
     
     
       <div class="md-header__source">
-        <a href="https://github.com/ugiordan/odh-platform-chaos" title="Go to repository" class="md-source" data-md-component="source">
+        <a href="https://github.com/ugiordan/operator-chaos" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
   </div>
   <div class="md-source__repository">
-    ugiordan/odh-platform-chaos
+    ugiordan/operator-chaos
   </div>
 </a>
       </div>
@@ -421,23 +423,23 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="ODH Platform Chaos" class="md-nav__button md-logo" aria-label="ODH Platform Chaos" data-md-component="logo">
+    <a href="../.." title="Operator Chaos" class="md-nav__button md-logo" aria-label="Operator Chaos" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
 
     </a>
-    ODH Platform Chaos
+    Operator Chaos
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/ugiordan/odh-platform-chaos" title="Go to repository" class="md-source" data-md-component="source">
+      <a href="https://github.com/ugiordan/operator-chaos" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
   </div>
   <div class="md-source__repository">
-    ugiordan/odh-platform-chaos
+    ugiordan/operator-chaos
   </div>
 </a>
     </div>
@@ -3262,6 +3264,16 @@
       
         
       
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
     
     
     
@@ -3527,6 +3539,146 @@
     
   
     ClientFault
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../failure-modes/ownerref-orphan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OwnerRefOrphan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../failure-modes/quota-exhaustion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QuotaExhaustion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../failure-modes/webhook-latency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebhookLatency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../failure-modes/label-stomping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LabelStomping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../failure-modes/namespace-deletion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NamespaceDeletion
   
 
     
@@ -4823,9 +4975,9 @@
 <ul>
 <li>OpenShift/Kubernetes cluster with OpenDataHub installed</li>
 <li><code>cluster-admin</code> RBAC (experiments perform destructive operations)</li>
-<li><code>odh-chaos</code> CLI built and in your PATH:</li>
+<li><code>operator-chaos</code> CLI built and in your PATH:</li>
 </ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>go<span class="w"> </span>install<span class="w"> </span>github.com/opendatahub-io/odh-platform-chaos/cmd/odh-chaos@latest
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>go<span class="w"> </span>install<span class="w"> </span>github.com/opendatahub-io/operator-chaos/cmd/operator-chaos@latest
 </code></pre></div>
 <ul>
 <li>Verify the target component is running:</li>
@@ -4885,10 +5037,10 @@
 <a id="__codelineno-2-48" name="__codelineno-2-48" href="#__codelineno-2-48"></a><span class="w">  </span><span class="nt">maxReconcileCycles</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
 </code></pre></div>
 <p>Validate it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>odh-chaos<span class="w"> </span>validate<span class="w"> </span>knowledge/odh-model-controller.yaml<span class="w"> </span>--knowledge
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>operator-chaos<span class="w"> </span>validate<span class="w"> </span>knowledge/odh-model-controller.yaml<span class="w"> </span>--knowledge
 </code></pre></div>
 <p>Run pre-flight checks against the live cluster:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>odh-chaos<span class="w"> </span>preflight<span class="w"> </span>--knowledge<span class="w"> </span>knowledge/odh-model-controller.yaml
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>operator-chaos<span class="w"> </span>preflight<span class="w"> </span>--knowledge<span class="w"> </span>knowledge/odh-model-controller.yaml
 </code></pre></div>
 <h2 id="step-2-create-experiment-suite">Step 2: Create Experiment Suite<a class="headerlink" href="#step-2-create-experiment-suite" title="Permanent link">¶</a></h2>
 <p>The suite progresses from low to high danger, validating basic recovery before testing destructive scenarios:</p>
@@ -4930,13 +5082,13 @@
 <h3 id="21-podkill-kill-controller-pods">2.1 PodKill --- Kill Controller Pods<a class="headerlink" href="#21-podkill-kill-controller-pods" title="Permanent link">¶</a></h3>
 <p><strong>Danger: low</strong> | Tests: pod restart and reconciliation loop recovery</p>
 <p>Save as <code>experiments/odh-model-controller/01-podkill.yaml</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chaos.opendatahub.io/v1alpha1</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chaos.operatorchaos.io/v1alpha1</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ChaosExperiment</span>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="nt">metadata</span><span class="p">:</span>
 <a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">omc-podkill</span>
 <a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="nt">labels</span><span class="p">:</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="nt">chaos.opendatahub.io/component</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">odh-model-controller</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="nt">chaos.opendatahub.io/suite</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">e2e</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="nt">chaos.operatorchaos.io/component</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">odh-model-controller</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="nt">chaos.operatorchaos.io/suite</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">e2e</span>
 <a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="nt">spec</span><span class="p">:</span>
 <a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="nt">target</span><span class="p">:</span>
 <a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">opendatahub-operator</span>
@@ -4968,13 +5120,13 @@
 <h3 id="22-configdrift-corrupt-inferenceservice-config">2.2 ConfigDrift --- Corrupt InferenceService Config<a class="headerlink" href="#22-configdrift-corrupt-inferenceservice-config" title="Permanent link">¶</a></h3>
 <p><strong>Danger: medium</strong> | Tests: operator detection and restoration of configuration</p>
 <p>Save as <code>experiments/odh-model-controller/02-configdrift.yaml</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chaos.opendatahub.io/v1alpha1</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chaos.operatorchaos.io/v1alpha1</span>
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ChaosExperiment</span>
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="nt">metadata</span><span class="p">:</span>
 <a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">omc-configdrift</span>
 <a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="nt">labels</span><span class="p">:</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="nt">chaos.opendatahub.io/component</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">odh-model-controller</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="nt">chaos.opendatahub.io/suite</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">e2e</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="nt">chaos.operatorchaos.io/component</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">odh-model-controller</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="nt">chaos.operatorchaos.io/suite</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">e2e</span>
 <a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="nt">spec</span><span class="p">:</span>
 <a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">  </span><span class="nt">target</span><span class="p">:</span>
 <a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">    </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">opendatahub-operator</span>
@@ -5012,13 +5164,13 @@
 <h3 id="23-networkpartition-isolate-controller-pods">2.3 NetworkPartition --- Isolate Controller Pods<a class="headerlink" href="#23-networkpartition-isolate-controller-pods" title="Permanent link">¶</a></h3>
 <p><strong>Danger: medium</strong> | Tests: recovery from network isolation via NetworkPolicy</p>
 <p>Save as <code>experiments/odh-model-controller/03-networkpartition.yaml</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chaos.opendatahub.io/v1alpha1</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chaos.operatorchaos.io/v1alpha1</span>
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ChaosExperiment</span>
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="nt">metadata</span><span class="p">:</span>
 <a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">omc-networkpartition</span>
 <a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">  </span><span class="nt">labels</span><span class="p">:</span>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="nt">chaos.opendatahub.io/component</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">odh-model-controller</span>
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="nt">chaos.opendatahub.io/suite</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">e2e</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="nt">chaos.operatorchaos.io/component</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">odh-model-controller</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="nt">chaos.operatorchaos.io/suite</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">e2e</span>
 <a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="nt">spec</span><span class="p">:</span>
 <a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">  </span><span class="nt">target</span><span class="p">:</span>
 <a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">    </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">opendatahub-operator</span>
@@ -5050,13 +5202,13 @@
 <h3 id="24-crdmutation-mutate-an-inferenceservice">2.4 CRDMutation --- Mutate an InferenceService<a class="headerlink" href="#24-crdmutation-mutate-an-inferenceservice" title="Permanent link">¶</a></h3>
 <p><strong>Danger: medium</strong> | Tests: operator detection and correction of CRD field drift</p>
 <p>Save as <code>experiments/odh-model-controller/04-crdmutation.yaml</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chaos.opendatahub.io/v1alpha1</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chaos.operatorchaos.io/v1alpha1</span>
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ChaosExperiment</span>
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="nt">metadata</span><span class="p">:</span>
 <a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">omc-crdmutation</span>
 <a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">  </span><span class="nt">labels</span><span class="p">:</span>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="nt">chaos.opendatahub.io/component</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">odh-model-controller</span>
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">    </span><span class="nt">chaos.opendatahub.io/suite</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">e2e</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="nt">chaos.operatorchaos.io/component</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">odh-model-controller</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">    </span><span class="nt">chaos.operatorchaos.io/suite</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">e2e</span>
 <a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="nt">spec</span><span class="p">:</span>
 <a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">  </span><span class="nt">target</span><span class="p">:</span>
 <a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">    </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">opendatahub-operator</span>
@@ -5096,13 +5248,13 @@
 <h3 id="25-finalizerblock-block-deployment-deletion">2.5 FinalizerBlock --- Block Deployment Deletion<a class="headerlink" href="#25-finalizerblock-block-deployment-deletion" title="Permanent link">¶</a></h3>
 <p><strong>Danger: medium</strong> | Tests: operator behavior when a managed resource has a blocking finalizer</p>
 <p>Save as <code>experiments/odh-model-controller/05-finalizerblock.yaml</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chaos.opendatahub.io/v1alpha1</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chaos.operatorchaos.io/v1alpha1</span>
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ChaosExperiment</span>
 <a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="nt">metadata</span><span class="p">:</span>
 <a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">omc-finalizerblock</span>
 <a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">  </span><span class="nt">labels</span><span class="p">:</span>
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="nt">chaos.opendatahub.io/component</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">odh-model-controller</span>
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="nt">chaos.opendatahub.io/suite</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">e2e</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="nt">chaos.operatorchaos.io/component</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">odh-model-controller</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="nt">chaos.operatorchaos.io/suite</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">e2e</span>
 <a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="nt">spec</span><span class="p">:</span>
 <a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">  </span><span class="nt">target</span><span class="p">:</span>
 <a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">    </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">opendatahub-operator</span>
@@ -5134,13 +5286,13 @@
 <h3 id="26-webhookdisrupt-disrupt-admission-webhook">2.6 WebhookDisrupt --- Disrupt Admission Webhook<a class="headerlink" href="#26-webhookdisrupt-disrupt-admission-webhook" title="Permanent link">¶</a></h3>
 <p><strong>Danger: high</strong> | Tests: recovery from webhook failure policy change</p>
 <p>Save as <code>experiments/odh-model-controller/06-webhookdisrupt.yaml</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chaos.opendatahub.io/v1alpha1</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chaos.operatorchaos.io/v1alpha1</span>
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ChaosExperiment</span>
 <a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="nt">metadata</span><span class="p">:</span>
 <a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">omc-webhookdisrupt</span>
 <a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">  </span><span class="nt">labels</span><span class="p">:</span>
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">    </span><span class="nt">chaos.opendatahub.io/component</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">odh-model-controller</span>
-<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">    </span><span class="nt">chaos.opendatahub.io/suite</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">e2e</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">    </span><span class="nt">chaos.operatorchaos.io/component</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">odh-model-controller</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">    </span><span class="nt">chaos.operatorchaos.io/suite</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">e2e</span>
 <a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="nt">spec</span><span class="p">:</span>
 <a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">  </span><span class="nt">target</span><span class="p">:</span>
 <a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">    </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">opendatahub-operator</span>
@@ -5176,13 +5328,13 @@
 <h3 id="27-rbacrevoke-revoke-controller-permissions">2.7 RBACRevoke --- Revoke Controller Permissions<a class="headerlink" href="#27-rbacrevoke-revoke-controller-permissions" title="Permanent link">¶</a></h3>
 <p><strong>Danger: high</strong> | Tests: recovery from RBAC permission loss</p>
 <p>Save as <code>experiments/odh-model-controller/07-rbacrevoke.yaml</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chaos.opendatahub.io/v1alpha1</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chaos.operatorchaos.io/v1alpha1</span>
 <a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ChaosExperiment</span>
 <a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="nt">metadata</span><span class="p">:</span>
 <a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">omc-rbacrevoke</span>
 <a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">  </span><span class="nt">labels</span><span class="p">:</span>
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="nt">chaos.opendatahub.io/component</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">odh-model-controller</span>
-<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="nt">chaos.opendatahub.io/suite</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">e2e</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="nt">chaos.operatorchaos.io/component</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">odh-model-controller</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="nt">chaos.operatorchaos.io/suite</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">e2e</span>
 <a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="nt">spec</span><span class="p">:</span>
 <a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">  </span><span class="nt">target</span><span class="p">:</span>
 <a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">    </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">opendatahub-operator</span>
@@ -5219,12 +5371,12 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># Validate each experiment</span>
 <a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="k">for</span><span class="w"> </span>f<span class="w"> </span><span class="k">in</span><span class="w"> </span>experiments/odh-model-controller/*.yaml<span class="p">;</span><span class="w"> </span><span class="k">do</span>
 <a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Validating </span><span class="nv">$f</span><span class="s2">..."</span>
-<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">  </span>odh-chaos<span class="w"> </span>validate<span class="w"> </span><span class="s2">"</span><span class="nv">$f</span><span class="s2">"</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">  </span>operator-chaos<span class="w"> </span>validate<span class="w"> </span><span class="s2">"</span><span class="nv">$f</span><span class="s2">"</span>
 <a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="k">done</span>
 </code></pre></div>
 <h2 id="step-4-dry-run">Step 4: Dry Run<a class="headerlink" href="#step-4-dry-run" title="Permanent link">¶</a></h2>
 <p>Test the full experiment lifecycle without injecting any faults:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>odh-chaos<span class="w"> </span>suite<span class="w"> </span>experiments/odh-model-controller/<span class="w"> </span><span class="se">\</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>operator-chaos<span class="w"> </span>suite<span class="w"> </span>experiments/odh-model-controller/<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">  </span>--knowledge<span class="w"> </span>knowledge/odh-model-controller.yaml<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">  </span>--dry-run<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">  </span>--report-dir<span class="w"> </span>results/dry-run/
@@ -5232,13 +5384,13 @@
 <p>Review the dry-run results to ensure all experiments load correctly and steady-state checks pass.</p>
 <h2 id="step-5-execute-the-suite">Step 5: Execute the Suite<a class="headerlink" href="#step-5-execute-the-suite" title="Permanent link">¶</a></h2>
 <p>Run all experiments sequentially (recommended for first run):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>odh-chaos<span class="w"> </span>suite<span class="w"> </span>experiments/odh-model-controller/<span class="w"> </span><span class="se">\</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>operator-chaos<span class="w"> </span>suite<span class="w"> </span>experiments/odh-model-controller/<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">  </span>--knowledge<span class="w"> </span>knowledge/odh-model-controller.yaml<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">  </span>--report-dir<span class="w"> </span>results/live/<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">  </span>--timeout<span class="w"> </span>10m
 </code></pre></div>
 <p>Or run with distributed locking (for shared clusters):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>odh-chaos<span class="w"> </span>suite<span class="w"> </span>experiments/odh-model-controller/<span class="w"> </span><span class="se">\</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>operator-chaos<span class="w"> </span>suite<span class="w"> </span>experiments/odh-model-controller/<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">  </span>--knowledge<span class="w"> </span>knowledge/odh-model-controller.yaml<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">  </span>--report-dir<span class="w"> </span>results/live/<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">  </span>--timeout<span class="w"> </span>10m<span class="w"> </span><span class="se">\</span>
@@ -5246,10 +5398,10 @@
 </code></pre></div>
 <h2 id="step-6-review-results">Step 6: Review Results<a class="headerlink" href="#step-6-review-results" title="Permanent link">¶</a></h2>
 <p>Generate a summary report:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>odh-chaos<span class="w"> </span>report<span class="w"> </span>results/live/<span class="w"> </span>--format<span class="w"> </span>summary
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>operator-chaos<span class="w"> </span>report<span class="w"> </span>results/live/<span class="w"> </span>--format<span class="w"> </span>summary
 </code></pre></div>
 <p>Generate JUnit XML for CI/CD integration:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>odh-chaos<span class="w"> </span>report<span class="w"> </span>results/live/<span class="w"> </span>--format<span class="w"> </span>junit<span class="w"> </span>--output<span class="w"> </span>results/junit/
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>operator-chaos<span class="w"> </span>report<span class="w"> </span>results/live/<span class="w"> </span>--format<span class="w"> </span>junit<span class="w"> </span>--output<span class="w"> </span>results/junit/
 </code></pre></div>
 <h3 id="interpreting-verdicts">Interpreting Verdicts<a class="headerlink" href="#interpreting-verdicts" title="Permanent link">¶</a></h3>
 <table>
@@ -5302,22 +5454,22 @@
 <p>A <strong>Failed</strong> verdict means the operator did not restore the resource to its expected state within the timeout. This is a real resilience issue that should be investigated.</p>
 <h2 id="step-7-cleanup">Step 7: Cleanup<a class="headerlink" href="#step-7-cleanup" title="Permanent link">¶</a></h2>
 <p>If any experiment left artifacts behind (e.g., due to a crash or timeout):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>odh-chaos<span class="w"> </span>clean<span class="w"> </span>--namespace<span class="w"> </span>opendatahub
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>operator-chaos<span class="w"> </span>clean<span class="w"> </span>--namespace<span class="w"> </span>opendatahub
 </code></pre></div>
 <blockquote>
 <p><strong>Note</strong>: The <code>--namespace</code> flag scopes cleanup to namespace-scoped resources (NetworkPolicies, Leases, ConfigMaps, Secrets, Deployments) in the specified namespace, but also cleans cluster-scoped resources (ClusterRoles, ClusterRoleBindings, ValidatingWebhookConfigurations) with chaos metadata regardless of namespace.</p>
 </blockquote>
 <p>To continuously watch for and clean stale artifacts:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>odh-chaos<span class="w"> </span>clean<span class="w"> </span>--namespace<span class="w"> </span>opendatahub<span class="w"> </span>--watch<span class="w"> </span>--interval<span class="w"> </span>30s
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>operator-chaos<span class="w"> </span>clean<span class="w"> </span>--namespace<span class="w"> </span>opendatahub<span class="w"> </span>--watch<span class="w"> </span>--interval<span class="w"> </span>30s
 </code></pre></div>
 <h2 id="running-individual-experiments">Running Individual Experiments<a class="headerlink" href="#running-individual-experiments" title="Permanent link">¶</a></h2>
 <p>You can run any single experiment instead of the full suite:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="c1"># Run just the PodKill experiment</span>
-<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>odh-chaos<span class="w"> </span>run<span class="w"> </span>experiments/odh-model-controller/01-podkill.yaml<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>operator-chaos<span class="w"> </span>run<span class="w"> </span>experiments/odh-model-controller/01-podkill.yaml<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">  </span>--knowledge<span class="w"> </span>knowledge/odh-model-controller.yaml
 <a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>
 <a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="c1"># Run with verbose output for debugging</span>
-<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>odh-chaos<span class="w"> </span>run<span class="w"> </span>experiments/odh-model-controller/01-podkill.yaml<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>operator-chaos<span class="w"> </span>run<span class="w"> </span>experiments/odh-model-controller/01-podkill.yaml<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a><span class="w">  </span>--knowledge<span class="w"> </span>knowledge/odh-model-controller.yaml<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a><span class="w">  </span>--verbose
 </code></pre></div>
@@ -5330,7 +5482,7 @@
 <a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="w">  </span>kserve.yaml
 <a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>
 <a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a><span class="c1"># Run with --knowledge-dir to enable dependency graph</span>
-<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>odh-chaos<span class="w"> </span>run<span class="w"> </span>experiments/odh-model-controller/01-podkill.yaml<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>operator-chaos<span class="w"> </span>run<span class="w"> </span>experiments/odh-model-controller/01-podkill.yaml<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a><span class="w">  </span>--knowledge-dir<span class="w"> </span>knowledge/
 </code></pre></div>
 <p>Collateral findings appear in the experiment report and can downgrade a <code>Resilient</code> verdict to <code>Degraded</code>.</p>
@@ -5356,7 +5508,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 9, 2026 18:28:32 UTC">April 9, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 21, 2026 07:37:54 UTC">April 21, 2026</span>
   </span>
 
     
@@ -5427,6 +5579,8 @@
     
     
       <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../../javascripts/diagram-zoom.js"></script>
       
     
   

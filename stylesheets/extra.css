@@ -1,0 +1,129 @@
+/* Wrapper: clips oversized diagrams, use fullscreen for detail */
+.diagram-wrapper {
+  overflow: hidden;
+  max-width: 100%;
+  max-height: 350px;
+  margin-bottom: 0 !important;
+  position: relative;
+}
+
+/* Fade-out hint when content is clipped */
+.diagram-wrapper.clipped::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(transparent, var(--md-default-bg-color));
+  pointer-events: none;
+}
+
+/* Mermaid div inside wrapper: no constraints (wrapper handles containment) */
+.diagram-wrapper div.mermaid {
+  margin-bottom: 0 !important;
+}
+
+/* Action bar: sits right below the wrapper, always subtly visible */
+.diagram-actions {
+  display: flex;
+  gap: 2px;
+  justify-content: flex-end;
+  padding: 2px 4px;
+  background: var(--md-default-bg-color);
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  margin-bottom: 1em;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+
+/* Show fully on hover of wrapper or action bar */
+.diagram-wrapper:hover + .diagram-actions,
+.diagram-actions:hover {
+  opacity: 1;
+}
+
+.diagram-actions button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--md-default-fg-color--light);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.diagram-actions button:hover {
+  background: var(--md-accent-fg-color--transparent, rgba(0, 0, 0, 0.08));
+  color: var(--md-default-fg-color);
+}
+
+/* Fullscreen overlay modal */
+.diagram-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.diagram-overlay-toolbar {
+  display: flex;
+  gap: 4px;
+  padding: 12px;
+  justify-content: center;
+}
+
+.diagram-overlay-toolbar button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+
+.diagram-overlay-toolbar button:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.diagram-overlay-content {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 1rem 2rem 2rem;
+  width: 100%;
+  cursor: pointer;
+}
+
+/* The moved mermaid div inside fullscreen overlay */
+.diagram-overlay-content div.mermaid {
+  background: var(--md-default-bg-color);
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: default;
+}

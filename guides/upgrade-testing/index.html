@@ -5,7 +5,7 @@
       
       
       
-        <link rel="canonical" href="https://ugiordan.github.io/odh-platform-chaos/guides/upgrade-testing/">
+        <link rel="canonical" href="https://ugiordan.github.io/operator-chaos/guides/upgrade-testing/">
       
       
         <link rel="prev" href="../controller-mode/">
@@ -22,7 +22,7 @@
     
     
       
-        <title>Upgrade Testing - ODH Platform Chaos</title>
+        <title>Upgrade Testing - Operator Chaos</title>
       
     
     
@@ -47,6 +47,8 @@
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
     
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -97,7 +99,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="ODH Platform Chaos" class="md-header__button md-logo" aria-label="ODH Platform Chaos" data-md-component="logo">
+    <a href="../.." title="Operator Chaos" class="md-header__button md-logo" aria-label="Operator Chaos" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
@@ -111,7 +113,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            ODH Platform Chaos
+            Operator Chaos
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -199,13 +201,13 @@
     
     
       <div class="md-header__source">
-        <a href="https://github.com/ugiordan/odh-platform-chaos" title="Go to repository" class="md-source" data-md-component="source">
+        <a href="https://github.com/ugiordan/operator-chaos" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
   </div>
   <div class="md-source__repository">
-    ugiordan/odh-platform-chaos
+    ugiordan/operator-chaos
   </div>
 </a>
       </div>
@@ -421,23 +423,23 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="ODH Platform Chaos" class="md-nav__button md-logo" aria-label="ODH Platform Chaos" data-md-component="logo">
+    <a href="../.." title="Operator Chaos" class="md-nav__button md-logo" aria-label="Operator Chaos" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
 
     </a>
-    ODH Platform Chaos
+    Operator Chaos
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/ugiordan/odh-platform-chaos" title="Go to repository" class="md-source" data-md-component="source">
+      <a href="https://github.com/ugiordan/operator-chaos" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
   </div>
   <div class="md-source__repository">
-    ugiordan/odh-platform-chaos
+    ugiordan/operator-chaos
   </div>
 </a>
     </div>
@@ -3262,6 +3264,16 @@
       
         
       
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
     
     
     
@@ -3527,6 +3539,146 @@
     
   
     ClientFault
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../failure-modes/ownerref-orphan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OwnerRefOrphan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../failure-modes/quota-exhaustion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QuotaExhaustion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../failure-modes/webhook-latency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebhookLatency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../failure-modes/label-stomping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LabelStomping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../failure-modes/namespace-deletion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NamespaceDeletion
   
 
     
@@ -5328,12 +5480,12 @@
 <p>These are the failure modes that surface in production after the upgrade completes, when chaos occurs naturally.</p>
 <h2 id="workflow-overview">Workflow Overview<a class="headerlink" href="#workflow-overview" title="Permanent link">¶</a></h2>
 <pre class="mermaid"><code>flowchart LR
-    A["Create\nKnowledge\nSnapshots"] --&gt; B["odh-chaos\ndiff"]
-    B --&gt; C["odh-chaos\ndiff-crds"]
-    C --&gt; D["odh-chaos\nsimulate-upgrade\n--dry-run"]
+    A["Create\nKnowledge\nSnapshots"] --&gt; B["operator-chaos\ndiff"]
+    B --&gt; C["operator-chaos\ndiff-crds"]
+    C --&gt; D["operator-chaos\nsimulate-upgrade\n--dry-run"]
     D --&gt; E["Review\nExperiments"]
-    E --&gt; F["odh-chaos\nsimulate-upgrade"]
-    F --&gt; G["odh-chaos\nvalidate-version"]
+    E --&gt; F["operator-chaos\nsimulate-upgrade"]
+    F --&gt; G["operator-chaos\nvalidate-version"]
 
     style A fill:#bbdefb,stroke:#1565c0
     style B fill:#ce93d8,stroke:#6a1b9a
@@ -5343,8 +5495,8 @@
     style F fill:#ef9a9a,stroke:#c62828
     style G fill:#a5d6a7,stroke:#2e7d32</code></pre>
 <p><strong>Step 1</strong>: Snapshot knowledge models for both versions (source and target)</p>
-<p><strong>Step 2</strong>: Detect architectural differences with <code>odh-chaos diff</code></p>
-<p><strong>Step 3</strong>: Analyze CRD schema changes with <code>odh-chaos diff-crds</code></p>
+<p><strong>Step 2</strong>: Detect architectural differences with <code>operator-chaos diff</code></p>
+<p><strong>Step 3</strong>: Analyze CRD schema changes with <code>operator-chaos diff-crds</code></p>
 <p><strong>Step 4</strong>: Preview upgrade experiments with <code>--dry-run</code></p>
 <p><strong>Step 5</strong>: Review generated experiments for architectural correctness</p>
 <p><strong>Step 6</strong>: Execute upgrade simulation and collect results</p>
@@ -5414,15 +5566,15 @@
 <a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="nt">olmChannel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stable-3.3</span>
 </code></pre></div>
 <p><strong>3. Validate the snapshot:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>odh-chaos<span class="w"> </span>validate<span class="w"> </span>--knowledge-dir<span class="w"> </span>knowledge/rhoai/v3.3/
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>operator-chaos<span class="w"> </span>validate<span class="w"> </span>--knowledge-dir<span class="w"> </span>knowledge/rhoai/v3.3/
 </code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">Version snapshots are immutable</p>
 <p>Once created, versioned knowledge directories should not be modified. They represent the architectural state at a specific release. To update for a new version, create a new versioned directory.</p>
 </div>
 <h2 id="comparing-versions">Comparing Versions<a class="headerlink" href="#comparing-versions" title="Permanent link">¶</a></h2>
-<p>The <code>odh-chaos diff</code> command detects architectural changes between two knowledge snapshots:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>odh-chaos<span class="w"> </span>diff<span class="w"> </span>--source<span class="w"> </span>knowledge/odh/v2.10/<span class="w"> </span>--target<span class="w"> </span>knowledge/rhoai/v3.3/
+<p>The <code>operator-chaos diff</code> command detects architectural changes between two knowledge snapshots:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>operator-chaos<span class="w"> </span>diff<span class="w"> </span>--source<span class="w"> </span>knowledge/odh/v2.10/<span class="w"> </span>--target<span class="w"> </span>knowledge/rhoai/v3.3/
 </code></pre></div>
 <h3 id="example-output">Example Output<a class="headerlink" href="#example-output" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>Comparing knowledge models:
@@ -5453,11 +5605,11 @@
 </code></pre></div>
 <h3 id="filtering-by-severity">Filtering by Severity<a class="headerlink" href="#filtering-by-severity" title="Permanent link">¶</a></h3>
 <p>Use <code>--breaking</code> to show only breaking changes:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>odh-chaos<span class="w"> </span>diff<span class="w"> </span>--source<span class="w"> </span>knowledge/odh/v2.10/<span class="w"> </span>--target<span class="w"> </span>knowledge/rhoai/v3.3/<span class="w"> </span>--breaking
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>operator-chaos<span class="w"> </span>diff<span class="w"> </span>--source<span class="w"> </span>knowledge/odh/v2.10/<span class="w"> </span>--target<span class="w"> </span>knowledge/rhoai/v3.3/<span class="w"> </span>--breaking
 </code></pre></div>
 <h3 id="machine-readable-output">Machine-Readable Output<a class="headerlink" href="#machine-readable-output" title="Permanent link">¶</a></h3>
 <p>For CI integration, use JSON format:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>odh-chaos<span class="w"> </span>diff<span class="w"> </span>--source<span class="w"> </span>knowledge/odh/v2.10/<span class="w"> </span>--target<span class="w"> </span>knowledge/rhoai/v3.3/<span class="w"> </span>--format<span class="w"> </span>json
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>operator-chaos<span class="w"> </span>diff<span class="w"> </span>--source<span class="w"> </span>knowledge/odh/v2.10/<span class="w"> </span>--target<span class="w"> </span>knowledge/rhoai/v3.3/<span class="w"> </span>--format<span class="w"> </span>json
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span>
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="nt">"source"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -5492,7 +5644,7 @@
 <a id="__codelineno-9-31" name="__codelineno-9-31" href="#__codelineno-9-31"></a><span class="p">}</span>
 </code></pre></div>
 <h2 id="crd-schema-diffing">CRD Schema Diffing<a class="headerlink" href="#crd-schema-diffing" title="Permanent link">¶</a></h2>
-<p>The <code>odh-chaos diff-crds</code> command analyzes Custom Resource Definition schema changes between versions:</p>
+<p>The <code>operator-chaos diff-crds</code> command analyzes Custom Resource Definition schema changes between versions:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Extract CRDs from source cluster</span>
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>oc<span class="w"> </span>get<span class="w"> </span>crd<span class="w"> </span>inferenceservices.serving.kserve.io<span class="w"> </span>-o<span class="w"> </span>yaml<span class="w"> </span>&gt;<span class="w"> </span>crds-source/inferenceservice.yaml
 <a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
@@ -5500,7 +5652,7 @@
 <a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>oc<span class="w"> </span>get<span class="w"> </span>crd<span class="w"> </span>inferenceservices.serving.kserve.io<span class="w"> </span>-o<span class="w"> </span>yaml<span class="w"> </span>&gt;<span class="w"> </span>crds-target/inferenceservice.yaml
 <a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
 <a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="c1"># Diff the schemas</span>
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>odh-chaos<span class="w"> </span>diff-crds<span class="w"> </span>--source<span class="w"> </span>crds-source/<span class="w"> </span>--target<span class="w"> </span>crds-target/
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>operator-chaos<span class="w"> </span>diff-crds<span class="w"> </span>--source<span class="w"> </span>crds-source/<span class="w"> </span>--target<span class="w"> </span>crds-target/
 </code></pre></div>
 <h3 id="example-output_1">Example Output<a class="headerlink" href="#example-output_1" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>CRD Schema Changes:
@@ -5576,15 +5728,15 @@
 <p>CRD breaking changes typically require updating existing custom resources before or during the upgrade. Plan for migration scripts or admission webhooks that transform old resources to the new schema.</p>
 </div>
 <h2 id="simulating-upgrades">Simulating Upgrades<a class="headerlink" href="#simulating-upgrades" title="Permanent link">¶</a></h2>
-<p>The <code>odh-chaos simulate-upgrade</code> command generates and executes chaos experiments based on detected architectural differences:</p>
+<p>The <code>operator-chaos simulate-upgrade</code> command generates and executes chaos experiments based on detected architectural differences:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Preview experiments without executing</span>
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>odh-chaos<span class="w"> </span>simulate-upgrade<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>operator-chaos<span class="w"> </span>simulate-upgrade<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">  </span>--source<span class="w"> </span>knowledge/odh/v2.10/<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">  </span>--target<span class="w"> </span>knowledge/rhoai/v3.3/<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">  </span>--dry-run
 <a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>
 <a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="c1"># Execute upgrade simulation</span>
-<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>odh-chaos<span class="w"> </span>simulate-upgrade<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>operator-chaos<span class="w"> </span>simulate-upgrade<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">  </span>--source<span class="w"> </span>knowledge/odh/v2.10/<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">  </span>--target<span class="w"> </span>knowledge/rhoai/v3.3/
 </code></pre></div>
@@ -5644,7 +5796,7 @@
 </ol>
 <h3 id="dry-run-mode">Dry-Run Mode<a class="headerlink" href="#dry-run-mode" title="Permanent link">¶</a></h3>
 <p>Use <code>--dry-run</code> to preview generated experiments without executing them:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>odh-chaos<span class="w"> </span>simulate-upgrade<span class="w"> </span><span class="se">\</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>operator-chaos<span class="w"> </span>simulate-upgrade<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">  </span>--source<span class="w"> </span>knowledge/odh/v2.10/<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">  </span>--target<span class="w"> </span>knowledge/rhoai/v3.3/<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">  </span>--dry-run
@@ -5682,12 +5834,12 @@
 <p>The <code>simulate-upgrade</code> command writes experiment YAML files to <code>./upgrade-experiments/</code> by default. Use <code>--output-dir</code> to specify a custom location. You can edit these files before execution to adjust timeouts, injection parameters, or validation criteria.</p>
 </div>
 <h2 id="validating-cluster-version">Validating Cluster Version<a class="headerlink" href="#validating-cluster-version" title="Permanent link">¶</a></h2>
-<p>The <code>odh-chaos validate-version</code> command verifies that a cluster matches a specific knowledge snapshot:</p>
+<p>The <code>operator-chaos validate-version</code> command verifies that a cluster matches a specific knowledge snapshot:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># Validate pre-upgrade state (cluster should match source version)</span>
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>odh-chaos<span class="w"> </span>validate-version<span class="w"> </span>--knowledge-dir<span class="w"> </span>knowledge/odh/v2.10/
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>operator-chaos<span class="w"> </span>validate-version<span class="w"> </span>--knowledge-dir<span class="w"> </span>knowledge/odh/v2.10/
 <a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
 <a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="c1"># Validate post-upgrade state (cluster should match target version)</span>
-<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>odh-chaos<span class="w"> </span>validate-version<span class="w"> </span>--knowledge-dir<span class="w"> </span>knowledge/rhoai/v3.3/
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>operator-chaos<span class="w"> </span>validate-version<span class="w"> </span>--knowledge-dir<span class="w"> </span>knowledge/rhoai/v3.3/
 </code></pre></div>
 <h3 id="example-output_2">Example Output<a class="headerlink" href="#example-output_2" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>Validating cluster against knowledge snapshot:
@@ -5719,31 +5871,31 @@
 <h2 id="end-to-end-example">End-to-End Example<a class="headerlink" href="#end-to-end-example" title="Permanent link">¶</a></h2>
 <p>Full workflow for testing an ODH 2.10 → RHOAI 3.3 upgrade:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Step 1: Compare versions to understand changes</span>
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>odh-chaos<span class="w"> </span>diff<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>operator-chaos<span class="w"> </span>diff<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">  </span>--source<span class="w"> </span>knowledge/odh/v2.10/<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">  </span>--target<span class="w"> </span>knowledge/rhoai/v3.3/
 <a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>
 <a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="c1"># Step 2: Analyze CRD schema changes</span>
-<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>odh-chaos<span class="w"> </span>diff-crds<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>operator-chaos<span class="w"> </span>diff-crds<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="w">  </span>--source<span class="w"> </span>crds-odh-2.10/<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="w">  </span>--target<span class="w"> </span>crds-rhoai-3.3/
 <a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>
 <a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="c1"># Step 3: Preview upgrade experiments</span>
-<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>odh-chaos<span class="w"> </span>simulate-upgrade<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>operator-chaos<span class="w"> </span>simulate-upgrade<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a><span class="w">  </span>--source<span class="w"> </span>knowledge/odh/v2.10/<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a><span class="w">  </span>--target<span class="w"> </span>knowledge/rhoai/v3.3/<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a><span class="w">  </span>--dry-run
 <a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a>
 <a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a><span class="c1"># Step 4: Validate pre-upgrade state</span>
-<a id="__codelineno-17-18" name="__codelineno-17-18" href="#__codelineno-17-18"></a>odh-chaos<span class="w"> </span>validate-version<span class="w"> </span>--knowledge-dir<span class="w"> </span>knowledge/odh/v2.10/
+<a id="__codelineno-17-18" name="__codelineno-17-18" href="#__codelineno-17-18"></a>operator-chaos<span class="w"> </span>validate-version<span class="w"> </span>--knowledge-dir<span class="w"> </span>knowledge/odh/v2.10/
 <a id="__codelineno-17-19" name="__codelineno-17-19" href="#__codelineno-17-19"></a>
 <a id="__codelineno-17-20" name="__codelineno-17-20" href="#__codelineno-17-20"></a><span class="c1"># Step 5: Run upgrade simulation</span>
-<a id="__codelineno-17-21" name="__codelineno-17-21" href="#__codelineno-17-21"></a>odh-chaos<span class="w"> </span>simulate-upgrade<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-17-21" name="__codelineno-17-21" href="#__codelineno-17-21"></a>operator-chaos<span class="w"> </span>simulate-upgrade<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-17-22" name="__codelineno-17-22" href="#__codelineno-17-22"></a><span class="w">  </span>--source<span class="w"> </span>knowledge/odh/v2.10/<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-17-23" name="__codelineno-17-23" href="#__codelineno-17-23"></a><span class="w">  </span>--target<span class="w"> </span>knowledge/rhoai/v3.3/
 <a id="__codelineno-17-24" name="__codelineno-17-24" href="#__codelineno-17-24"></a>
 <a id="__codelineno-17-25" name="__codelineno-17-25" href="#__codelineno-17-25"></a><span class="c1"># Step 6: Validate post-upgrade state</span>
-<a id="__codelineno-17-26" name="__codelineno-17-26" href="#__codelineno-17-26"></a>odh-chaos<span class="w"> </span>validate-version<span class="w"> </span>--knowledge-dir<span class="w"> </span>knowledge/rhoai/v3.3/
+<a id="__codelineno-17-26" name="__codelineno-17-26" href="#__codelineno-17-26"></a>operator-chaos<span class="w"> </span>validate-version<span class="w"> </span>--knowledge-dir<span class="w"> </span>knowledge/rhoai/v3.3/
 </code></pre></div>
 <h3 id="expected-results">Expected Results<a class="headerlink" href="#expected-results" title="Permanent link">¶</a></h3>
 <p><strong>Step 1 (diff)</strong>: Identifies 15 breaking changes, 3 warnings. Key changes are component renames and namespace moves.</p>
@@ -5763,7 +5915,7 @@
 <p>Upgrade playbooks automate multi-step upgrade paths by orchestrating OLM channel hops, pre-migration tasks, chaos-based resilience validation, and post-upgrade verification. Instead of manually triggering each step, define a YAML playbook that executes the entire upgrade workflow with resume-on-failure support.</p>
 <h3 id="playbook-format">Playbook Format<a class="headerlink" href="#playbook-format" title="Permanent link">¶</a></h3>
 <p>An upgrade playbook is a YAML file defining the source version, target version, the OLM channel hop path, and a sequence of steps to execute:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chaos.opendatahub.io/v1alpha1</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chaos.operatorchaos.io/v1alpha1</span>
 <a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">UpgradePlaybook</span>
 <a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="nt">metadata</span><span class="p">:</span>
 <a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rhoai-2.10-to-3.3</span>
@@ -5843,8 +5995,8 @@
 </tbody>
 </table>
 <h3 id="running-a-playbook">Running a Playbook<a class="headerlink" href="#running-a-playbook" title="Permanent link">¶</a></h3>
-<p>Execute an upgrade playbook with <code>odh-chaos upgrade run</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>odh-chaos<span class="w"> </span>upgrade<span class="w"> </span>run<span class="w"> </span>--playbook<span class="w"> </span>knowledge/rhoai/upgrades/v2.10-to-v3.3.yaml
+<p>Execute an upgrade playbook with <code>operator-chaos upgrade run</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>operator-chaos<span class="w"> </span>upgrade<span class="w"> </span>run<span class="w"> </span>--playbook<span class="w"> </span>knowledge/rhoai/upgrades/v2.10-to-v3.3.yaml
 </code></pre></div>
 <p><strong>What happens:</strong></p>
 <ol>
@@ -5859,7 +6011,7 @@
 </ol>
 <h3 id="discovering-available-channels">Discovering Available Channels<a class="headerlink" href="#discovering-available-channels" title="Permanent link">¶</a></h3>
 <p>Before writing a playbook, discover available OLM channels for an operator:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>odh-chaos<span class="w"> </span>upgrade<span class="w"> </span>discover<span class="w"> </span><span class="se">\</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>operator-chaos<span class="w"> </span>upgrade<span class="w"> </span>discover<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">  </span>--operator<span class="w"> </span>rhods-operator<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">  </span>--namespace<span class="w"> </span>redhat-ods-operator
 </code></pre></div>
@@ -5874,8 +6026,8 @@
 </code></pre></div>
 <p>Use <code>--format json</code> for machine-readable output.</p>
 <h3 id="triggering-single-hops">Triggering Single Hops<a class="headerlink" href="#triggering-single-hops" title="Permanent link">¶</a></h3>
-<p>For simple upgrades (single channel hop), use <code>odh-chaos upgrade trigger</code> instead of writing a full playbook:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>odh-chaos<span class="w"> </span>upgrade<span class="w"> </span>trigger<span class="w"> </span><span class="se">\</span>
+<p>For simple upgrades (single channel hop), use <code>operator-chaos upgrade trigger</code> instead of writing a full playbook:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>operator-chaos<span class="w"> </span>upgrade<span class="w"> </span>trigger<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="w">  </span>--operator<span class="w"> </span>rhods-operator<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">  </span>--namespace<span class="w"> </span>redhat-ods-operator<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="w">  </span>--channel<span class="w"> </span>stable-3.3
@@ -5883,7 +6035,7 @@
 <p>This patches the Subscription and monitors the upgrade until the new CSV is installed or the timeout expires.</p>
 <h3 id="monitoring-in-progress-upgrades">Monitoring In-Progress Upgrades<a class="headerlink" href="#monitoring-in-progress-upgrades" title="Permanent link">¶</a></h3>
 <p>Attach to an already-running upgrade (triggered externally or by another process):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>odh-chaos<span class="w"> </span>upgrade<span class="w"> </span>monitor<span class="w"> </span><span class="se">\</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>operator-chaos<span class="w"> </span>upgrade<span class="w"> </span>monitor<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="w">  </span>--operator<span class="w"> </span>rhods-operator<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="w">  </span>--namespace<span class="w"> </span>redhat-ods-operator<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="w">  </span>--timeout<span class="w"> </span>30m
@@ -5892,15 +6044,15 @@
 <h3 id="resume-on-failure">Resume on Failure<a class="headerlink" href="#resume-on-failure" title="Permanent link">¶</a></h3>
 <p>If an upgrade playbook fails mid-execution, resume from the failed step:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="c1"># Resume from the last failed step</span>
-<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>odh-chaos<span class="w"> </span>upgrade<span class="w"> </span>run<span class="w"> </span>--playbook<span class="w"> </span>playbook.yaml<span class="w"> </span>--resume-from<span class="w"> </span>migrate-dashboard-configmaps
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>operator-chaos<span class="w"> </span>upgrade<span class="w"> </span>run<span class="w"> </span>--playbook<span class="w"> </span>playbook.yaml<span class="w"> </span>--resume-from<span class="w"> </span>migrate-dashboard-configmaps
 <a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>
 <a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="c1"># Force resume (skip step validation and start from specified step)</span>
-<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>odh-chaos<span class="w"> </span>upgrade<span class="w"> </span>run<span class="w"> </span>--playbook<span class="w"> </span>playbook.yaml<span class="w"> </span>--force-resume<span class="w"> </span>--resume-from<span class="w"> </span>trigger-upgrade
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>operator-chaos<span class="w"> </span>upgrade<span class="w"> </span>run<span class="w"> </span>--playbook<span class="w"> </span>playbook.yaml<span class="w"> </span>--force-resume<span class="w"> </span>--resume-from<span class="w"> </span>trigger-upgrade
 </code></pre></div>
 <p>State files are stored in <code>.upgrade-state/&lt;playbook-name&gt;/</code> with timestamps. Use <code>--state-dir</code> to customize the location.</p>
 <h3 id="ci-mode">CI Mode<a class="headerlink" href="#ci-mode" title="Permanent link">¶</a></h3>
 <p>For unattended execution in CI pipelines:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>odh-chaos<span class="w"> </span>upgrade<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>operator-chaos<span class="w"> </span>upgrade<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="w">  </span>--playbook<span class="w"> </span>playbook.yaml<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="w">  </span>--skip-manual<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="w">  </span>--allow-shell
@@ -5927,12 +6079,12 @@
 <p>If a manual step lacks an <code>autoCheck</code> command, it is skipped with a warning in <code>--skip-manual</code> mode.</p>
 <h3 id="dry-run-mode_1">Dry-Run Mode<a class="headerlink" href="#dry-run-mode_1" title="Permanent link">¶</a></h3>
 <p>Preview playbook execution without making changes:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>odh-chaos<span class="w"> </span>upgrade<span class="w"> </span>run<span class="w"> </span>--playbook<span class="w"> </span>playbook.yaml<span class="w"> </span>--dry-run
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>operator-chaos<span class="w"> </span>upgrade<span class="w"> </span>run<span class="w"> </span>--playbook<span class="w"> </span>playbook.yaml<span class="w"> </span>--dry-run
 </code></pre></div>
 <p>Dry-run mode prints the execution plan and validates all steps, but does not patch Subscriptions, run kubectl commands, or execute chaos experiments.</p>
 <h3 id="example-playbook">Example Playbook<a class="headerlink" href="#example-playbook" title="Permanent link">¶</a></h3>
 <p>The following playbook upgrades RHOAI from 2.10 to 3.3 with pre-migration and post-validation:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chaos.opendatahub.io/v1alpha1</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chaos.operatorchaos.io/v1alpha1</span>
 <a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">UpgradePlaybook</span>
 <a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="nt">metadata</span><span class="p">:</span>
 <a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rhoai-2.10-to-3.3</span>
@@ -6092,13 +6244,13 @@
 </table>
 <div class="admonition warning">
 <p class="admonition-title">Use <code>--namespace</code> for RHOAI clusters</p>
-<p>Experiment YAML files default to the <code>opendatahub</code> namespace. When running on RHOAI clusters, always pass <code>--namespace redhat-ods-applications</code> to override all namespace references in the experiment, including steady-state checks, blast radius validation, and reconciliation checks.</p>
+<p>Experiment YAML files default to the <code>default</code> namespace. When running on specific platforms, use <code>--namespace</code> to target the correct namespace (e.g., <code>opendatahub</code> for ODH, <code>redhat-ods-applications</code> for RHOAI). This overrides all namespace references in the experiment, including steady-state checks, blast radius validation, and reconciliation checks.</p>
 </div>
 <h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">¶</a></h2>
 <ul>
 <li>Learn about <a href="../knowledge-models/">Knowledge Models</a> to create version snapshots</li>
 <li>Integrate upgrade testing into CI with <a href="../ci-integration/">CI Integration</a></li>
-<li>Explore example knowledge snapshots in the <a href="https://github.com/ugiordan/odh-platform-chaos/tree/main/knowledge">knowledge/</a> directory</li>
+<li>Explore example knowledge snapshots in the <a href="https://github.com/ugiordan/operator-chaos/tree/main/knowledge">knowledge/</a> directory</li>
 </ul>
 
 
@@ -6122,7 +6274,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 17, 2026 13:49:37 UTC">April 17, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 21, 2026 07:55:34 UTC">April 21, 2026</span>
   </span>
 
     
@@ -6193,6 +6345,8 @@
     
     
       <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../../javascripts/diagram-zoom.js"></script>
       
     
   
