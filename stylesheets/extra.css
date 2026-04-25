@@ -1,10 +1,17 @@
-/* Wrapper: clips oversized diagrams, use fullscreen for detail */
+/* Edge labels inside subgraphs: inherit background instead of white */
+.mermaid .cluster .edgeLabel .label {
+  background: transparent !important;
+}
+
+/* Wrapper: clips oversized diagrams, centers content, use fullscreen for detail */
 .diagram-wrapper {
   overflow: hidden;
   max-width: 100%;
   max-height: 350px;
   margin-bottom: 0 !important;
   position: relative;
+  display: flex;
+  justify-content: center;
 }
 
 /* Fade-out hint when content is clipped */
