@@ -25,15 +25,6 @@
     div.parentNode.insertBefore(wrapper, div);
     wrapper.appendChild(div);
 
-    // Detect if content is clipped and add fade-out hint
-    requestAnimationFrame(function () {
-      setTimeout(function () {
-        if (div.scrollHeight > wrapper.clientHeight + 10) {
-          wrapper.classList.add("clipped");
-        }
-      }, 2000); // Wait for mermaid render
-    });
-
     var bar = document.createElement("div");
     bar.className = "diagram-actions";
     bar.innerHTML =
@@ -167,13 +158,11 @@
       mermaidDiv.style.zoom =
         mermaidDiv._zoomLevel === 1 ? "" : mermaidDiv._zoomLevel;
 
-      // Switch to scrollable when zoomed, back to clipped when reset
-      if (mermaidDiv._zoomLevel === 1) {
-        wrapper.style.overflow = "";
-        wrapper.classList.toggle("clipped", mermaidDiv.scrollHeight > wrapper.clientHeight + 10);
-      } else {
+      // Allow scrolling when zoomed beyond natural size
+      if (mermaidDiv._zoomLevel > 1) {
         wrapper.style.overflow = "auto";
-        wrapper.classList.remove("clipped");
+      } else {
+        wrapper.style.overflow = "";
       }
     },
     true

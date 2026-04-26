@@ -3,31 +3,18 @@
   background: transparent !important;
 }
 
-/* Wrapper: clips oversized diagrams, centers content, use fullscreen for detail */
+/* Wrapper: centers diagrams, allows full-size display */
 .diagram-wrapper {
-  overflow: hidden;
   max-width: 100%;
-  max-height: 350px;
   margin-bottom: 0 !important;
   position: relative;
   display: flex;
   justify-content: center;
 }
 
-/* Fade-out hint when content is clipped */
-.diagram-wrapper.clipped::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 40px;
-  background: linear-gradient(transparent, var(--md-default-bg-color));
-  pointer-events: none;
-}
-
-/* Mermaid div inside wrapper: no constraints (wrapper handles containment) */
+/* Mermaid div fills available width so SVGs scale up */
 .diagram-wrapper div.mermaid {
+  width: 100%;
   margin-bottom: 0 !important;
 }
 
