@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: feast-rbac-revoke
 spec:
+  tier: 4
   target:
     operator: feast
     component: feast-operator-controller-manager

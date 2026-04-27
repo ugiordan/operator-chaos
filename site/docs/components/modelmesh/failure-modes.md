@@ -29,6 +29,7 @@ kind: ChaosExperiment
 metadata:
   name: modelmesh-config-drift
 spec:
+  tier: 2
   target:
     operator: modelmesh
     component: modelmesh-controller
@@ -83,6 +84,7 @@ kind: ChaosExperiment
 metadata:
   name: modelmesh-network-partition
 spec:
+  tier: 2
   target:
     operator: modelmesh
     component: modelmesh-controller
@@ -133,6 +135,7 @@ kind: ChaosExperiment
 metadata:
   name: modelmesh-pod-kill
 spec:
+  tier: 1
   target:
     operator: modelmesh
     component: modelmesh-controller
@@ -184,6 +187,7 @@ kind: ChaosExperiment
 metadata:
   name: modelmesh-rbac-revoke
 spec:
+  tier: 4
   target:
     operator: modelmesh
     component: modelmesh-controller
@@ -235,6 +239,7 @@ kind: ChaosExperiment
 metadata:
   name: modelmesh-webhook-disrupt
 spec:
+  tier: 4
   target:
     operator: modelmesh
     component: modelmesh-controller

@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: workbenches-dependency-dashboard-kill
 spec:
+  tier: 1
   target:
     operator: workbenches
     component: notebook-controller

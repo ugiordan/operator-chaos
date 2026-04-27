@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: rhoai-odh-model-controller-label-stomping-delete
 spec:
+  tier: 3
   target:
     operator: odh-model-controller
     component: odh-model-controller

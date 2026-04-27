@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: trustyai-pod-kill
 spec:
+  tier: 1
   target:
     operator: trustyai
     component: trustyai-service-operator-controller-manager

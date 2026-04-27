@@ -28,6 +28,7 @@ kind: ChaosExperiment
 metadata:
   name: codeflare-config-drift
 spec:
+  tier: 2
   target:
     operator: codeflare
     component: codeflare-operator-manager
@@ -82,6 +83,7 @@ kind: ChaosExperiment
 metadata:
   name: codeflare-network-partition
 spec:
+  tier: 2
   target:
     operator: codeflare
     component: codeflare-operator-manager
@@ -132,6 +134,7 @@ kind: ChaosExperiment
 metadata:
   name: codeflare-pod-kill
 spec:
+  tier: 1
   target:
     operator: codeflare
     component: codeflare-operator-manager
@@ -182,6 +185,7 @@ kind: ChaosExperiment
 metadata:
   name: codeflare-rbac-revoke
 spec:
+  tier: 4
   target:
     operator: codeflare
     component: codeflare-operator-manager

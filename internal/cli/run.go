@@ -20,6 +20,7 @@ func newRunCommand() *cobra.Command {
 		timeout         time.Duration
 		distributedLock bool
 		lockNamespace   string
+		maxTier         int32
 	)
 
 	cmd := &cobra.Command{
@@ -27,6 +28,10 @@ func newRunCommand() *cobra.Command {
 		Short: "Run a chaos experiment",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if maxTier < 0 || maxTier > v1alpha1.MaxTier {
+				return fmt.Errorf("--max-tier must be 0 (no filter) or between %d and %d", v1alpha1.MinTier, v1alpha1.MaxTier)
+			}
+
 			ctx, cancel := context.WithTimeout(cmd.Context(), timeout)
 			defer cancel()
 
@@ -52,6 +57,13 @@ func newRunCommand() *cobra.Command {
 			if cmd.Flags().Changed("namespace") {
 				namespace, _ := cmd.Flags().GetString("namespace")
 				overrideExperimentNamespace(exp, namespace)
+			}
+
+			// Skip if tier exceeds max-tier.
+			// Experiments with tier=0 (unset/omitted) always run regardless of --max-tier.
+			if maxTier > 0 && exp.Spec.Tier > maxTier {
+				fmt.Fprintf(os.Stderr, "Skipping experiment %q: tier %d > max-tier %d (not executed)\n", exp.Name, exp.Spec.Tier, maxTier)
+				return nil
 			}
 
 			// Override dry-run from CLI flag
@@ -99,6 +111,7 @@ func newRunCommand() *cobra.Command {
 	cmd.Flags().DurationVar(&timeout, "timeout", 10*time.Minute, "total experiment timeout")
 	cmd.Flags().BoolVar(&distributedLock, "distributed-lock", false, "use Kubernetes Lease-based distributed locking")
 	cmd.Flags().StringVar(&lockNamespace, "lock-namespace", v1alpha1.DefaultNamespace, "namespace for distributed lock leases")
+	cmd.Flags().Int32Var(&maxTier, "max-tier", 0, "skip experiments above this tier (0 = no filter)")
 
 	return cmd
 }

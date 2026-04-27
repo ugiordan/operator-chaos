@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: modelmesh-pod-kill
 spec:
+  tier: 1
   target:
     operator: modelmesh
     component: modelmesh-controller

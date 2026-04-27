@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: opendatahub-operator-finalizer-block
 spec:
+  tier: 3
   target:
     operator: opendatahub-operator
     component: opendatahub-operator

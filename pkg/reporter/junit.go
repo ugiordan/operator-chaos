@@ -63,9 +63,13 @@ func (r *JUnitReporter) WriteSuite(name string, reports []ExperimentReport) erro
 		caseSeconds := report.Evaluation.RecoveryTime.Seconds()
 		totalSeconds += caseSeconds
 
+		className := fmt.Sprintf("chaos.%s", report.Target.Component)
+		if report.Tier > 0 {
+			className = fmt.Sprintf("chaos.T%d.%s", report.Tier, report.Target.Component)
+		}
 		tc := junitTestCase{
 			Name:      report.Experiment,
-			ClassName: fmt.Sprintf("chaos.%s", report.Target.Component),
+			ClassName: className,
 			Time:      fmt.Sprintf("%.3f", caseSeconds),
 		}
 

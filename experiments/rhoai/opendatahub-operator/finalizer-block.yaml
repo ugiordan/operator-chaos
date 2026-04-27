@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: rhoai-operator-finalizer-block
 spec:
+  tier: 3
   target:
     operator: opendatahub-operator
     component: rhods-operator

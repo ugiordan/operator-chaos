@@ -27,6 +27,9 @@ spec:
     - jsonPath: .spec.injection.type
       name: Type
       type: string
+    - jsonPath: .spec.tier
+      name: Tier
+      type: integer
     - jsonPath: .spec.target.component
       name: Target
       type: string
@@ -182,6 +185,20 @@ spec:
                 - component
                 - operator
                 type: object
+              tier:
+                default: 1
+                description: |-
+                  Tier indicates the fidelity tier of this experiment (1-6).
+                  Tier 1: basic recovery (PodKill), safe for CI/kind.
+                  Tier 2: config/network faults (ConfigDrift, NetworkPartition).
+                  Tier 3: resource mutation (CRDMutation, FinalizerBlock, OwnerRefOrphan, LabelStomping, ClientFault).
+                  Tier 4: cluster-wide impact (WebhookDisrupt, RBACRevoke, WebhookLatency).
+                  Tier 5: destructive (NamespaceDeletion, QuotaExhaustion).
+                  Tier 6: multi-fault and upgrade scenarios.
+                format: int32
+                maximum: 6
+                minimum: 1
+                type: integer
             required:
             - blastRadius
             - hypothesis

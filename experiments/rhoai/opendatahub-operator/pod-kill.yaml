@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: rhoai-operator-pod-kill
 spec:
+  tier: 1
   target:
     operator: opendatahub-operator
     component: rhods-operator

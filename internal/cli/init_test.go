@@ -185,9 +185,112 @@ func TestInit_ClientFault(t *testing.T) {
 	assert.Empty(t, errs, "generated ClientFault template should pass validation, got: %v", errs)
 }
 
+func TestInit_TierPerInjectionType(t *testing.T) {
+	cases := map[string]int32{
+		"PodKill":           1,
+		"ConfigDrift":       2,
+		"NetworkPartition":  2,
+		"CRDMutation":       3,
+		"FinalizerBlock":    3,
+		"OwnerRefOrphan":    3,
+		"LabelStomping":     3,
+		"ClientFault":       3,
+		"WebhookDisrupt":    4,
+		"RBACRevoke":        4,
+		"WebhookLatency":    4,
+		"NamespaceDeletion":  5,
+		"QuotaExhaustion":   5,
+	}
+	for injType, expectedTier := range cases {
+		t.Run(injType, func(t *testing.T) {
+			out := executeInit(t, "--component", "test", "--type", injType)
+			exp := parseExperiment(t, out)
+			assert.Equal(t, expectedTier, exp.Spec.Tier,
+				"%s should generate tier %d", injType, expectedTier)
+		})
+	}
+}
+
+func TestInit_OwnerRefOrphan(t *testing.T) {
+	out := executeInit(t, "--component", "dashboard", "--type", "OwnerRefOrphan")
+	exp := parseExperiment(t, out)
+
+	assert.Equal(t, v1alpha1.OwnerRefOrphan, exp.Spec.Injection.Type)
+	assert.Contains(t, exp.Spec.Injection.Parameters, "apiVersion")
+	assert.Contains(t, exp.Spec.Injection.Parameters, "kind")
+	assert.Contains(t, exp.Spec.Injection.Parameters, "name")
+	assert.NotContains(t, exp.Spec.Injection.Parameters, "labelSelector")
+
+	errs := experiment.Validate(exp)
+	assert.Empty(t, errs, "generated OwnerRefOrphan template should pass validation, got: %v", errs)
+}
+
+func TestInit_LabelStomping(t *testing.T) {
+	out := executeInit(t, "--component", "dashboard", "--type", "LabelStomping")
+	exp := parseExperiment(t, out)
+
+	assert.Equal(t, v1alpha1.LabelStomping, exp.Spec.Injection.Type)
+	assert.Contains(t, exp.Spec.Injection.Parameters, "apiVersion")
+	assert.Contains(t, exp.Spec.Injection.Parameters, "kind")
+	assert.Contains(t, exp.Spec.Injection.Parameters, "name")
+	assert.Contains(t, exp.Spec.Injection.Parameters, "labelKey")
+	assert.Contains(t, exp.Spec.Injection.Parameters, "action")
+	assert.Equal(t, v1alpha1.DangerLevelMedium, exp.Spec.Injection.DangerLevel)
+	assert.NotContains(t, exp.Spec.Injection.Parameters, "labelSelector")
+	assert.NotContains(t, exp.Spec.Injection.Parameters["labelKey"], "kubernetes.io/",
+		"default skeleton should not use system labels that require dangerLevel: high")
+
+	errs := experiment.Validate(exp)
+	assert.Empty(t, errs, "generated LabelStomping template should pass validation, got: %v", errs)
+}
+
+func TestInit_WebhookLatency(t *testing.T) {
+	out := executeInit(t, "--component", "dashboard", "--type", "WebhookLatency")
+	exp := parseExperiment(t, out)
+
+	assert.Equal(t, v1alpha1.WebhookLatency, exp.Spec.Injection.Type)
+	assert.Contains(t, exp.Spec.Injection.Parameters, "webhookName")
+	assert.Contains(t, exp.Spec.Injection.Parameters, "apiGroups")
+	assert.Contains(t, exp.Spec.Injection.Parameters, "delay")
+	assert.Equal(t, v1alpha1.DangerLevelHigh, exp.Spec.Injection.DangerLevel)
+	assert.True(t, exp.Spec.BlastRadius.AllowDangerous)
+	assert.NotContains(t, exp.Spec.Injection.Parameters, "labelSelector")
+
+	errs := experiment.Validate(exp)
+	assert.Empty(t, errs, "generated WebhookLatency template should pass validation, got: %v", errs)
+}
+
+func TestInit_NamespaceDeletion(t *testing.T) {
+	out := executeInit(t, "--component", "dashboard", "--type", "NamespaceDeletion")
+	exp := parseExperiment(t, out)
+
+	assert.Equal(t, v1alpha1.NamespaceDeletion, exp.Spec.Injection.Type)
+	assert.Contains(t, exp.Spec.Injection.Parameters, "namespace")
+	assert.Equal(t, v1alpha1.DangerLevelHigh, exp.Spec.Injection.DangerLevel)
+	assert.True(t, exp.Spec.BlastRadius.AllowDangerous)
+	assert.NotContains(t, exp.Spec.Injection.Parameters, "labelSelector")
+
+	errs := experiment.Validate(exp)
+	assert.Empty(t, errs, "generated NamespaceDeletion template should pass validation, got: %v", errs)
+}
+
+func TestInit_QuotaExhaustion(t *testing.T) {
+	out := executeInit(t, "--component", "dashboard", "--type", "QuotaExhaustion")
+	exp := parseExperiment(t, out)
+
+	assert.Equal(t, v1alpha1.QuotaExhaustion, exp.Spec.Injection.Type)
+	assert.Contains(t, exp.Spec.Injection.Parameters, "quotaName")
+	assert.Contains(t, exp.Spec.Injection.Parameters, "cpu")
+	assert.Equal(t, v1alpha1.DangerLevelHigh, exp.Spec.Injection.DangerLevel)
+	assert.True(t, exp.Spec.BlastRadius.AllowDangerous)
+	assert.NotContains(t, exp.Spec.Injection.Parameters, "labelSelector")
+
+	errs := experiment.Validate(exp)
+	assert.Empty(t, errs, "generated QuotaExhaustion template should pass validation, got: %v", errs)
+}
+
 func TestInit_DangerLevelForDangerousTypes(t *testing.T) {
-	// WebhookDisrupt and RBACRevoke are dangerous cluster-scoped types
-	dangerousTypes := []string{"WebhookDisrupt", "RBACRevoke"}
+	dangerousTypes := []string{"WebhookDisrupt", "RBACRevoke", "WebhookLatency", "NamespaceDeletion", "QuotaExhaustion"}
 	for _, typ := range dangerousTypes {
 		t.Run(typ, func(t *testing.T) {
 			out := executeInit(t, "--component", "dashboard", "--type", typ)
@@ -199,7 +302,6 @@ func TestInit_DangerLevelForDangerousTypes(t *testing.T) {
 		})
 	}
 
-	// PodKill, NetworkPartition should NOT have dangerLevel set
 	safeTypes := []string{"PodKill", "NetworkPartition"}
 	for _, typ := range safeTypes {
 		t.Run(typ, func(t *testing.T) {

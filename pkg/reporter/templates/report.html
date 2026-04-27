@@ -49,6 +49,7 @@
       <thead>
         <tr>
           <th>Name</th>
+          <th>Tier</th>
           <th>Component</th>
           <th>Type</th>
           <th>Verdict</th>
@@ -59,6 +60,7 @@
       {{ range .Experiments }}
         <tr>
           <td>{{ .Experiment }}</td>
+          <td>{{ if .Tier }}T{{ .Tier }}{{ else }}--{{ end }}</td>
           <td>{{ .Target.Component }}</td>
           <td>{{ .Injection.Type }}</td>
           <td><span class="badge badge-{{ verdictClass .Evaluation.Verdict }}">{{ .Evaluation.Verdict }}</span></td>
@@ -77,6 +79,7 @@
       <div class="detail-grid">
         <span class="detail-label">Operator</span><span>{{ .Target.Operator }}</span>
         <span class="detail-label">Component</span><span>{{ .Target.Component }}</span>
+        <span class="detail-label">Tier</span><span>{{ if .Tier }}{{ .Tier }}{{ else }}N/A{{ end }}</span>
         <span class="detail-label">Injection</span><span>{{ .Injection.Type }}</span>
         <span class="detail-label">Recovery</span><span>{{ formatRecovery .Evaluation.RecoveryTime .Evaluation.ReconcileCycles }}</span>
         <span class="detail-label">Confidence</span><span>{{ .Evaluation.Confidence }}</span>

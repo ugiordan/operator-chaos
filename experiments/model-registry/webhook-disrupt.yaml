@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: model-registry-webhook-disrupt
 spec:
+  tier: 4
   target:
     operator: model-registry
     component: model-registry-operator

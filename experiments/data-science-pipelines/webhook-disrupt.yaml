@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: data-science-pipelines-webhook-disrupt
 spec:
+  tier: 4
   target:
     operator: data-science-pipelines
     component: ds-pipelines-webhook

@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: codeflare-pod-kill
 spec:
+  tier: 1
   target:
     operator: codeflare
     component: codeflare-operator-manager

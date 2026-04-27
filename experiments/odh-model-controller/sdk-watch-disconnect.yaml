@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: odh-model-controller-sdk-watch-disconnect
 spec:
+  tier: 3
   target:
     operator: odh-model-controller
     component: odh-model-controller

@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: dashboard-quota-exhaustion
 spec:
+  tier: 5
   target:
     operator: dashboard
     component: odh-dashboard

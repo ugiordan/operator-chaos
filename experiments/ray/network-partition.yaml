@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: ray-network-partition
 spec:
+  tier: 2
   target:
     operator: ray
     component: ray-operator-controller-manager

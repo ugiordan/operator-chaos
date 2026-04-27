@@ -29,6 +29,7 @@ kind: ChaosExperiment
 metadata:
   name: workbenches-dependency-dashboard-kill
 spec:
+  tier: 1
   target:
     operator: workbenches
     component: notebook-controller
@@ -78,6 +79,7 @@ kind: ChaosExperiment
 metadata:
   name: workbenches-network-partition
 spec:
+  tier: 2
   target:
     operator: workbenches
     component: odh-notebook-controller
@@ -128,6 +130,7 @@ kind: ChaosExperiment
 metadata:
   name: workbenches-pod-kill
 spec:
+  tier: 1
   target:
     operator: workbenches
     component: odh-notebook-controller
@@ -179,6 +182,7 @@ kind: ChaosExperiment
 metadata:
   name: workbenches-rbac-revoke
 spec:
+  tier: 4
   target:
     operator: workbenches
     component: odh-notebook-controller
@@ -230,6 +234,7 @@ kind: ChaosExperiment
 metadata:
   name: workbenches-webhook-disrupt
 spec:
+  tier: 4
   target:
     operator: workbenches
     component: odh-notebook-controller
@@ -248,6 +253,7 @@ spec:
     dangerLevel: high
     parameters:
       webhookName: notebooks.opendatahub.io
+      webhookType: mutating
       action: setFailurePolicy
       value: Ignore
     ttl: "60s"

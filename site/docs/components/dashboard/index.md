@@ -18,9 +18,10 @@
 | ClusterRoleBinding | 3 |
 | ConfigMap | 1 |
 | Deployment | 1 |
+| Route | 1 |
 | Service | 1 |
 | ServiceAccount | 1 |
-| **Total** | **7** |
+| **Total** | **8** |
 
 ## Components
 
@@ -39,6 +40,7 @@
 | rbac.authorization.k8s.io/v1 | ClusterRoleBinding | odh-dashboard-monitoring |  |
 | v1 | Service | odh-dashboard | opendatahub |
 | v1 | ConfigMap | kube-rbac-proxy-config | opendatahub |
+| route.openshift.io/v1 | Route | odh-dashboard | opendatahub |
 
 #### Steady-State Checks
 

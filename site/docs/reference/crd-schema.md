@@ -23,6 +23,7 @@ ChaosExperimentList contains a list of ChaosExperiment.
 
 | Field | Type | JSON | Description |
 |-------|------|------|-------------|
+| `Tier` | `int32` | `tier` | Fidelity tier (1-6). Controls graduated execution via `--max-tier`. +kubebuilder:validation:Minimum=1 +kubebuilder:validation:Maximum=6 +kubebuilder:default=1 |
 | `Target` | `TargetSpec` | `target` |  |
 | `SteadyState` | `SteadyStateSpec` | `steadyState` |  |
 | `Injection` | `InjectionSpec` | `injection` |  |

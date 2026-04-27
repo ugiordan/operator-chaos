@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: ray-pod-kill
 spec:
+  tier: 1
   target:
     operator: ray
     component: ray-operator-controller-manager

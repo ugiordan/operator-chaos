@@ -4,6 +4,7 @@ metadata:
   name: kserve-llm-controller-isolation
   namespace: kserve
 spec:
+  tier: 2
   target:
     operator: kserve
     component: llmisvc-controller-manager

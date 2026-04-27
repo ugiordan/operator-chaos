@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: training-operator-pod-kill
 spec:
+  tier: 1
   target:
     operator: training-operator
     component: training-operator-controller-manager

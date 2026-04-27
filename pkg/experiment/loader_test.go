@@ -335,6 +335,64 @@ spec:
 	assert.Equal(t, v1alpha1.InjectionType("PodKill"), exp.Spec.Injection.Type)
 	assert.Equal(t, "test hypothesis", exp.Spec.Hypothesis.Description)
 	assert.Equal(t, []string{"default"}, exp.Spec.BlastRadius.AllowedNamespaces)
+	assert.Equal(t, int32(0), exp.Spec.Tier, "YAML without tier field should deserialize to 0")
+
+	errs := Validate(exp)
+	assert.Empty(t, errs)
+}
+
+func TestValidate_TierValid(t *testing.T) {
+	for _, tier := range []int32{0, 1, 2, 3, 4, 5, 6} {
+		exp := validExperiment()
+		exp.Spec.Tier = tier
+		errs := Validate(exp)
+		assert.Empty(t, errs, "tier %d should be valid", tier)
+	}
+}
+
+func TestValidate_TierInvalid(t *testing.T) {
+	for _, tier := range []int32{-1, 7, 100} {
+		exp := validExperiment()
+		exp.Spec.Tier = tier
+		errs := Validate(exp)
+		found := false
+		for _, e := range errs {
+			if strings.Contains(e, "spec.tier") {
+				found = true
+				break
+			}
+		}
+		assert.True(t, found, "tier %d should produce validation error, got: %v", tier, errs)
+	}
+}
+
+func TestLoad_TierField(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "tiered.yaml")
+	content := []byte(`
+metadata:
+  name: tiered-test
+spec:
+  tier: 3
+  target:
+    operator: my-operator
+    component: my-component
+  injection:
+    type: PodKill
+    parameters:
+      labelSelector: "app=test"
+  hypothesis:
+    description: "test hypothesis"
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - default
+`)
+	require.NoError(t, os.WriteFile(path, content, 0644))
+
+	exp, err := Load(path)
+	require.NoError(t, err)
+	assert.Equal(t, int32(3), exp.Spec.Tier)
 
 	errs := Validate(exp)
 	assert.Empty(t, errs)

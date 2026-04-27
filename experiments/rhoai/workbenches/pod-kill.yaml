@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: rhoai-workbenches-pod-kill
 spec:
+  tier: 1
   target:
     operator: workbenches
     component: odh-notebook-controller

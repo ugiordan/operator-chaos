@@ -28,6 +28,7 @@ kind: ChaosExperiment
 metadata:
   name: ray-finalizer-block
 spec:
+  tier: 3
   target:
     operator: ray
     component: ray-operator-controller-manager
@@ -81,6 +82,7 @@ kind: ChaosExperiment
 metadata:
   name: ray-network-partition
 spec:
+  tier: 2
   target:
     operator: ray
     component: ray-operator-controller-manager
@@ -131,6 +133,7 @@ kind: ChaosExperiment
 metadata:
   name: ray-pod-kill
 spec:
+  tier: 1
   target:
     operator: ray
     component: ray-operator-controller-manager
@@ -181,6 +184,7 @@ kind: ChaosExperiment
 metadata:
   name: ray-rbac-revoke
 spec:
+  tier: 4
   target:
     operator: ray
     component: ray-operator-controller-manager

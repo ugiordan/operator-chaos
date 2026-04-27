@@ -488,6 +488,7 @@ operator-chaos run <experiment.yaml> [flags]
       --knowledge stringArray   path to operator knowledge YAML (repeatable)
       --knowledge-dir string    directory of operator knowledge YAMLs
       --lock-namespace string   namespace for distributed lock leases (default "default")
+      --max-tier int32          skip experiments above this tier (0 = no filter)
       --report-dir string       directory for report output
       --timeout duration        total experiment timeout (default 10m0s)
 ```
@@ -564,6 +565,7 @@ operator-chaos suite <experiments-directory> [flags]
       --knowledge stringArray   path to operator knowledge YAML (repeatable)
       --knowledge-dir string    directory of operator knowledge YAMLs
       --lock-namespace string   namespace for distributed lock leases (default "default")
+      --max-tier int32          skip experiments above this tier (0 = no filter)
       --parallel int            max concurrent experiments (default 1)
       --report-dir string       directory for report output
       --timeout duration        timeout per experiment (default 10m0s)

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 300">
+  <rect width="600" height="300" fill="#1a1a1a" rx="4"/>
+  <text x="10" y="25" font-family="Arial" font-size="14" font-weight="bold" fill="#fff">Recovery Time Distribution</text>
+  <text x="300" y="290" text-anchor="middle" font-family="Arial" font-size="9" fill="#999">PLACEHOLDER - Replace with Grafana screenshot</text>
+
+  <!-- Axes -->
+  <line x1="50" y1="250" x2="550" y2="250" stroke="#555" stroke-width="1"/>
+  <line x1="50" y1="60" x2="50" y2="250" stroke="#555" stroke-width="1"/>
+
+  <!-- Bars -->
+  <rect x="70" y="180" width="40" height="70" fill="#1565C0" fill-opacity="0.8"/>
+  <rect x="130" y="140" width="40" height="110" fill="#1565C0" fill-opacity="0.8"/>
+  <rect x="190" y="100" width="40" height="150" fill="#1565C0" fill-opacity="0.8"/>
+  <rect x="250" y="120" width="40" height="130" fill="#1565C0" fill-opacity="0.8"/>
+  <rect x="310" y="160" width="40" height="90" fill="#1565C0" fill-opacity="0.8"/>
+  <rect x="370" y="200" width="40" height="50" fill="#1565C0" fill-opacity="0.8"/>
+  <rect x="430" y="220" width="40" height="30" fill="#1565C0" fill-opacity="0.8"/>
+  <rect x="490" y="235" width="40" height="15" fill="#1565C0" fill-opacity="0.8"/>
+
+  <!-- Labels -->
+  <text x="90" y="268" text-anchor="middle" font-family="Arial" font-size="9" fill="#999">1m</text>
+  <text x="150" y="268" text-anchor="middle" font-family="Arial" font-size="9" fill="#999">2m</text>
+  <text x="210" y="268" text-anchor="middle" font-family="Arial" font-size="9" fill="#999">3m</text>
+  <text x="270" y="268" text-anchor="middle" font-family="Arial" font-size="9" fill="#999">4m</text>
+  <text x="330" y="268" text-anchor="middle" font-family="Arial" font-size="9" fill="#999">5m</text>
+  <text x="390" y="268" text-anchor="middle" font-family="Arial" font-size="9" fill="#999">6m</text>
+  <text x="450" y="268" text-anchor="middle" font-family="Arial" font-size="9" fill="#999">7m</text>
+  <text x="510" y="268" text-anchor="middle" font-family="Arial" font-size="9" fill="#999">8m+</text>
+</svg>

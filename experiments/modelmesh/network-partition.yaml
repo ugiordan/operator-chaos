@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: modelmesh-network-partition
 spec:
+  tier: 2
   target:
     operator: modelmesh
     component: modelmesh-controller

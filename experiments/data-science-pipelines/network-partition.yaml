@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: data-science-pipelines-network-partition
 spec:
+  tier: 2
   target:
     operator: data-science-pipelines
     component: data-science-pipelines-operator

@@ -40,10 +40,54 @@ func injectionParameters(injType v1alpha1.InjectionType, component string) (para
 	case v1alpha1.ClientFault:
 		params = `      faults: '{"reconcile":{"errorRate":0.3,"error":"connection refused"}}'`
 		dangerLevel = fmt.Sprintf("    dangerLevel: %s", v1alpha1.DangerLevelMedium)
+	case v1alpha1.OwnerRefOrphan:
+		params = fmt.Sprintf(`      apiVersion: "apps/v1"
+      kind: "Deployment"
+      name: "%s"`, component)
+	case v1alpha1.LabelStomping:
+		params = fmt.Sprintf(`      apiVersion: "apps/v1"
+      kind: "Deployment"
+      name: "%s"
+      labelKey: "chaos-test-label"
+      action: "delete"`, component)
+		dangerLevel = fmt.Sprintf("    dangerLevel: %s", v1alpha1.DangerLevelMedium)
+	case v1alpha1.WebhookLatency:
+		params = fmt.Sprintf(`      webhookName: "%s-webhook"
+      resources: "pods,deployments"
+      apiGroups: "apps"
+      delay: "5s"`, component)
+		dangerLevel = fmt.Sprintf("    dangerLevel: %s", v1alpha1.DangerLevelHigh)
+		allowDangerous = "    allowDangerous: true"
+	case v1alpha1.NamespaceDeletion:
+		params = `      namespace: "replace-with-target-namespace"`
+		dangerLevel = fmt.Sprintf("    dangerLevel: %s", v1alpha1.DangerLevelHigh)
+		allowDangerous = "    allowDangerous: true"
+	case v1alpha1.QuotaExhaustion:
+		params = fmt.Sprintf(`      quotaName: "%s-quota"
+      cpu: "100m"`, component)
+		dangerLevel = fmt.Sprintf("    dangerLevel: %s", v1alpha1.DangerLevelHigh)
+		allowDangerous = "    allowDangerous: true"
 	default: // PodKill
 		params = fmt.Sprintf("      labelSelector: \"app.kubernetes.io/part-of=%s\"", component)
 	}
 	return params, dangerLevel, allowDangerous
+}
+
+func defaultTierForInjectionType(t v1alpha1.InjectionType) int32 {
+	switch t {
+	case v1alpha1.PodKill:
+		return 1
+	case v1alpha1.ConfigDrift, v1alpha1.NetworkPartition:
+		return 2
+	case v1alpha1.CRDMutation, v1alpha1.FinalizerBlock, v1alpha1.OwnerRefOrphan, v1alpha1.LabelStomping, v1alpha1.ClientFault:
+		return 3
+	case v1alpha1.WebhookDisrupt, v1alpha1.RBACRevoke, v1alpha1.WebhookLatency:
+		return 4
+	case v1alpha1.NamespaceDeletion, v1alpha1.QuotaExhaustion:
+		return 5
+	default:
+		return 1
+	}
 }
 
 func newInitCommand() *cobra.Command {
@@ -86,7 +130,8 @@ func newInitCommand() *cobra.Command {
 
 			// Cluster-scoped injection types must NOT include allowedNamespaces
 			clusterScoped := injType == v1alpha1.WebhookDisrupt ||
-				injType == v1alpha1.RBACRevoke
+				injType == v1alpha1.RBACRevoke ||
+				injType == v1alpha1.WebhookLatency
 
 			if clusterScoped && namespace != v1alpha1.DefaultNamespace {
 				_, _ = fmt.Fprintf(cmd.ErrOrStderr(), "Warning: --namespace is ignored for cluster-scoped injection type %s\n", injType)
@@ -112,6 +157,7 @@ metadata:
   labels:
     component: %s
 spec:
+  tier: %d
   target:
     operator: %s
     component: %s
@@ -127,9 +173,11 @@ spec:
 %s
 %s
 `
+			tier := defaultTierForInjectionType(injType)
 			_, _ = fmt.Fprintf(cmd.OutOrStdout(), tmpl,
 				component, injectionType,
 				component,
+				tier,
 				operator, component, component,
 				component, injectionType,
 				injectionType,

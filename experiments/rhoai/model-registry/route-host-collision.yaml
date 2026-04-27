@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: rhoai-model-registry-route-host-collision
 spec:
+  tier: 3
   target:
     operator: model-registry
     component: model-registry-operator

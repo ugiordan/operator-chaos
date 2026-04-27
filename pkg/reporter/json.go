@@ -16,6 +16,7 @@ import (
 type ExperimentReport struct {
 	Experiment     string                        `json:"experiment"`
 	Timestamp      time.Time                     `json:"timestamp"`
+	Tier           int32                         `json:"tier,omitempty"`
 	Target         TargetReport                  `json:"target"`
 	Injection      InjectionReport               `json:"injection"`
 	Evaluation     evaluator.EvaluationResult    `json:"evaluation"`

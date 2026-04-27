@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: odh-model-controller-quota-exhaustion
 spec:
+  tier: 5
   target:
     operator: odh-model-controller
     component: odh-model-controller

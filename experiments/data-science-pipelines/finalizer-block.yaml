@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: data-science-pipelines-finalizer-block
 spec:
+  tier: 3
   target:
     operator: data-science-pipelines
     component: data-science-pipelines-operator

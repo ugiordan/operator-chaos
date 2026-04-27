@@ -10,6 +10,8 @@
 | NetworkPartition | medium | llm-controller-isolation.yaml | When the llmisvc-controller-manager is network-partitioned from the API server, ... |
 | PodKill | low | main-controller-kill.yaml | When the kserve-controller-manager pod is killed, the Deployment controller recr... |
 | OwnerRefOrphan | medium | ownerref-orphan.yaml | Removing ownerReferences from the kserve-controller-manager Deployment should tr... |
+| CRDMutation | high | route-host-collision.yaml | Mutating a KServe InferenceService Route host simulates a DNS misconfiguration t... |
+| CRDMutation | high | route-tls-mutation.yaml | Changing TLS termination on a KServe InferenceService Route from edge/reencrypt ... |
 
 ## Experiment Details
 
@@ -30,6 +32,7 @@ kind: ChaosExperiment
 metadata:
   name: kserve-dependency-odh-model-controller-kill
 spec:
+  tier: 1
   target:
     operator: kserve
     component: kserve-controller
@@ -79,6 +82,7 @@ metadata:
   name: kserve-isvc-config-corruption
   namespace: kserve
 spec:
+  tier: 2
   target:
     operator: kserve
     component: kserve-controller-manager
@@ -136,6 +140,7 @@ metadata:
   name: kserve-isvc-validator-disrupt
   namespace: kserve
 spec:
+  tier: 4
   target:
     operator: kserve
     component: kserve-controller-manager
@@ -191,6 +196,7 @@ metadata:
   name: kserve-llm-controller-isolation
   namespace: kserve
 spec:
+  tier: 2
   target:
     operator: kserve
     component: llmisvc-controller-manager
@@ -243,6 +249,7 @@ metadata:
   name: kserve-main-controller-kill
   namespace: kserve
 spec:
+  tier: 1
   target:
     operator: kserve
     component: kserve-controller-manager
@@ -294,6 +301,7 @@ kind: ChaosExperiment
 metadata:
   name: kserve-ownerref-orphan
 spec:
+  tier: 3
   target:
     operator: kserve
     component: kserve-controller
@@ -322,6 +330,131 @@ spec:
     maxPodsAffected: 1
     allowedNamespaces:
       - opendatahub
+```
+
+</details>
+
+### kserve-route-host-collision
+
+- **Type:** CRDMutation
+- **Danger Level:** high
+- **Component:** kserve-controller-manager
+
+Mutating a KServe InferenceService Route host simulates a DNS misconfiguration that makes the model endpoint unreachable. KServe or the RHOAI operator should detect the Route drift and reconcile the host. NOTE: KServe creates Routes per InferenceService; the Route name in parameters must be customized for each deployment. Expected verdict: Resilient if the Route is restored, Vulnerable if the model endpoint remains unreachable.
+
+<details>
+<summary>Experiment YAML</summary>
+
+```yaml
+apiVersion: chaos.operatorchaos.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: kserve-route-host-collision
+spec:
+  tier: 3
+  target:
+    operator: kserve
+    component: kserve-controller-manager
+    resource: Route/kserve-isvc-route
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: kserve-controller-manager
+        namespace: kserve
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: CRDMutation
+    dangerLevel: high
+    # NOTE: Replace "kserve-isvc-route" with the actual Route name for
+    # your InferenceService. KServe creates Routes per InferenceService
+    # with names like "<isvc-name>-predictor" in the model namespace.
+    parameters:
+      apiVersion: "route.openshift.io/v1"
+      kind: "Route"
+      name: "kserve-isvc-route"
+      path: "spec.host"
+      value: "chaos-collision.apps.cluster.invalid"
+    ttl: "300s"
+  hypothesis:
+    description: >-
+      Mutating a KServe InferenceService Route host simulates a DNS
+      misconfiguration that makes the model endpoint unreachable. KServe
+      or the RHOAI operator should detect the Route drift and reconcile
+      the host. NOTE: KServe creates Routes per InferenceService; the
+      Route name in parameters must be customized for each deployment.
+      Expected verdict: Resilient if the Route is restored, Vulnerable
+      if the model endpoint remains unreachable.
+    recoveryTimeout: 120s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - kserve
+    allowDangerous: true
+```
+
+</details>
+
+### kserve-route-tls-mutation
+
+- **Type:** CRDMutation
+- **Danger Level:** high
+- **Component:** kserve-controller-manager
+
+Changing TLS termination on a KServe InferenceService Route from edge/reencrypt to passthrough breaks HTTPS inference endpoints. The KServe controller or RHOAI operator should detect the TLS drift and restore the correct termination mode. NOTE: The Route name must be customized for each InferenceService deployment. Expected verdict: Resilient if restored, Vulnerable if inference endpoints stay broken.
+
+<details>
+<summary>Experiment YAML</summary>
+
+```yaml
+apiVersion: chaos.operatorchaos.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: kserve-route-tls-mutation
+spec:
+  tier: 3
+  target:
+    operator: kserve
+    component: kserve-controller-manager
+    resource: Route/kserve-isvc-route
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: kserve-controller-manager
+        namespace: kserve
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: CRDMutation
+    dangerLevel: high
+    # NOTE: Replace "kserve-isvc-route" with the actual Route name for
+    # your InferenceService.
+    parameters:
+      apiVersion: "route.openshift.io/v1"
+      kind: "Route"
+      name: "kserve-isvc-route"
+      path: "spec.tls.termination"
+      value: "passthrough"
+    ttl: "300s"
+  hypothesis:
+    description: >-
+      Changing TLS termination on a KServe InferenceService Route from
+      edge/reencrypt to passthrough breaks HTTPS inference endpoints.
+      The KServe controller or RHOAI operator should detect the TLS
+      drift and restore the correct termination mode. NOTE: The Route
+      name must be customized for each InferenceService deployment.
+      Expected verdict: Resilient if restored, Vulnerable if inference
+      endpoints stay broken.
+    recoveryTimeout: 120s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - kserve
+    allowDangerous: true
 ```
 
 </details>

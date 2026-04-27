@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: kueue-rbac-revoke
 spec:
+  tier: 4
   target:
     operator: kueue
     component: kueue-controller-manager

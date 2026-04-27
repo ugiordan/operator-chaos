@@ -55,6 +55,16 @@ The operator detects the spec mutation through its watch/informer and reconciles
 
 | Component | Experiment | Danger | Description |
 |-----------|------------|--------|-------------|
+| dashboard | dashboard-route-backend-disruption | high | Changing the Route backend service name to a non-existent service simulates rout... |
+| dashboard | dashboard-route-host-collision | high | Mutating the dashboard Route host to a non-matching domain simulates a host coll... |
+| dashboard | dashboard-route-host-deletion | high | Deleting the Route host field via null merge patch removes the host assignment f... |
+| dashboard | dashboard-route-shard-mismatch | high | Setting spec.host to a domain that does not match any configured IngressControll... |
+| dashboard | dashboard-route-tls-mutation | high | Changing the TLS termination mode from "edge" or "reencrypt" to "passthrough" fo... |
+| kserve | kserve-route-host-collision | high | Mutating a KServe InferenceService Route host simulates a DNS misconfiguration t... |
+| kserve | kserve-route-tls-mutation | high | Changing TLS termination on a KServe InferenceService Route from edge/reencrypt ... |
+| model-registry | model-registry-route-backend-disruption | high | Changing the model-registry Route backend service to a non-existent service simu... |
+| model-registry | model-registry-route-host-collision | high | Mutating the model-registry REST API Route host simulates a host collision or DN... |
+| model-registry | model-registry-route-tls-mutation | high | Changing the TLS termination mode on the model-registry REST API Route from edge... |
 | odh-model-controller | odh-model-controller-crd-mutation | medium | InferenceService has no scalar top-level spec fields, so this experiment injects... |
 | odh-model-controller | odh-model-controller-leader-lease-corrupt | high | Controller detects corrupted leader lease holderIdentity and re-elects leader wi... |
 

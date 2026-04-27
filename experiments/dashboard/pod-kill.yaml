@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: dashboard-pod-kill
 spec:
+  tier: 1
   target:
     operator: dashboard
     component: odh-dashboard

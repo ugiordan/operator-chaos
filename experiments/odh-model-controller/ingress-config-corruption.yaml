@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: odh-model-controller-ingress-config-corruption
 spec:
+  tier: 2
   target:
     operator: odh-model-controller
     component: odh-model-controller

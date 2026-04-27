@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: feast-pod-kill
 spec:
+  tier: 1
   target:
     operator: feast
     component: feast-operator-controller-manager

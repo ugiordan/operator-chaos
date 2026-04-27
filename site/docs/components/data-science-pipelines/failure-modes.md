@@ -29,6 +29,7 @@ kind: ChaosExperiment
 metadata:
   name: data-science-pipelines-finalizer-block
 spec:
+  tier: 3
   target:
     operator: data-science-pipelines
     component: data-science-pipelines-operator
@@ -86,6 +87,7 @@ kind: ChaosExperiment
 metadata:
   name: data-science-pipelines-network-partition
 spec:
+  tier: 2
   target:
     operator: data-science-pipelines
     component: data-science-pipelines-operator
@@ -136,6 +138,7 @@ kind: ChaosExperiment
 metadata:
   name: data-science-pipelines-pod-kill
 spec:
+  tier: 1
   target:
     operator: data-science-pipelines
     component: data-science-pipelines-operator
@@ -187,6 +190,7 @@ kind: ChaosExperiment
 metadata:
   name: data-science-pipelines-rbac-revoke
 spec:
+  tier: 4
   target:
     operator: data-science-pipelines
     component: data-science-pipelines-operator
@@ -238,6 +242,7 @@ kind: ChaosExperiment
 metadata:
   name: data-science-pipelines-webhook-disrupt
 spec:
+  tier: 4
   target:
     operator: data-science-pipelines
     component: ds-pipelines-webhook

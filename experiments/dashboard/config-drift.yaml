@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: dashboard-config-drift
 spec:
+  tier: 2
   target:
     operator: dashboard
     component: odh-dashboard

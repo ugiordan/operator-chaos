@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: kserve-route-tls-mutation
 spec:
+  tier: 3
   target:
     operator: kserve
     component: kserve-controller-manager

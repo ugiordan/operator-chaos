@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: model-registry-route-tls-mutation
 spec:
+  tier: 3
   target:
     operator: model-registry
     component: model-registry-operator

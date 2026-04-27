@@ -55,13 +55,13 @@ graph TD
 | Component | CRDMutation | ClientFault | ConfigDrift | FinalizerBlock | LabelStomping | NamespaceDeletion | NetworkPartition | OwnerRefOrphan | PodKill | QuotaExhaustion | RBACRevoke | WebhookDisrupt | WebhookLatency | Total |
 |-----------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|--------|-------|
 | codeflare | - | - | :material-check: | - | - | - | :material-check: | - | :material-check: | - | :material-check: | - | - | 4 |
-| dashboard | - | - | :material-check: | - | - | - | :material-check: | - | :material-check: | :material-check: | :material-check: | - | - | 5 |
+| dashboard | :material-check: | - | :material-check: | - | - | - | :material-check: | - | :material-check: | :material-check: | :material-check: | - | - | 6 |
 | data-science-pipelines | - | - | - | :material-check: | - | - | :material-check: | - | :material-check: | - | :material-check: | :material-check: | - | 5 |
 | feast | - | - | - | - | - | - | :material-check: | - | :material-check: | - | :material-check: | - | - | 3 |
-| kserve | - | - | :material-check: | - | - | - | :material-check: | :material-check: | :material-check: | - | - | :material-check: | - | 5 |
+| kserve | :material-check: | - | :material-check: | - | - | - | :material-check: | :material-check: | :material-check: | - | - | :material-check: | - | 6 |
 | kueue | - | - | - | :material-check: | - | - | :material-check: | - | :material-check: | - | :material-check: | :material-check: | - | 5 |
 | llamastack | - | - | :material-check: | - | - | - | :material-check: | - | :material-check: | - | :material-check: | - | - | 4 |
-| model-registry | - | - | - | :material-check: | - | - | :material-check: | - | :material-check: | - | :material-check: | :material-check: | - | 5 |
+| model-registry | :material-check: | - | - | :material-check: | - | - | :material-check: | - | :material-check: | - | :material-check: | :material-check: | - | 6 |
 | modelmesh | - | - | :material-check: | - | - | - | :material-check: | - | :material-check: | - | :material-check: | :material-check: | - | 5 |
 | odh-model-controller | :material-check: | :material-check: | :material-check: | :material-check: | :material-check: | :material-check: | :material-check: | :material-check: | :material-check: | :material-check: | :material-check: | :material-check: | :material-check: | 13 |
 | opendatahub-operator | - | - | - | :material-check: | - | - | :material-check: | - | :material-check: | - | :material-check: | :material-check: | - | 5 |

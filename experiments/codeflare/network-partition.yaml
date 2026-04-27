@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: codeflare-network-partition
 spec:
+  tier: 2
   target:
     operator: codeflare
     component: codeflare-operator-manager

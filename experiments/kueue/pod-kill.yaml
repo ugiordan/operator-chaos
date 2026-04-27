@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: kueue-pod-kill
 spec:
+  tier: 1
   target:
     operator: kueue
     component: kueue-controller-manager

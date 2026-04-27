@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: trustyai-rbac-revoke
 spec:
+  tier: 4
   target:
     operator: trustyai
     component: trustyai-service-operator-controller-manager

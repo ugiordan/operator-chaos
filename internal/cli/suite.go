@@ -26,6 +26,7 @@ type suiteResult struct {
 	err        error
 	orchResult *orchestrator.ExperimentResult
 	target     v1alpha1.TargetSpec
+	tier       int32
 }
 
 func newSuiteCommand() *cobra.Command {
@@ -38,6 +39,7 @@ func newSuiteCommand() *cobra.Command {
 		parallel        int
 		distributedLock bool
 		lockNamespace   string
+		maxTier         int32
 	)
 
 	cmd := &cobra.Command{
@@ -47,6 +49,9 @@ func newSuiteCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if parallel < 1 {
 				return fmt.Errorf("--parallel must be >= 1, got %d", parallel)
+			}
+			if maxTier < 0 || maxTier > v1alpha1.MaxTier {
+				return fmt.Errorf("--max-tier must be 0 (no filter) or between %d and %d", v1alpha1.MinTier, v1alpha1.MaxTier)
 			}
 
 			dir := args[0]
@@ -91,9 +96,9 @@ func newSuiteCommand() *cobra.Command {
 			var results []suiteResult
 
 			if parallel > 1 && !dryRun {
-				results = runParallel(cmd.Context(), experimentFiles, deps, timeout, parallel, namespace)
+				results = runParallel(cmd.Context(), experimentFiles, deps, timeout, parallel, namespace, maxTier)
 			} else {
-				results = runSequential(cmd.Context(), experimentFiles, deps, dryRun, timeout, namespace)
+				results = runSequential(cmd.Context(), experimentFiles, deps, dryRun, timeout, namespace, maxTier)
 			}
 
 			// Print results and count verdicts
@@ -113,8 +118,25 @@ func newSuiteCommand() *cobra.Command {
 				fmt.Println(r.verdict)
 			}
 
-			fmt.Printf("\nSuite summary: %d passed, %d failed, %d skipped (total: %d)\n",
-				passed, failed, skipped, len(experimentFiles))
+			// Tier distribution
+			tierCounts := make(map[int32]int)
+			for _, r := range results {
+				if r.tier > 0 {
+					tierCounts[r.tier]++
+				}
+			}
+			tierSuffix := ""
+			if len(tierCounts) > 0 {
+				tierSuffix = " | tiers:"
+				for t := int32(v1alpha1.MinTier); t <= int32(v1alpha1.MaxTier); t++ {
+					if c, ok := tierCounts[t]; ok {
+						tierSuffix += fmt.Sprintf(" T%d=%d", t, c)
+					}
+				}
+			}
+
+			fmt.Printf("\nSuite summary: %d passed, %d failed, %d skipped (total: %d)%s\n",
+				passed, failed, skipped, len(experimentFiles), tierSuffix)
 
 			// Generate JUnit report if reportDir is specified
 			if reportDir != "" {
@@ -146,16 +168,17 @@ func newSuiteCommand() *cobra.Command {
 	cmd.Flags().IntVar(&parallel, "parallel", 1, "max concurrent experiments")
 	cmd.Flags().BoolVar(&distributedLock, "distributed-lock", false, "use Kubernetes Lease-based distributed locking")
 	cmd.Flags().StringVar(&lockNamespace, "lock-namespace", v1alpha1.DefaultNamespace, "namespace for distributed lock leases")
+	cmd.Flags().Int32Var(&maxTier, "max-tier", 0, "skip experiments above this tier (0 = no filter)")
 
 	return cmd
 }
 
 // runSequential executes experiments one at a time.
-func runSequential(parentCtx context.Context, files []string, deps *orchestratorDeps, dryRun bool, timeout time.Duration, namespace string) []suiteResult {
+func runSequential(parentCtx context.Context, files []string, deps *orchestratorDeps, dryRun bool, timeout time.Duration, namespace string, maxTier int32) []suiteResult {
 	results := make([]suiteResult, 0, len(files))
 
 	for _, file := range files {
-		r := runSingleExperiment(parentCtx, file, deps, dryRun, timeout, namespace)
+		r := runSingleExperiment(parentCtx, file, deps, dryRun, timeout, namespace, maxTier)
 		results = append(results, r)
 	}
 
@@ -163,7 +186,7 @@ func runSequential(parentCtx context.Context, files []string, deps *orchestrator
 }
 
 // runParallel executes experiments concurrently with a semaphore limiting concurrency.
-func runParallel(parentCtx context.Context, files []string, deps *orchestratorDeps, timeout time.Duration, maxConcurrent int, namespace string) []suiteResult {
+func runParallel(parentCtx context.Context, files []string, deps *orchestratorDeps, timeout time.Duration, maxConcurrent int, namespace string, maxTier int32) []suiteResult {
 	results := make([]suiteResult, len(files))
 	sem := make(chan struct{}, maxConcurrent)
 	var wg sync.WaitGroup
@@ -175,7 +198,7 @@ func runParallel(parentCtx context.Context, files []string, deps *orchestratorDe
 			sem <- struct{}{}        // acquire
 			defer func() { <-sem }() // release
 
-			results[idx] = runSingleExperiment(parentCtx, f, deps, false, timeout, namespace)
+			results[idx] = runSingleExperiment(parentCtx, f, deps, false, timeout, namespace, maxTier)
 		}(i, file)
 	}
 
@@ -184,7 +207,7 @@ func runParallel(parentCtx context.Context, files []string, deps *orchestratorDe
 }
 
 // runSingleExperiment loads, validates, and optionally executes a single experiment file.
-func runSingleExperiment(parentCtx context.Context, file string, deps *orchestratorDeps, dryRun bool, timeout time.Duration, namespace string) suiteResult {
+func runSingleExperiment(parentCtx context.Context, file string, deps *orchestratorDeps, dryRun bool, timeout time.Duration, namespace string, maxTier int32) suiteResult {
 	r := suiteResult{file: file}
 
 	exp, err := experiment.Load(file)
@@ -197,6 +220,14 @@ func runSingleExperiment(parentCtx context.Context, file string, deps *orchestra
 	}
 	r.name = exp.Name
 	r.target = exp.Spec.Target
+	r.tier = exp.Spec.Tier
+
+	// Skip experiments above the max tier
+	if maxTier > 0 && exp.Spec.Tier > maxTier {
+		r.verdict = fmt.Sprintf("SKIP  %s (tier %d > max-tier %d)", exp.Name, exp.Spec.Tier, maxTier)
+		r.status = "skip"
+		return r
+	}
 
 	// Override namespace from CLI flag
 	if namespace != "" {
@@ -334,6 +365,7 @@ func suiteResultToReport(r suiteResult) reporter.ExperimentReport {
 	report := reporter.ExperimentReport{
 		Experiment: r.name,
 		Timestamp:  time.Now(),
+		Tier:       r.tier,
 		Target: reporter.TargetReport{
 			Operator:  r.target.Operator,
 			Component: r.target.Component,

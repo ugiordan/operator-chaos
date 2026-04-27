@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: kserve-ownerref-orphan
 spec:
+  tier: 3
   target:
     operator: kserve
     component: kserve-controller

@@ -63,6 +63,9 @@ func writeExperiment(b *strings.Builder, report ExperimentReport) {
 	b.WriteString("| Field | Value |\n")
 	b.WriteString("|-------|-------|\n")
 	fmt.Fprintf(b, "| Component | %s |\n", report.Target.Component)
+	if report.Tier > 0 {
+		fmt.Fprintf(b, "| Tier | %d |\n", report.Tier)
+	}
 	fmt.Fprintf(b, "| Injection | %s |\n", report.Injection.Type)
 	fmt.Fprintf(b, "| Verdict | %s |\n", string(report.Evaluation.Verdict))
 	fmt.Fprintf(b, "| Recovery | %s |\n",

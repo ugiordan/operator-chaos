@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: opendatahub-operator-pod-kill
 spec:
+  tier: 1
   target:
     operator: opendatahub-operator
     component: opendatahub-operator

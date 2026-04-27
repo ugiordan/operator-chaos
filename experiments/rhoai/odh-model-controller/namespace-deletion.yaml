@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: rhoai-odh-model-controller-namespace-deletion
 spec:
+  tier: 5
   target:
     operator: odh-model-controller
     component: odh-model-controller

@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: llamastack-config-drift
 spec:
+  tier: 2
   target:
     operator: llamastack
     component: llamastack-controller-manager

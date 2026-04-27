@@ -18,9 +18,10 @@
 | ClusterRoleBinding | 1 |
 | Deployment | 1 |
 | Lease | 1 |
+| Route | 1 |
 | Service | 1 |
 | ServiceAccount | 1 |
-| **Total** | **5** |
+| **Total** | **6** |
 
 ## Components
 
@@ -37,6 +38,7 @@
 | rbac.authorization.k8s.io/v1 | ClusterRoleBinding | model-registry-operator-manager-rolebinding |  |
 | coordination.k8s.io/v1 | Lease | 85f368d1.opendatahub.io | odh-model-registries |
 | v1 | Service | model-registry-operator-controller-manager-metrics-service | odh-model-registries |
+| route.openshift.io/v1 | Route | model-registry-operator-rest | odh-model-registries |
 
 #### Webhooks
 

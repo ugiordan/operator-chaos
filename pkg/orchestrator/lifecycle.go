@@ -69,6 +69,7 @@ type ExperimentResult struct {
 	Report     *reporter.ExperimentReport  `json:"report,omitempty"`
 	Error        string                      `json:"error,omitempty"`
 	CleanupError string                      `json:"cleanupError,omitempty"`
+	Tier         int32                       `json:"tier,omitempty"`
 }
 
 // New creates a new Orchestrator with the given configuration.
@@ -418,6 +419,7 @@ func (o *Orchestrator) Run(ctx context.Context, exp *v1alpha1.ChaosExperiment) (
 	result := &ExperimentResult{
 		Experiment: exp.Name,
 		Phase:      v1alpha1.PhasePending,
+		Tier:       exp.Spec.Tier,
 	}
 
 	// 1. Validate
@@ -577,6 +579,7 @@ func (o *Orchestrator) Run(ctx context.Context, exp *v1alpha1.ChaosExperiment) (
 	report := reporter.ExperimentReport{
 		Experiment: exp.Name,
 		Timestamp:  time.Now(),
+		Tier:       exp.Spec.Tier,
 		Target: reporter.TargetReport{
 			Operator:  exp.Spec.Target.Operator,
 			Component: exp.Spec.Target.Component,

@@ -8,6 +8,9 @@
 | NetworkPartition | medium | network-partition.yaml | When the model-registry-operator pod is network-partitioned from the API server,... |
 | PodKill | low | pod-kill.yaml | When the model-registry-operator pod is killed, Kubernetes should recreate it wi... |
 | RBACRevoke | high | rbac-revoke.yaml | When the model-registry-operator ClusterRoleBinding subjects are revoked, the op... |
+| CRDMutation | high | route-backend-disruption.yaml | Changing the model-registry Route backend service to a non-existent service simu... |
+| CRDMutation | high | route-host-collision.yaml | Mutating the model-registry REST API Route host simulates a host collision or DN... |
+| CRDMutation | high | route-tls-mutation.yaml | Changing the TLS termination mode on the model-registry REST API Route from edge... |
 | WebhookDisrupt | high | webhook-disrupt.yaml | When the ModelRegistry validating webhook failurePolicy is weakened from Fail to... |
 
 ## Experiment Details
@@ -29,6 +32,7 @@ kind: ChaosExperiment
 metadata:
   name: model-registry-finalizer-block
 spec:
+  tier: 3
   target:
     operator: model-registry
     component: model-registry-operator
@@ -86,6 +90,7 @@ kind: ChaosExperiment
 metadata:
   name: model-registry-network-partition
 spec:
+  tier: 2
   target:
     operator: model-registry
     component: model-registry-operator
@@ -136,6 +141,7 @@ kind: ChaosExperiment
 metadata:
   name: model-registry-pod-kill
 spec:
+  tier: 1
   target:
     operator: model-registry
     component: model-registry-operator
@@ -187,6 +193,7 @@ kind: ChaosExperiment
 metadata:
   name: model-registry-rbac-revoke
 spec:
+  tier: 4
   target:
     operator: model-registry
     component: model-registry-operator
@@ -221,6 +228,183 @@ spec:
 
 </details>
 
+### model-registry-route-backend-disruption
+
+- **Type:** CRDMutation
+- **Danger Level:** high
+- **Component:** model-registry-operator
+
+Changing the model-registry Route backend service to a non-existent service simulates backend disruption. All API requests return 503. The operator should detect the broken backend reference and reconcile the Route to point to the correct service. Expected verdict: Resilient if the operator restores the backend, Vulnerable if the REST API continues to fail.
+
+<details>
+<summary>Experiment YAML</summary>
+
+```yaml
+apiVersion: chaos.operatorchaos.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: model-registry-route-backend-disruption
+spec:
+  tier: 3
+  target:
+    operator: model-registry
+    component: model-registry-operator
+    resource: Route/model-registry-operator-rest
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: model-registry-operator-controller-manager
+        namespace: odh-model-registries
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: CRDMutation
+    dangerLevel: high
+    parameters:
+      apiVersion: "route.openshift.io/v1"
+      kind: "Route"
+      name: "model-registry-operator-rest"
+      path: "spec.to.name"
+      value: "chaos-nonexistent-service"
+    ttl: "300s"
+  hypothesis:
+    description: >-
+      Changing the model-registry Route backend service to a non-existent
+      service simulates backend disruption. All API requests return 503.
+      The operator should detect the broken backend reference and reconcile
+      the Route to point to the correct service. Expected verdict:
+      Resilient if the operator restores the backend, Vulnerable if the
+      REST API continues to fail.
+    recoveryTimeout: 120s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - odh-model-registries
+    allowDangerous: true
+```
+
+</details>
+
+### model-registry-route-host-collision
+
+- **Type:** CRDMutation
+- **Danger Level:** high
+- **Component:** model-registry-operator
+
+Mutating the model-registry REST API Route host simulates a host collision or DNS misconfiguration. The model-registry operator should detect the Route drift and reconcile the host back to its correct value. Expected verdict: Resilient if the operator restores the Route host, Vulnerable if the Route remains misconfigured and the REST API becomes unreachable.
+
+<details>
+<summary>Experiment YAML</summary>
+
+```yaml
+apiVersion: chaos.operatorchaos.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: model-registry-route-host-collision
+spec:
+  tier: 3
+  target:
+    operator: model-registry
+    component: model-registry-operator
+    resource: Route/model-registry-operator-rest
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: model-registry-operator-controller-manager
+        namespace: odh-model-registries
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: CRDMutation
+    dangerLevel: high
+    parameters:
+      apiVersion: "route.openshift.io/v1"
+      kind: "Route"
+      name: "model-registry-operator-rest"
+      path: "spec.host"
+      value: "chaos-collision.apps.cluster.invalid"
+    ttl: "300s"
+  hypothesis:
+    description: >-
+      Mutating the model-registry REST API Route host simulates a
+      host collision or DNS misconfiguration. The model-registry operator
+      should detect the Route drift and reconcile the host back to its
+      correct value. Expected verdict: Resilient if the operator restores
+      the Route host, Vulnerable if the Route remains misconfigured and
+      the REST API becomes unreachable.
+    recoveryTimeout: 120s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - odh-model-registries
+    allowDangerous: true
+```
+
+</details>
+
+### model-registry-route-tls-mutation
+
+- **Type:** CRDMutation
+- **Danger Level:** high
+- **Component:** model-registry-operator
+
+Changing the TLS termination mode on the model-registry REST API Route from edge/reencrypt to passthrough breaks HTTPS access to the model-registry API. The operator should detect the TLS config drift and restore the correct termination mode. Expected verdict: Resilient if the operator reconciles the TLS settings, Vulnerable if the REST API becomes unreachable over HTTPS.
+
+<details>
+<summary>Experiment YAML</summary>
+
+```yaml
+apiVersion: chaos.operatorchaos.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: model-registry-route-tls-mutation
+spec:
+  tier: 3
+  target:
+    operator: model-registry
+    component: model-registry-operator
+    resource: Route/model-registry-operator-rest
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: model-registry-operator-controller-manager
+        namespace: odh-model-registries
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: CRDMutation
+    dangerLevel: high
+    parameters:
+      apiVersion: "route.openshift.io/v1"
+      kind: "Route"
+      name: "model-registry-operator-rest"
+      path: "spec.tls.termination"
+      value: "passthrough"
+    ttl: "300s"
+  hypothesis:
+    description: >-
+      Changing the TLS termination mode on the model-registry REST API
+      Route from edge/reencrypt to passthrough breaks HTTPS access to
+      the model-registry API. The operator should detect the TLS config
+      drift and restore the correct termination mode. Expected verdict:
+      Resilient if the operator reconciles the TLS settings, Vulnerable
+      if the REST API becomes unreachable over HTTPS.
+    recoveryTimeout: 120s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - odh-model-registries
+    allowDangerous: true
+```
+
+</details>
+
 ### model-registry-webhook-disrupt
 
 - **Type:** WebhookDisrupt
@@ -238,6 +422,7 @@ kind: ChaosExperiment
 metadata:
   name: model-registry-webhook-disrupt
 spec:
+  tier: 4
   target:
     operator: model-registry
     component: model-registry-operator

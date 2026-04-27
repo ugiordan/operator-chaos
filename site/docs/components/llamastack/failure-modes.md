@@ -28,6 +28,7 @@ kind: ChaosExperiment
 metadata:
   name: llamastack-config-drift
 spec:
+  tier: 2
   target:
     operator: llamastack
     component: llamastack-controller-manager
@@ -82,6 +83,7 @@ kind: ChaosExperiment
 metadata:
   name: llamastack-network-partition
 spec:
+  tier: 2
   target:
     operator: llamastack
     component: llamastack-controller-manager
@@ -132,6 +134,7 @@ kind: ChaosExperiment
 metadata:
   name: llamastack-pod-kill
 spec:
+  tier: 1
   target:
     operator: llamastack
     component: llamastack-controller-manager
@@ -183,6 +186,7 @@ kind: ChaosExperiment
 metadata:
   name: llamastack-rbac-revoke
 spec:
+  tier: 4
   target:
     operator: llamastack
     component: llamastack-controller-manager

@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: codeflare-rbac-revoke
 spec:
+  tier: 4
   target:
     operator: codeflare
     component: codeflare-operator-manager

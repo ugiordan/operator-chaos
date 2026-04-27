@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: workbenches-webhook-disrupt
 spec:
+  tier: 4
   target:
     operator: workbenches
     component: odh-notebook-controller

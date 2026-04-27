@@ -29,6 +29,7 @@ kind: ChaosExperiment
 metadata:
   name: kueue-finalizer-block
 spec:
+  tier: 3
   target:
     operator: kueue
     component: kueue-controller-manager
@@ -82,6 +83,7 @@ kind: ChaosExperiment
 metadata:
   name: kueue-network-partition
 spec:
+  tier: 2
   target:
     operator: kueue
     component: kueue-controller-manager
@@ -132,6 +134,7 @@ kind: ChaosExperiment
 metadata:
   name: kueue-pod-kill
 spec:
+  tier: 1
   target:
     operator: kueue
     component: kueue-controller-manager
@@ -183,6 +186,7 @@ kind: ChaosExperiment
 metadata:
   name: kueue-rbac-revoke
 spec:
+  tier: 4
   target:
     operator: kueue
     component: kueue-controller-manager
@@ -234,6 +238,7 @@ kind: ChaosExperiment
 metadata:
   name: kueue-webhook-disrupt
 spec:
+  tier: 4
   target:
     operator: kueue
     component: kueue-controller-manager

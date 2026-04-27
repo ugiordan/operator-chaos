@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: data-science-pipelines-rbac-revoke
 spec:
+  tier: 4
   target:
     operator: data-science-pipelines
     component: data-science-pipelines-operator

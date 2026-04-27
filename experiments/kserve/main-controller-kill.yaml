@@ -4,6 +4,7 @@ metadata:
   name: kserve-main-controller-kill
   namespace: kserve
 spec:
+  tier: 1
   target:
     operator: kserve
     component: kserve-controller-manager

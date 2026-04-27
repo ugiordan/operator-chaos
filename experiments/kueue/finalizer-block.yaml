@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: kueue-finalizer-block
 spec:
+  tier: 3
   target:
     operator: kueue
     component: kueue-controller-manager

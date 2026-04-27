@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: llamastack-rbac-revoke
 spec:
+  tier: 4
   target:
     operator: llamastack
     component: llamastack-controller-manager

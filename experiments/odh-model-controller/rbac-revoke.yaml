@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: odh-model-controller-rbac-revoke
 spec:
+  tier: 4
   target:
     operator: odh-model-controller
     component: odh-model-controller

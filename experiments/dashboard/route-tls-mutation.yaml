@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: dashboard-route-tls-mutation
 spec:
+  tier: 3
   target:
     operator: dashboard
     component: odh-dashboard

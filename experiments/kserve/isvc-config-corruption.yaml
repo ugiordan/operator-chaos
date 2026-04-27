@@ -4,6 +4,7 @@ metadata:
   name: kserve-isvc-config-corruption
   namespace: kserve
 spec:
+  tier: 2
   target:
     operator: kserve
     component: kserve-controller-manager

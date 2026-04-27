@@ -10,7 +10,9 @@
 | PodKill | low | dependency-kserve-kill.yaml | Killing the kserve-controller-manager (a dependency of odh-model-controller) sho... |
 | FinalizerBlock | low | finalizer-block.yaml | When a stuck finalizer prevents an InferenceService from being deleted, the odh-... |
 | ConfigDrift | high | ingress-config-corruption.yaml | When the ingress key in inferenceservice-config is emptied, the odh-model-contro... |
+| LabelStomping | high | label-stomping.yaml | When a label used for resource discovery is overwritten on the odh-model-control... |
 | CRDMutation | high | leader-lease-corrupt.yaml | Controller detects corrupted leader lease holderIdentity and re-elects leader wi... |
+| NamespaceDeletion | high | namespace-deletion.yaml | When the operator's namespace is deleted, the operator should detect the loss an... |
 | NetworkPartition | medium | network-partition.yaml | When the odh-model-controller pod is network-partitioned from the API server, it... |
 | OwnerRefOrphan | medium | ownerref-orphan.yaml | Removing ownerReferences from the odh-model-controller Deployment should trigger... |
 | PodKill | low | pod-kill.yaml | When the odh-model-controller pod is killed, Kubernetes should recreate it withi... |
@@ -42,6 +44,7 @@ kind: ChaosExperiment
 metadata:
   name: odh-model-controller-config-drift
 spec:
+  tier: 2
   target:
     operator: odh-model-controller
     component: odh-model-controller
@@ -96,6 +99,7 @@ kind: ChaosExperiment
 metadata:
   name: odh-model-controller-cr-deletion-mid-reconcile
 spec:
+  tier: 3
   target:
     operator: odh-model-controller
     component: odh-model-controller
@@ -147,6 +151,7 @@ kind: ChaosExperiment
 metadata:
   name: odh-model-controller-crd-mutation
 spec:
+  tier: 3
   target:
     operator: odh-model-controller
     component: odh-model-controller
@@ -211,6 +216,7 @@ kind: ChaosExperiment
 metadata:
   name: odh-model-controller-dependency-kserve-kill
 spec:
+  tier: 1
   target:
     operator: odh-model-controller
     component: odh-model-controller
@@ -260,6 +266,7 @@ kind: ChaosExperiment
 metadata:
   name: odh-model-controller-finalizer-block
 spec:
+  tier: 3
   target:
     operator: odh-model-controller
     component: odh-model-controller
@@ -317,6 +324,7 @@ kind: ChaosExperiment
 metadata:
   name: odh-model-controller-ingress-config-corruption
 spec:
+  tier: 2
   target:
     operator: odh-model-controller
     component: odh-model-controller
@@ -356,6 +364,60 @@ spec:
 
 </details>
 
+### odh-model-controller-label-stomping
+
+- **Type:** LabelStomping
+- **Danger Level:** high
+- **Component:** odh-model-controller
+
+When a label used for resource discovery is overwritten on the odh-model-controller Deployment, the operator should detect the label drift and restore the correct label value.
+
+<details>
+<summary>Experiment YAML</summary>
+
+```yaml
+apiVersion: chaos.operatorchaos.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: odh-model-controller-label-stomping
+spec:
+  tier: 3
+  target:
+    operator: odh-model-controller
+    component: odh-model-controller
+    resource: Deployment/odh-model-controller
+  steadyState:
+    checks:
+      - type: resourceExists
+        apiVersion: apps/v1
+        kind: Deployment
+        name: odh-model-controller
+        namespace: opendatahub
+    timeout: "30s"
+  injection:
+    type: LabelStomping
+    dangerLevel: high
+    parameters:
+      apiVersion: apps/v1
+      kind: Deployment
+      name: odh-model-controller
+      labelKey: app.kubernetes.io/name
+      action: overwrite
+    ttl: "300s"
+  hypothesis:
+    description: >-
+      When a label used for resource discovery is overwritten on the
+      odh-model-controller Deployment, the operator should detect the
+      label drift and restore the correct label value.
+    recoveryTimeout: 120s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - opendatahub
+```
+
+</details>
+
 ### odh-model-controller-leader-lease-corrupt
 
 - **Type:** CRDMutation
@@ -373,6 +435,7 @@ kind: ChaosExperiment
 metadata:
   name: odh-model-controller-leader-lease-corrupt
 spec:
+  tier: 3
   target:
     operator: odh-model-controller
     component: odh-model-controller
@@ -413,6 +476,57 @@ spec:
 
 </details>
 
+### odh-model-controller-namespace-deletion
+
+- **Type:** NamespaceDeletion
+- **Danger Level:** high
+- **Component:** odh-model-controller
+
+When the operator's namespace is deleted, the operator should detect the loss and recreate the namespace along with all managed resources. This tests the most destructive failure mode: complete namespace loss.
+
+<details>
+<summary>Experiment YAML</summary>
+
+```yaml
+apiVersion: chaos.operatorchaos.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: odh-model-controller-namespace-deletion
+spec:
+  tier: 5
+  target:
+    operator: odh-model-controller
+    component: odh-model-controller
+    resource: Namespace/opendatahub
+  steadyState:
+    checks:
+      - type: resourceExists
+        apiVersion: apps/v1
+        kind: Deployment
+        name: odh-model-controller
+        namespace: opendatahub
+    timeout: "30s"
+  injection:
+    type: NamespaceDeletion
+    dangerLevel: high
+    parameters:
+      namespace: opendatahub
+    ttl: "300s"
+  hypothesis:
+    description: >-
+      When the operator's namespace is deleted, the operator should detect
+      the loss and recreate the namespace along with all managed resources.
+      This tests the most destructive failure mode: complete namespace loss.
+    recoveryTimeout: 300s
+  blastRadius:
+    maxPodsAffected: 10
+    allowedNamespaces:
+      - opendatahub
+    allowDangerous: true
+```
+
+</details>
+
 ### odh-model-controller-network-partition
 
 - **Type:** NetworkPartition
@@ -430,6 +544,7 @@ kind: ChaosExperiment
 metadata:
   name: odh-model-controller-network-partition
 spec:
+  tier: 2
   target:
     operator: odh-model-controller
     component: odh-model-controller
@@ -480,6 +595,7 @@ kind: ChaosExperiment
 metadata:
   name: odh-model-controller-ownerref-orphan
 spec:
+  tier: 3
   target:
     operator: odh-model-controller
     component: odh-model-controller
@@ -530,6 +646,7 @@ kind: ChaosExperiment
 metadata:
   name: odh-model-controller-pod-kill
 spec:
+  tier: 1
   target:
     operator: odh-model-controller
     component: odh-model-controller
@@ -580,6 +697,7 @@ kind: ChaosExperiment
 metadata:
   name: odh-model-controller-quota-exhaustion
 spec:
+  tier: 5
   target:
     operator: odh-model-controller
     component: odh-model-controller
@@ -632,6 +750,7 @@ kind: ChaosExperiment
 metadata:
   name: odh-model-controller-rbac-revoke
 spec:
+  tier: 4
   target:
     operator: odh-model-controller
     component: odh-model-controller
@@ -684,6 +803,7 @@ kind: ChaosExperiment
 metadata:
   name: odh-model-controller-sdk-api-throttle
 spec:
+  tier: 3
   target:
     operator: odh-model-controller
     component: odh-model-controller
@@ -734,6 +854,7 @@ kind: ChaosExperiment
 metadata:
   name: odh-model-controller-sdk-conflict-storm
 spec:
+  tier: 3
   target:
     operator: odh-model-controller
     component: odh-model-controller
@@ -786,6 +907,7 @@ kind: ChaosExperiment
 metadata:
   name: odh-model-controller-sdk-watch-disconnect
 spec:
+  tier: 3
   target:
     operator: odh-model-controller
     component: odh-model-controller
@@ -839,6 +961,7 @@ kind: ChaosExperiment
 metadata:
   name: odh-model-controller-webhook-cert-corrupt
 spec:
+  tier: 2
   target:
     operator: odh-model-controller
     component: odh-model-controller
@@ -891,6 +1014,7 @@ kind: ChaosExperiment
 metadata:
   name: odh-model-controller-webhook-disrupt
 spec:
+  tier: 4
   target:
     operator: odh-model-controller
     component: odh-model-controller
@@ -944,6 +1068,7 @@ kind: ChaosExperiment
 metadata:
   name: odh-model-controller-webhook-latency
 spec:
+  tier: 4
   target:
     operator: odh-model-controller
     component: odh-model-controller

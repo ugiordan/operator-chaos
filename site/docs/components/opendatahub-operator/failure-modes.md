@@ -29,6 +29,7 @@ kind: ChaosExperiment
 metadata:
   name: opendatahub-operator-finalizer-block
 spec:
+  tier: 3
   target:
     operator: opendatahub-operator
     component: opendatahub-operator
@@ -86,6 +87,7 @@ kind: ChaosExperiment
 metadata:
   name: opendatahub-operator-network-partition
 spec:
+  tier: 2
   target:
     operator: opendatahub-operator
     component: opendatahub-operator
@@ -136,6 +138,7 @@ kind: ChaosExperiment
 metadata:
   name: opendatahub-operator-pod-kill
 spec:
+  tier: 1
   target:
     operator: opendatahub-operator
     component: opendatahub-operator
@@ -187,6 +190,7 @@ kind: ChaosExperiment
 metadata:
   name: opendatahub-operator-rbac-revoke
 spec:
+  tier: 4
   target:
     operator: opendatahub-operator
     component: opendatahub-operator
@@ -239,6 +243,7 @@ kind: ChaosExperiment
 metadata:
   name: opendatahub-operator-webhook-disrupt
 spec:
+  tier: 4
   target:
     operator: opendatahub-operator
     component: opendatahub-operator

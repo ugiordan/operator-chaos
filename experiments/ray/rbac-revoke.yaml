@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: ray-rbac-revoke
 spec:
+  tier: 4
   target:
     operator: ray
     component: ray-operator-controller-manager

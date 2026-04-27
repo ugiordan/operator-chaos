@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: training-operator-finalizer-block
 spec:
+  tier: 3
   target:
     operator: training-operator
     component: training-operator-controller-manager

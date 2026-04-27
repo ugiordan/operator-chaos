@@ -28,6 +28,7 @@ kind: ChaosExperiment
 metadata:
   name: training-operator-finalizer-block
 spec:
+  tier: 3
   target:
     operator: training-operator
     component: training-operator-controller-manager
@@ -81,6 +82,7 @@ kind: ChaosExperiment
 metadata:
   name: training-operator-network-partition
 spec:
+  tier: 2
   target:
     operator: training-operator
     component: training-operator-controller-manager
@@ -131,6 +133,7 @@ kind: ChaosExperiment
 metadata:
   name: training-operator-pod-kill
 spec:
+  tier: 1
   target:
     operator: training-operator
     component: training-operator-controller-manager
@@ -181,6 +184,7 @@ kind: ChaosExperiment
 metadata:
   name: training-operator-rbac-revoke
 spec:
+  tier: 4
   target:
     operator: training-operator
     component: training-operator-controller-manager

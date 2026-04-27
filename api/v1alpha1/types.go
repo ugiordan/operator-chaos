@@ -24,6 +24,7 @@ const (
 // +kubebuilder:printcolumn:name="Phase",type=string,JSONPath=`.status.phase`
 // +kubebuilder:printcolumn:name="Verdict",type=string,JSONPath=`.status.verdict`
 // +kubebuilder:printcolumn:name="Type",type=string,JSONPath=`.spec.injection.type`
+// +kubebuilder:printcolumn:name="Tier",type=integer,JSONPath=`.spec.tier`
 // +kubebuilder:printcolumn:name="Target",type=string,JSONPath=`.spec.target.component`
 // +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 
@@ -51,7 +52,23 @@ type ChaosExperimentSpec struct {
 	Injection   InjectionSpec   `json:"injection"`
 	BlastRadius BlastRadiusSpec `json:"blastRadius"`
 	Hypothesis  HypothesisSpec  `json:"hypothesis"`
+	// Tier indicates the fidelity tier of this experiment (1-6).
+	// Tier 1: basic recovery (PodKill), safe for CI/kind.
+	// Tier 2: config/network faults (ConfigDrift, NetworkPartition).
+	// Tier 3: resource mutation (CRDMutation, FinalizerBlock, OwnerRefOrphan, LabelStomping, ClientFault).
+	// Tier 4: cluster-wide impact (WebhookDisrupt, RBACRevoke, WebhookLatency).
+	// Tier 5: destructive (NamespaceDeletion, QuotaExhaustion).
+	// Tier 6: multi-fault and upgrade scenarios.
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=6
+	// +kubebuilder:default=1
+	Tier int32 `json:"tier,omitempty"`
 }
+
+const (
+	MinTier = 1
+	MaxTier = 6
+)
 
 type TargetSpec struct {
 	// +kubebuilder:validation:MinLength=1

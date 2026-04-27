@@ -27,6 +27,7 @@ kind: ChaosExperiment
 metadata:
   name: feast-network-partition
 spec:
+  tier: 2
   target:
     operator: feast
     component: feast-operator-controller-manager
@@ -77,6 +78,7 @@ kind: ChaosExperiment
 metadata:
   name: feast-pod-kill
 spec:
+  tier: 1
   target:
     operator: feast
     component: feast-operator-controller-manager
@@ -128,6 +130,7 @@ kind: ChaosExperiment
 metadata:
   name: feast-rbac-revoke
 spec:
+  tier: 4
   target:
     operator: feast
     component: feast-operator-controller-manager

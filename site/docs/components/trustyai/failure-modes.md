@@ -27,6 +27,7 @@ kind: ChaosExperiment
 metadata:
   name: trustyai-network-partition
 spec:
+  tier: 2
   target:
     operator: trustyai
     component: trustyai-service-operator-controller-manager
@@ -77,6 +78,7 @@ kind: ChaosExperiment
 metadata:
   name: trustyai-pod-kill
 spec:
+  tier: 1
   target:
     operator: trustyai
     component: trustyai-service-operator-controller-manager
@@ -128,6 +130,7 @@ kind: ChaosExperiment
 metadata:
   name: trustyai-rbac-revoke
 spec:
+  tier: 4
   target:
     operator: trustyai
     component: trustyai-service-operator-controller-manager

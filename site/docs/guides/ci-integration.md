@@ -161,6 +161,65 @@ Use `--dry-run` to validate experiment definitions without executing them:
             --dry-run
 ```
 
+### Graduated Testing with Fidelity Tiers
+
+Every experiment has a `tier` field (1-6) that indicates its danger level and infrastructure requirements. Use `--max-tier` to run only experiments up to a given tier. This lets you run safe experiments in lightweight CI environments and reserve dangerous ones for staging clusters.
+
+| Tier | Injection Types | Typical Environment |
+|------|----------------|---------------------|
+| 1 | PodKill | CI / kind / any cluster |
+| 2 | ConfigDrift, NetworkPartition | CI with RBAC for NetworkPolicy |
+| 3 | CRDMutation, FinalizerBlock, OwnerRefOrphan, LabelStomping, ClientFault | Dev/staging cluster |
+| 4 | WebhookDisrupt, RBACRevoke, WebhookLatency | Staging cluster with admin access |
+| 5 | NamespaceDeletion, QuotaExhaustion | Dedicated test cluster |
+| 6 | Multi-fault, upgrade scenarios | Dedicated test cluster |
+
+**PR checks (fast, safe):** Run only tier 1 experiments that don't risk cluster state:
+
+```yaml
+      - name: Run safe chaos experiments
+        run: |
+          /operator-chaos suite experiments/ \
+            --knowledge knowledge/operator-knowledge.yaml \
+            --max-tier 1 \
+            --report-dir /tmp/chaos-reports \
+            --timeout 5m
+```
+
+**Nightly staging runs:** Run tiers 1-3 to cover config and network faults:
+
+```yaml
+      - name: Run graduated chaos suite
+        run: |
+          /operator-chaos suite experiments/ \
+            --knowledge knowledge/operator-knowledge.yaml \
+            --max-tier 3 \
+            --report-dir /tmp/chaos-reports \
+            --timeout 15m
+```
+
+**Weekly full-spectrum runs:** Run all tiers on a dedicated test cluster:
+
+```yaml
+      - name: Run full chaos suite
+        run: |
+          /operator-chaos suite experiments/ \
+            --knowledge knowledge/operator-knowledge.yaml \
+            --max-tier 6 \
+            --report-dir /tmp/chaos-reports \
+            --timeout 30m
+```
+
+Experiments above the `--max-tier` threshold are skipped with a `SKIP` status in the JUnit report. The suite summary shows the tier distribution of executed experiments.
+
+The `run` command also supports `--max-tier` for single experiments:
+
+```bash
+operator-chaos run experiments/dashboard/pod-kill.yaml \
+  --knowledge knowledge/dashboard.yaml \
+  --max-tier 2
+```
+
 ### Gating Deployments
 
 Use chaos experiments as a quality gate before promoting a deployment. The workflow below runs the chaos suite after deploying to staging and only proceeds to production if all experiments pass.
@@ -566,6 +625,7 @@ The `preflight` command checks that all resources declared in the operator knowl
 
 Skipped experiments do not count as failures. Check the suite summary line for the failure count. An experiment may be skipped due to:
 
+- Its tier exceeds the `--max-tier` threshold.
 - Invalid YAML that fails validation.
 - An `Inconclusive` verdict (the system could not determine pass or fail).
 

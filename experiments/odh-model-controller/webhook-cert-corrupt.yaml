@@ -6,6 +6,7 @@ kind: ChaosExperiment
 metadata:
   name: odh-model-controller-webhook-cert-corrupt
 spec:
+  tier: 2
   target:
     operator: odh-model-controller
     component: odh-model-controller

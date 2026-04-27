@@ -64,6 +64,9 @@ func Validate(exp *v1alpha1.ChaosExperiment) []string {
 	if exp.Spec.BlastRadius.MaxPodsAffected <= 0 {
 		errs = append(errs, "spec.blastRadius.maxPodsAffected must be greater than 0")
 	}
+	if exp.Spec.Tier != 0 && (exp.Spec.Tier < v1alpha1.MinTier || exp.Spec.Tier > v1alpha1.MaxTier) {
+		errs = append(errs, fmt.Sprintf("spec.tier must be between %d and %d, got %d", v1alpha1.MinTier, v1alpha1.MaxTier, exp.Spec.Tier))
+	}
 
 	// Validate TTL and recoveryTimeout bounds
 	if exp.Spec.Injection.TTL.Duration < 0 {

@@ -380,6 +380,7 @@ metadata:
   namespace: string         # optional
   labels: {}                # optional
 spec:
+  tier: int                 # optional: fidelity tier 1-6 (default 1, see table below)
   target:
     operator: string        # required: operator name (must match knowledge model)
     component: string       # required: component name
@@ -409,6 +410,40 @@ spec:
     allowDangerous: bool    # optional: allow high-danger injections
     dryRun: bool            # optional: validate without injecting
 ```
+
+### Fidelity Tiers
+
+Not every experiment is safe to run everywhere. Deleting a pod in a PR gate is fine, but revoking RBAC or deleting a namespace on a shared staging cluster can break things for other teams. Fidelity tiers let you match experiment danger to environment safety: run the cheap, safe ones often, and save the destructive ones for dedicated test clusters.
+
+Each experiment has a `tier` field (1-6) representing graduated fidelity levels:
+
+| Tier | Injection Types | Risk | Typical Environment |
+|------|----------------|------|---------------------|
+| 1 | PodKill | Low. Pod deleted, Deployment restarts it. | PR gates, basic smoke tests |
+| 2 | ConfigDrift, NetworkPartition | Medium. ConfigMap mutations, network policies. | Nightly CI |
+| 3 | CRDMutation, FinalizerBlock, OwnerRefOrphan, LabelStomping, ClientFault | Medium-High. Corrupts CRD state, blocks deletion, breaks ownership. | Weekly deep testing |
+| 4 | WebhookDisrupt, RBACRevoke, WebhookLatency | High. Cluster-scoped: disables admission webhooks, revokes permissions. | Staging environments |
+| 5 | NamespaceDeletion, QuotaExhaustion | Very high. Deletes entire namespaces, exhausts resource quotas. | Pre-release validation |
+| 6 | Multi-fault, upgrade scenarios | Extreme. Combined faults during OLM upgrades. | Release qualification |
+
+The tier is set by the experiment author. The `init` command assigns the recommended tier for each injection type, but you can override it if your use case warrants a different classification.
+
+Use `--max-tier` on `run` or `suite` to limit which experiments execute:
+
+```bash
+# PR CI: only pod kills, fast and safe
+operator-chaos suite experiments/ --knowledge-dir knowledge/ --max-tier 1
+
+# Nightly: include config, network, and resource mutation faults
+operator-chaos suite experiments/ --knowledge-dir knowledge/ --max-tier 3
+
+# Staging: run everything up to cluster-scoped faults
+operator-chaos suite experiments/ --knowledge-dir knowledge/ --max-tier 4
+```
+
+Experiments above the threshold are skipped with a `SKIP` status in the output and JUnit report. The suite summary shows tier distribution of executed experiments.
+
+**Tier 0 (unset):** Experiments written without a `tier` field default to tier 0 in CLI mode. These always run regardless of `--max-tier`, so existing experiments aren't silently skipped after upgrading. In controller mode (CRD), tier defaults to 1.
 
 ## Injection Types and Parameters
 
@@ -707,6 +742,7 @@ operator-chaos run experiment.yaml [flags]
 | `--report-dir` | Directory for report output | |
 | `--dry-run` | Validate without injecting | `false` |
 | `--timeout` | Total experiment timeout | `10m` |
+| `--max-tier` | Skip experiments above this tier (0 = no filter) | `0` |
 | `--distributed-lock` | Use Kubernetes Lease-based distributed locking | `false` |
 | `--lock-namespace` | Namespace for distributed lock leases | `default` |
 
@@ -734,6 +770,7 @@ operator-chaos suite <experiments-directory> [flags]
 | `--report-dir` | Directory for report output | |
 | `--dry-run` | Validate without running | `false` |
 | `--timeout` | Timeout per experiment | `10m` |
+| `--max-tier` | Skip experiments above this tier (0 = no filter) | `0` |
 | `--distributed-lock` | Use Kubernetes Lease-based distributed locking | `false` |
 | `--lock-namespace` | Namespace for distributed lock leases | `default` |
 
@@ -956,7 +993,7 @@ dashboard/
   ui/                   React 18 + TypeScript frontend (Vite)
   embed.go              go:embed for serving built UI assets
 knowledge/              Operator knowledge YAML files (versioned: odh/v2.10, rhoai/v3.3)
-experiments/            Pre-built experiment suites (92 experiments)
+experiments/            Pre-built experiment suites (116 experiments, tiered 1-5)
 ```
 
 ## Dashboard

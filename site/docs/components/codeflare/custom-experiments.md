@@ -38,8 +38,8 @@ spec:
 ## Running Custom Experiments
 
 1. Save your experiment YAML to a file
-2. Run: `operator-chaos run <file>`
-3. Check results: `operator-chaos report .`
+2. Run: `chaos-cli run --experiment <file>`
+3. Check results: `chaos-cli results --latest`
 
 <!-- custom-start: examples -->
 <!-- custom-end: examples -->

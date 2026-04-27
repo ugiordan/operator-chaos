@@ -3,6 +3,7 @@ kind: ChaosExperiment
 metadata:
   name: modelmesh-webhook-disrupt
 spec:
+  tier: 4
   target:
     operator: modelmesh
     component: modelmesh-controller
