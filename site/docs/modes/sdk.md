@@ -1,9 +1,9 @@
-# SDK Quickstart
+# SDK Mode
 
-Wrap a controller-runtime `client.Client` with fault injection. The `ChaosClient` intercepts CRUD operations and injects errors, delays, or disconnections based on a `FaultConfig`. No code changes to your reconciler are needed.
+Wrap a controller-runtime `client.Client` with fault injection to test how your reconciler handles API-level failures. The `ChaosClient` intercepts CRUD operations and injects errors, delays, or disconnections based on a `FaultConfig`. No code changes to your reconciler are needed.
 
-!!! tip "When to Use SDK Middleware"
-    Use this when you want to test how your reconciler handles API-level failures (timeouts, conflicts, connection errors) in integration tests or staging, without needing the full experiment lifecycle.
+!!! tip "When to use SDK mode"
+    Use this when you want to test how your reconciler handles API-level failures (timeouts, conflicts, connection errors) in unit or integration tests, without needing a live cluster or the full experiment lifecycle.
 
 ```mermaid
 flowchart LR
@@ -23,132 +23,106 @@ flowchart LR
 
 ## Prerequisites
 
+- Go 1.18+
 - controller-runtime v0.23+
 - Access to your operator's reconciler code
 
-## Basic Usage: ChaosClient Wrapper
+## Step-by-Step Walkthrough
 
-Wrap an existing client with chaos fault injection:
+### Step 1: Import the SDK
+
+Add the chaos SDK to your Go module:
+
+```bash
+$ go get github.com/opendatahub-io/operator-chaos/pkg/sdk
+go: downloading github.com/opendatahub-io/operator-chaos v0.1.0
+go: added github.com/opendatahub-io/operator-chaos v0.1.0
+```
+
+### Step 2: Create a FaultConfig
+
+A `FaultConfig` defines which operations get faults and how they behave. Each operation (Get, List, Create, Update, Delete, Patch, DeleteAllOf, Reconcile, Apply) can have its own `FaultSpec`:
 
 ```go
 import "github.com/opendatahub-io/operator-chaos/pkg/sdk"
 
-// Wrap an existing client with chaos fault injection.
-// FaultSpec fields:
-//   ErrorRate float64       - probability of injecting an error (0.0-1.0)
-//   Error     string        - error message to return
-//   Delay     time.Duration - fixed delay before each operation
-//   MaxDelay  time.Duration - random delay up to this value (jitter)
 faults := sdk.NewFaultConfig(map[sdk.Operation]sdk.FaultSpec{
-    sdk.OpGet: {ErrorRate: 0.3, Error: "connection refused"},
-    sdk.OpList: {MaxDelay: 2 * time.Second}, // random jitter up to 2s, no errors
+    sdk.OpGet: {
+        ErrorRate: 0.3,                   // 30% of Get calls fail
+        Error:     "connection refused",  // error message returned
+    },
+    sdk.OpList: {
+        MaxDelay: 2 * time.Second,        // random jitter up to 2s, no errors
+    },
+    sdk.OpUpdate: {
+        ErrorRate: 0.5,
+        Error:     "the object has been modified; please apply your changes to the latest version",
+        Delay:     500 * time.Millisecond, // fixed 500ms delay on every Update
+    },
 })
-chaosClient := sdk.NewChaosClient(realClient, faults)
-
-// Use chaosClient wherever you'd use the real client.
-// 30% of Get calls will return "connection refused".
-// All List calls will have random delay up to 2s.
 ```
 
-## Wrapping a Reconciler
-
-Inject faults at the reconcile-entry level (before your reconciler code runs):
-
-```go
-// Using the faults variable from above:
-wrapped := sdk.WrapReconciler(myReconciler, sdk.WithFaultConfig(faults))
-```
-
-## FaultSpec Configuration
-
-Each operation can be configured with different fault behaviors:
+**FaultSpec fields:**
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `ErrorRate` | `float64` | Probability of injecting an error (0.0-1.0) |
-| `Error` | `string` | Error message to return when fault fires |
-| `Delay` | `time.Duration` | Fixed delay before each operation |
+| `ErrorRate` | `float64` | Probability of injecting an error (0.0 = never, 1.0 = always) |
+| `Error` | `string` | Error message returned when the fault fires |
+| `Delay` | `time.Duration` | Fixed delay added before every operation |
 | `MaxDelay` | `time.Duration` | Random delay up to this value (jitter) |
 
-### Supported Operations
+### Step 3: Wrap your client
+
+Create a `ChaosClient` that wraps your existing `client.Client`:
 
 ```go
-sdk.OpGet        // Get operations
-sdk.OpList       // List operations
-sdk.OpCreate     // Create operations
-sdk.OpUpdate     // Update operations
-sdk.OpDelete     // Delete operations
-sdk.OpPatch      // Patch operations
-sdk.OpDeleteAllOf // DeleteAllOf operations
-sdk.OpReconcile  // Reconcile entry point
-sdk.OpApply      // Apply operations
+chaosClient := sdk.NewChaosClient(realClient, faults)
 ```
 
-## Testing with Fake Clients
-
-Use the `TestChaos` helper for Go tests (auto-cleans up via `t.Cleanup`):
+Use `chaosClient` wherever you would normally use `realClient`. It implements the full `client.Client` interface, so no code changes are needed in your reconciler:
 
 ```go
-func TestMyReconciler(t *testing.T) {
-    tc := sdk.NewForTest(t, "my-component")
-    tc.Activate(sdk.OpGet, sdk.FaultSpec{ErrorRate: 1.0, Error: "not found"})
-
-    // Works with both real clients and fake clients (no cluster needed)
-    fakeClient := fake.NewClientBuilder().WithScheme(scheme).Build()
-    chaosClient := sdk.NewChaosClient(fakeClient, tc.Config())
-    // ... test your reconciler with the chaos client
-}
+r := &MyReconciler{client: chaosClient}
 ```
 
-## Distinguishing Chaos Errors from Real Errors
+### Step 4: Run your reconciler
 
-When using `ChaosClient`, injected faults return `*sdk.ChaosError`. Use `errors.As` to tell them apart:
+When the reconciler calls methods on the client, the `ChaosClient` checks the `FaultConfig`:
+
+- If the random roll is below the `ErrorRate`, the operation returns a `*sdk.ChaosError` instead of calling the real client
+- If `Delay` or `MaxDelay` is set, the operation sleeps before proceeding
+- Otherwise, the call passes through to the real client
+
+```go
+result, err := r.Reconcile(ctx, req)
+```
+
+### Step 5: Distinguish chaos errors from real errors
+
+When a fault fires, the `ChaosClient` returns a `*sdk.ChaosError`. Use `errors.As` to tell injected errors apart from real API errors:
 
 ```go
 var chaosErr *sdk.ChaosError
 if errors.As(err, &chaosErr) {
-    // This error was injected by ChaosClient -- expected behavior
+    // This error was injected by ChaosClient.
+    // chaosErr.Operation tells you which operation was faulted (e.g. "get")
+    // chaosErr.Message tells you the error text
+    fmt.Printf("Chaos fault on %s: %s\n", chaosErr.Operation, chaosErr.Message)
 } else {
-    // This is a real error from the Kubernetes API or your reconciler
+    // This is a real error from the Kubernetes API
 }
 ```
 
-This is important for test assertions — you may want to verify that your reconciler handles both chaos-injected errors (expected) and real errors differently.
+## Complete Example: Integration Test
 
-## Loading Faults from ConfigMap
-
-You can load fault configuration from a Kubernetes ConfigMap at runtime:
-
-```go
-// ConfigMap "operator-chaos-config" with key "config" containing JSON:
-// {"active": true, "faults": {"get": {"errorRate": 0.5, "error": "not found"}}}
-fc, err := sdk.ParseFaultConfigFromData(configMap.Data)
-chaosClient := sdk.NewChaosClient(realClient, fc)
-```
-
-## Runtime Introspection
-
-The SDK provides an HTTP admin handler for runtime introspection:
-
-```go
-adminHandler := sdk.NewAdminHandler(faults)
-// Exposes:
-//   GET /chaos/health      - health check
-//   GET /chaos/status       - active state + fault count
-//   GET /chaos/faultpoints  - all configured fault injection points
-```
-
-Mount this handler in your operator's HTTP server (typically the metrics server) to monitor active chaos faults.
-
-## Example: Integration Test
-
-Here's a complete example of using the SDK in an integration test:
+This example tests that a reconciler correctly requeues when it encounters connection errors:
 
 ```go
 package mycontroller_test
 
 import (
     "context"
+    "errors"
     "testing"
     "time"
 
@@ -162,48 +136,165 @@ import (
     "github.com/opendatahub-io/operator-chaos/pkg/sdk"
 )
 
-func TestReconcilerWithConnectionErrors(t *testing.T) {
+func TestReconcilerHandlesConnectionErrors(t *testing.T) {
+    // 1. Set up scheme and fake client
     scheme := runtime.NewScheme()
     _ = corev1.AddToScheme(scheme)
 
-    // Create test chaos configuration
-    tc := sdk.NewForTest(t, "my-component")
-    tc.Activate(sdk.OpGet, sdk.FaultSpec{
-        ErrorRate: 0.5,
-        Error:     "connection refused",
+    fakeClient := fake.NewClientBuilder().
+        WithScheme(scheme).
+        WithObjects(&corev1.ConfigMap{
+            ObjectMeta: metav1.ObjectMeta{
+                Name:      "my-config",
+                Namespace: "default",
+            },
+            Data: map[string]string{"key": "value"},
+        }).
+        Build()
+
+    // 2. Configure chaos: 100% Get failures
+    faults := sdk.NewFaultConfig(map[sdk.Operation]sdk.FaultSpec{
+        sdk.OpGet: {
+            ErrorRate: 1.0,
+            Error:     "connection refused",
+        },
     })
 
-    // Create fake client wrapped with chaos
-    fakeClient := fake.NewClientBuilder().WithScheme(scheme).Build()
-    chaosClient := sdk.NewChaosClient(fakeClient, tc.Config())
+    // 3. Wrap the fake client
+    chaosClient := sdk.NewChaosClient(fakeClient, faults)
 
-    // Create reconciler with chaos client
+    // 4. Create reconciler with chaos client
     r := &MyReconciler{client: chaosClient}
-
-    // Run reconciliation
     req := reconcile.Request{
         NamespacedName: types.NamespacedName{
-            Name:      "test-resource",
+            Name:      "my-config",
             Namespace: "default",
         },
     }
+
+    // 5. Run reconciliation
     result, err := r.Reconcile(context.Background(), req)
 
-    // Verify behavior under chaos
+    // 6. Verify: reconciler should requeue on connection errors
     if err != nil {
         var chaosErr *sdk.ChaosError
         if errors.As(err, &chaosErr) {
-            // Expected chaos error - reconciler should retry
-            if result.RequeueAfter == 0 {
-                t.Error("Expected requeue on chaos error")
-            }
+            t.Logf("Got expected chaos error: %s", chaosErr.Message)
         } else {
-            t.Errorf("Unexpected error: %v", err)
+            t.Fatalf("Unexpected real error: %v", err)
         }
+    }
+    if result.RequeueAfter == 0 && !result.Requeue {
+        t.Error("Expected reconciler to requeue after connection error")
     }
 }
 ```
 
+Run it:
+
+```bash
+$ go test ./pkg/mycontroller/ -run TestReconcilerHandlesConnectionErrors -v
+=== RUN   TestReconcilerHandlesConnectionErrors
+    mycontroller_test.go:52: Got expected chaos error: connection refused
+--- PASS: TestReconcilerHandlesConnectionErrors (0.00s)
+PASS
+ok      github.com/example/my-operator/pkg/mycontroller 0.012s
+```
+
+## TestChaos Helper for Go Tests
+
+The `TestChaos` helper simplifies test setup and auto-cleans up via `t.Cleanup`:
+
+```go
+func TestWithTestChaos(t *testing.T) {
+    // Creates a FaultConfig that cleans up when the test ends
+    tc := sdk.NewForTest(t, "my-component")
+
+    // Activate faults for specific operations
+    tc.Activate(sdk.OpGet, sdk.FaultSpec{
+        ErrorRate: 1.0,
+        Error:     "not found",
+    })
+    tc.Activate(sdk.OpUpdate, sdk.FaultSpec{
+        ErrorRate: 0.5,
+        Error:     "conflict",
+    })
+
+    // Use tc.Config() to get the FaultConfig
+    chaosClient := sdk.NewChaosClient(fakeClient, tc.Config())
+
+    // ... run your test
+}
+```
+
+## Wrapping a Reconciler Directly
+
+Instead of wrapping the client, you can wrap the entire reconciler to inject faults at the reconcile entry point:
+
+```go
+wrapped := sdk.WrapReconciler(myReconciler, sdk.WithFaultConfig(faults))
+```
+
+This applies the `FaultConfig` before the reconciler's `Reconcile` method runs. Useful when you want to test the reconciler's error handling at the top level rather than at individual client operations.
+
+## Loading Faults from a ConfigMap
+
+For runtime fault injection in staging environments, load fault configuration from a Kubernetes ConfigMap:
+
+```go
+// ConfigMap "operator-chaos-config" with key "config" containing JSON:
+// {"active": true, "faults": {"get": {"errorRate": 0.5, "error": "not found"}}}
+fc, err := sdk.ParseFaultConfigFromData(configMap.Data)
+if err != nil {
+    log.Error(err, "parsing fault config")
+    return
+}
+chaosClient := sdk.NewChaosClient(realClient, fc)
+```
+
+This lets you enable/disable faults at runtime by editing the ConfigMap, without redeploying the operator.
+
+## Runtime Introspection
+
+The SDK provides an HTTP admin handler for monitoring active chaos faults:
+
+```go
+adminHandler := sdk.NewAdminHandler(faults)
+```
+
+Mount this handler in your operator's HTTP server (typically the metrics server). It exposes:
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /chaos/health` | Health check |
+| `GET /chaos/status` | Active state and fault count |
+| `GET /chaos/faultpoints` | All configured fault injection points |
+
+Example response from `/chaos/status`:
+
+```json
+{
+  "active": true,
+  "faultCount": 3,
+  "operations": ["get", "list", "update"]
+}
+```
+
+## Supported Operations
+
+```go
+sdk.OpGet        // client.Get()
+sdk.OpList       // client.List()
+sdk.OpCreate     // client.Create()
+sdk.OpUpdate     // client.Update()
+sdk.OpDelete     // client.Delete()
+sdk.OpPatch      // client.Patch()
+sdk.OpDeleteAllOf // client.DeleteAllOf()
+sdk.OpReconcile  // reconcile.Reconciler.Reconcile()
+sdk.OpApply      // client.Apply()
+```
+
 ## Next Steps
 
-- Integrate with [fuzz testing](fuzz.md)
+- Explore thousands of fault combinations automatically with [Fuzz mode](fuzz.md)
+- Run full cluster-level experiments with [CLI mode](cli.md)

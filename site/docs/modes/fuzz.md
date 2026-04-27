@@ -1,39 +1,26 @@
-# Fuzz Quickstart
+# Fuzz Mode
 
-Use Go's native fuzz engine to automatically explore fault combinations your reconciler might encounter. The `pkg/sdk/fuzz` package provides a harness that:
+Use Go's native fuzz engine to automatically explore fault combinations your reconciler might encounter. Instead of writing one test per error scenario, the fuzz harness generates thousands of random fault configurations and runs your reconciler against each one, catching panics, unhandled errors, and state corruption.
 
-1. Creates a fresh fake client with seed objects
-2. Wraps it with `ChaosClient` using fuzz-generated fault configurations
-3. Runs your reconciler and catches panics
-4. Distinguishes chaos-injected errors (expected) from real bugs
-5. Checks post-reconcile invariants
+!!! tip "When to use Fuzz mode"
+    Use this when you want to find edge cases in your reconciler's error handling during development. Manual tests cover the cases you think of. Fuzz testing covers the ones you don't.
 
-!!! tip "When to Use Fuzz Testing"
-    Use this when you want to find edge cases in your reconciler's error handling during development. The fuzz engine explores thousands of fault combinations automatically, finding panics and logic bugs that manual tests miss.
+## What Does It Actually Do?
 
-## Auto-Generate from Knowledge Models
+Traditional chaos testing requires you to define each fault scenario manually: "inject a connection refused on Get, verify recovery." Fuzz mode inverts this. You provide:
 
-If you have an [operator knowledge model](../guides/knowledge-models.md), you can generate a complete fuzz test file automatically:
+1. A **reconciler factory** (a function that creates your reconciler given a `client.Client`)
+2. **Seed objects** (the Kubernetes resources your reconciler expects to exist)
+3. **Invariants** (conditions that must always hold after reconciliation)
 
-```bash
-# Generate to stdout
-operator-chaos generate fuzz-targets --knowledge knowledge/kserve.yaml
+The fuzz engine then:
 
-# Generate to a file
-operator-chaos generate fuzz-targets --knowledge knowledge/kserve.yaml --output fuzz_kserve_test.go
-```
+- Generates random fault configurations (which operations fail, what error, how often)
+- Wraps a fake client with those faults using the [SDK ChaosClient](sdk.md)
+- Runs your reconciler
+- Reports any panics, unexpected errors, or invariant violations as test failures
 
-The generated file contains:
-
-- One `FuzzXxx` function per component (e.g., `FuzzKserveControllerManager`)
-- Seed objects from `managedResources` (Deployments, ConfigMaps, RBAC, etc.)
-- Invariants from `steadyState.checks` and Deployment replicas
-- Seed corpus entries derived from architectural traits (webhooks, finalizers, leader election, dependencies)
-
-You only need to replace the placeholder `reconcilerFactory` function with your actual reconciler constructor.
-
-!!! tip "When to use auto-generation vs manual"
-    Use `generate fuzz-targets` when you already have a knowledge model. It gives the fuzzer architecturally relevant starting points. Write tests manually when you need custom invariants or want to target specific reconciler paths.
+No cluster is needed. Everything runs in-process with a fake client.
 
 ## How It Works
 
@@ -68,17 +55,23 @@ flowchart TD
     style PASS fill:#a5d6a7,stroke:#2e7d32
 ```
 
+The key insight: **chaos-injected errors are expected and silently ignored.** If your reconciler returns a `ChaosError`, that means it propagated the injected fault correctly. The harness only reports failures for:
+
+- **Panics**: Your code crashed. Always a bug.
+- **Non-chaos errors**: Your reconciler returned an error that didn't originate from the ChaosClient. This means your code has a bug unrelated to fault handling.
+- **Invariant violations**: Your reconciler ran to completion, but post-reconcile state is wrong (e.g., a resource that should always exist was deleted).
+
 ## Prerequisites
 
 - Go 1.18+ (for native fuzzing support)
 - controller-runtime v0.23+
 - No Kubernetes cluster needed (uses fake client)
 
-## Writing a Fuzz Test (Manual)
+## Step-by-Step Walkthrough
 
-### Step 1: Implement a ReconcilerFactory
+### Step 1: Write a reconciler factory
 
-This constructs your reconciler with a given `client.Client`:
+The fuzz harness needs a function that creates your reconciler given a `client.Client`. This decouples your reconciler construction from any specific client implementation:
 
 ```go
 import (
@@ -91,7 +84,9 @@ func myFactory(c client.Client) reconcile.Reconciler {
 }
 ```
 
-### Step 2: Write the Fuzz Test
+### Step 2: Write the fuzz test
+
+Create a file named `fuzz_test.go` in your controller's package:
 
 ```go
 package mycontroller_test
@@ -109,17 +104,12 @@ import (
     "github.com/opendatahub-io/operator-chaos/pkg/sdk/fuzz"
 )
 
-// Step 1: Implement a ReconcilerFactory.
-// This constructs your reconciler with a given client.Client.
-func myFactory(c client.Client) reconcile.Reconciler {
-    return &MyReconciler{client: c}
-}
-
-// Step 2: Write the fuzz test.
 func FuzzMyReconciler(f *testing.F) {
-    // Seed corpus: the fuzz engine starts with these values and mutates them.
-    f.Add(uint16(0x01FF), uint8(0), uint16(32768))
-    f.Add(uint16(0), uint8(3), uint16(65535))
+    // Seed corpus: starting values for the fuzz engine to mutate.
+    // Each f.Add() call provides one (opMask, faultType, intensity) tuple.
+    f.Add(uint16(0x01FF), uint8(0), uint16(32768))  // all ops, conflict error, 50%
+    f.Add(uint16(0x0001), uint8(1), uint16(65535))   // Get only, not found, 100%
+    f.Add(uint16(0), uint8(0), uint16(0))            // no faults (baseline)
 
     scheme := runtime.NewScheme()
     _ = corev1.AddToScheme(scheme)
@@ -127,34 +117,32 @@ func FuzzMyReconciler(f *testing.F) {
     f.Fuzz(func(t *testing.T, opMask uint16, faultType uint8, intensity uint16) {
         // Seed objects: the initial cluster state before reconciliation.
         cm := &corev1.ConfigMap{
-            ObjectMeta: metav1.ObjectMeta{Name: "my-config", Namespace: "default"},
-            Data:       map[string]string{"key": "value"},
+            ObjectMeta: metav1.ObjectMeta{
+                Name:      "my-config",
+                Namespace: "default",
+            },
+            Data: map[string]string{"key": "value"},
         }
+
+        // The reconcile request targeting this ConfigMap.
         req := reconcile.Request{
-            NamespacedName: types.NamespacedName{Name: "my-config", Namespace: "default"},
+            NamespacedName: types.NamespacedName{
+                Name:      "my-config",
+                Namespace: "default",
+            },
         }
 
         // Create harness with factory, scheme, request, and seed objects.
         h := fuzz.NewHarness(myFactory, scheme, req, cm)
 
-        // Add invariants: conditions that must hold after every reconciliation.
+        // Add invariant: ConfigMap must still exist after reconciliation.
         h.AddInvariant(fuzz.ObjectExists(
             types.NamespacedName{Name: "my-config", Namespace: "default"},
             &corev1.ConfigMap{},
         ))
 
-        // DecodeFaultConfig maps fuzz bytes to a valid FaultConfig:
-        //   opMask:    bitmask selecting which operations get faults
-        //              0x01FF enables all 9 operations, 0x0001 enables only Get
-        //   faultType: selects error message from 11 realistic K8s errors
-        //   intensity: maps to error rate (0 = never, 65535 = always fire)
+        // Decode fuzz bytes into a FaultConfig and run.
         fc := fuzz.DecodeFaultConfig(opMask, faultType, intensity)
-
-        // Run returns an error only for REAL bugs:
-        //   - Panics (always a bug)
-        //   - Non-chaos errors (reconciler returned an error not from ChaosClient)
-        //   - Invariant violations (post-reconcile state is wrong)
-        // Chaos-injected errors (sdk.ChaosError) are expected and silently ignored.
         if err := h.Run(t, fc); err != nil {
             t.Fatal(err)
         }
@@ -162,73 +150,151 @@ func FuzzMyReconciler(f *testing.F) {
 }
 ```
 
-## Running Fuzz Tests
+### Step 3: Run the fuzz test
 
 ```bash
-# Run for 30 seconds (quick smoke test)
-go test ./pkg/mycontroller/ -fuzz=FuzzMyReconciler -fuzztime=30s
-
-# Run for 5 minutes (thorough exploration)
-go test ./pkg/mycontroller/ -fuzz=FuzzMyReconciler -fuzztime=5m
-
-# Run indefinitely until a failure is found
-go test ./pkg/mycontroller/ -fuzz=FuzzMyReconciler
+# Quick smoke test (30 seconds)
+$ go test ./pkg/mycontroller/ -fuzz=FuzzMyReconciler -fuzztime=30s
+fuzz: elapsed: 0s, gathering baseline coverage: 0/3 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 3/3 completed, now fuzzing with 8 workers
+fuzz: elapsed: 3s, execs: 1842 (614/sec), new interesting: 12 (total: 15)
+fuzz: elapsed: 6s, execs: 4291 (816/sec), new interesting: 14 (total: 17)
+fuzz: elapsed: 9s, execs: 6830 (846/sec), new interesting: 15 (total: 18)
+fuzz: elapsed: 12s, execs: 9402 (857/sec), new interesting: 15 (total: 18)
+fuzz: elapsed: 15s, execs: 12091 (896/sec), new interesting: 16 (total: 19)
+fuzz: elapsed: 18s, execs: 14673 (860/sec), new interesting: 16 (total: 19)
+fuzz: elapsed: 21s, execs: 17284 (870/sec), new interesting: 16 (total: 19)
+fuzz: elapsed: 24s, execs: 19901 (872/sec), new interesting: 16 (total: 19)
+fuzz: elapsed: 27s, execs: 22486 (862/sec), new interesting: 16 (total: 19)
+fuzz: elapsed: 30s, execs: 25107 (874/sec), new interesting: 16 (total: 19)
+PASS
+ok      github.com/example/my-operator/pkg/mycontroller 30.124s
 ```
 
-Failures are saved to `testdata/fuzz/FuzzMyReconciler/` and automatically replayed on subsequent `go test` runs.
+The engine ran ~25,000 different fault configurations in 30 seconds. "New interesting" means the engine found inputs that exercise new code paths.
+
+```bash
+# Thorough exploration (5 minutes)
+$ go test ./pkg/mycontroller/ -fuzz=FuzzMyReconciler -fuzztime=5m
+
+# Run indefinitely until a failure is found
+$ go test ./pkg/mycontroller/ -fuzz=FuzzMyReconciler
+```
+
+### Step 4: Interpret failures
+
+When the fuzz engine finds a bug, it reports the inputs that triggered it:
+
+```
+--- FAIL: FuzzMyReconciler (0.03s)
+    --- FAIL: FuzzMyReconciler/seed#1 (0.00s)
+        harness.go:87: reconciler panicked: runtime error: invalid memory address
+                        or nil pointer dereference
+
+        Failing input:
+            opMask:    0x0001 (Get only)
+            faultType: 1 (not found)
+            intensity: 65535 (100% error rate)
+```
+
+This tells you: when every Get call returns "not found", your reconciler panics due to a nil pointer dereference. The fix is to add a nil check after the Get call.
+
+Failing inputs are saved to `testdata/fuzz/FuzzMyReconciler/` and automatically replayed on subsequent `go test` runs, so the bug becomes a permanent regression test.
+
+### Step 5: Fix and re-run
+
+After fixing the bug, re-run to verify the fix and continue exploring:
+
+```bash
+# Replay the saved failure (regression test)
+$ go test ./pkg/mycontroller/ -run=FuzzMyReconciler
+PASS
+ok      github.com/example/my-operator/pkg/mycontroller 0.015s
+
+# Continue fuzzing to find more issues
+$ go test ./pkg/mycontroller/ -fuzz=FuzzMyReconciler -fuzztime=2m
+```
+
+## Auto-Generate from Knowledge Models
+
+If you have an [operator knowledge model](../guides/knowledge-models.md), you can skip writing the fuzz test manually:
+
+```bash
+$ operator-chaos generate fuzz-targets \
+    --knowledge knowledge/kserve.yaml \
+    --output fuzz_kserve_test.go
+```
+
+The generated file contains:
+
+- One `FuzzXxx` function per component (e.g., `FuzzKserveControllerManager`)
+- Seed objects derived from `managedResources` (Deployments, ConfigMaps, RBAC)
+- Invariants from `steadyState.checks` and Deployment replicas
+- Seed corpus entries derived from architectural traits (webhooks, finalizers, leader election)
+
+You only need to replace the placeholder `reconcilerFactory` function with your actual reconciler constructor.
 
 ## DecodeFaultConfig Reference
 
 The `DecodeFaultConfig` function maps three fuzz primitives to a valid `*sdk.FaultConfig`:
 
-| Parameter | Type | Mapping |
-|-----------|------|---------|
-| `opMask` | `uint16` | Bitmask: bit 0 = Get, bit 1 = List, bit 2 = Create, bit 3 = Update, bit 4 = Delete, bit 5 = Patch, bit 6 = DeleteAllOf, bit 7 = Reconcile, bit 8 = Apply |
-| `faultType` | `uint8` | Index into 11 realistic K8s error messages (conflict, not found, timeout, server error, etcd, throttle, connection refused, gone, webhook denied, quota exceeded, unavailable) |
-| `intensity` | `uint16` | Error rate: 0 = never fire, 65535 = always fire |
-
-### Operation Bitmask
-
-The `opMask` parameter uses individual bits to enable/disable faults for each operation:
-
 ```go
-0x0001  // Only Get
-0x0002  // Only List
-0x0004  // Only Create
-0x0008  // Only Update
-0x0010  // Only Delete
-0x0020  // Only Patch
-0x0040  // Only DeleteAllOf
-0x0080  // Only Reconcile
-0x0100  // Only Apply
-0x01FF  // All operations (all 9 bits set)
+fc := fuzz.DecodeFaultConfig(opMask, faultType, intensity)
 ```
 
-### Fault Types
+### opMask (uint16): Which operations get faults
 
-The `faultType` parameter selects from these realistic Kubernetes error messages:
+Each bit enables faults for one operation:
+
+| Bit | Hex | Operation |
+|-----|-----|-----------|
+| 0 | `0x0001` | Get |
+| 1 | `0x0002` | List |
+| 2 | `0x0004` | Create |
+| 3 | `0x0008` | Update |
+| 4 | `0x0010` | Delete |
+| 5 | `0x0020` | Patch |
+| 6 | `0x0040` | DeleteAllOf |
+| 7 | `0x0080` | Reconcile |
+| 8 | `0x0100` | Apply |
+
+Examples:
+
+- `0x0001` = only Get is faulted
+- `0x0009` = Get + Update
+- `0x01FF` = all 9 operations
+
+### faultType (uint8): What error to inject
+
+Index into 11 realistic Kubernetes error messages:
 
 | Index | Error Message |
 |-------|--------------|
-| 0 | "the object has been modified; please apply your changes to the latest version and try again" |
-| 1 | "not found" |
-| 2 | "context deadline exceeded" |
-| 3 | "Internal error occurred: unexpected response: 500" |
-| 4 | "etcdserver: request timed out" |
-| 5 | "rate limit exceeded, retry after 5s" |
-| 6 | "connection refused" |
-| 7 | "the server could not find the requested resource (HTTP 410: Gone)" |
-| 8 | "admission webhook denied the request" |
-| 9 | "exceeded quota" |
-| 10 | "Service Unavailable" |
+| 0 | `the object has been modified; please apply your changes to the latest version and try again` |
+| 1 | `not found` |
+| 2 | `context deadline exceeded` |
+| 3 | `Internal error occurred: unexpected response: 500` |
+| 4 | `etcdserver: request timed out` |
+| 5 | `rate limit exceeded, retry after 5s` |
+| 6 | `connection refused` |
+| 7 | `the server could not find the requested resource (HTTP 410: Gone)` |
+| 8 | `admission webhook denied the request` |
+| 9 | `exceeded quota` |
+| 10 | `Service Unavailable` |
 
-## Built-in Invariants
+Values > 10 wrap around (modulo 11).
 
-Invariants are conditions that must hold after every reconciliation. The framework provides two built-in invariants:
+### intensity (uint16): How often the fault fires
 
-### ObjectExists
+Maps linearly to error rate: `0` = never fire, `65535` = always fire, `32768` = ~50%.
 
-Checks that a specific object still exists after reconciliation:
+## Invariants
+
+Invariants are conditions that must hold after every reconciliation, regardless of what faults were injected.
+
+### Built-in: ObjectExists
+
+Checks that a specific object still exists:
 
 ```go
 h.AddInvariant(fuzz.ObjectExists(
@@ -237,79 +303,64 @@ h.AddInvariant(fuzz.ObjectExists(
 ))
 ```
 
-### ObjectCount
+### Built-in: ObjectCount
 
-Checks that the count of objects of a given type matches `n`:
+Checks that the number of objects of a given type matches an expected count:
 
 ```go
-list := &corev1.ConfigMapList{}
-h.AddInvariant(fuzz.ObjectCount(list, 3))
+// Exactly 3 ConfigMaps should exist
+h.AddInvariant(fuzz.ObjectCount(&corev1.ConfigMapList{}, 3))
 
-// With label selector
-opts := []client.ListOption{
+// Exactly 1 ConfigMap with label "app=my-app"
+h.AddInvariant(fuzz.ObjectCount(
+    &corev1.ConfigMapList{},
+    1,
     client.MatchingLabels{"app": "my-app"},
-}
-h.AddInvariant(fuzz.ObjectCount(list, 1, opts...))
+))
 ```
 
-## Custom Invariants
+### Custom invariants
 
-You can define custom invariants as functions that check post-reconcile state:
+Write any check as a function:
 
 ```go
-customInvariant := func(ctx context.Context, c client.Client) error {
+h.AddInvariant(func(ctx context.Context, c client.Client) error {
     cm := &corev1.ConfigMap{}
     key := types.NamespacedName{Name: "my-config", Namespace: "default"}
     if err := c.Get(ctx, key, cm); err != nil {
         return fmt.Errorf("ConfigMap missing: %w", err)
     }
     if cm.Data["key"] != "value" {
-        return fmt.Errorf("ConfigMap data corrupted: got %q", cm.Data["key"])
+        return fmt.Errorf("ConfigMap data corrupted: got %q, want %q",
+            cm.Data["key"], "value")
     }
     return nil
-}
-
-h.AddInvariant(customInvariant)
+})
 ```
 
-## Understanding Fuzz Failures
+## CI Integration
 
-When the fuzz engine finds a bug, it reports:
-
-1. **The fuzz inputs** that triggered the failure (saved to `testdata/fuzz/`)
-2. **The failure type**:
-   - **Panic**: Your reconciler panicked (always a bug)
-   - **Non-chaos error**: Your reconciler returned an error that wasn't injected by ChaosClient
-   - **Invariant violation**: Post-reconcile state doesn't match expectations
-
-3. **The failure output** including stack trace
-
-Example failure output:
-
-```
---- FAIL: FuzzMyReconciler (0.03s)
-    --- FAIL: FuzzMyReconciler (0.00s)
-        harness.go:123: reconciler panicked: runtime error: invalid memory address or nil pointer dereference
-
-        Fuzz inputs:
-            opMask:    0x0001 (Get only)
-            faultType: 1 (not found)
-            intensity: 65535 (100% error rate)
-```
-
-## Integration with CI/CD
-
-Add fuzz tests to your CI pipeline:
+Add fuzz tests to your CI pipeline. Even a 2-minute run catches many issues:
 
 ```yaml
-# GitHub Actions example
+# GitHub Actions
 - name: Fuzz test reconcilers
-  run: |
-    go test ./pkg/... -fuzz=. -fuzztime=2m
+  run: go test ./pkg/... -fuzz=. -fuzztime=2m
 ```
 
-For regression testing, commit the `testdata/fuzz/` directory to ensure discovered bugs are always re-tested.
+Commit the `testdata/fuzz/` directory to your repository so discovered failures become permanent regression tests.
+
+## Comparison with Other Modes
+
+| | Fuzz Mode | SDK Mode | CLI Mode |
+|--|-----------|----------|----------|
+| **Cluster needed?** | No (fake client) | No (fake or real) | Yes (live cluster) |
+| **Fault configuration** | Auto-generated | Manual | Manual (YAML) |
+| **Coverage** | Thousands of combinations | One scenario per test | One scenario per experiment |
+| **What it finds** | Panics, nil pointers, logic bugs | Specific error handling paths | Real recovery behavior |
+| **Speed** | ~800 runs/sec | Milliseconds per test | Seconds to minutes per experiment |
 
 ## Next Steps
 
-- Integrate with [SDK middleware](sdk.md)
+- Learn about [SDK mode](sdk.md) for targeted error injection
+- Run full cluster experiments with [CLI mode](cli.md)
