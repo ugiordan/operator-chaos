@@ -1721,6 +1721,8 @@
       
         
       
+        
+      
     
     
     
@@ -1993,6 +1995,8 @@
       
         
       
+        
+      
     
     
     
@@ -2016,7 +2020,7 @@
   <span class="md-ellipsis">
     
   
-    Operations
+    Environments
   
 
     
@@ -2029,6 +2033,186 @@
         
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Environments
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/environments/kind/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    kind
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/environments/k3s/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    k3s
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/environments/ocp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenShift (OCP/ROSA)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/environments/okd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OKD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3">
+        
+          
+          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -5773,53 +5957,56 @@
 <a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>
 <a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>Cluster<span class="w"> </span>preflight<span class="w"> </span>passed.
 </code></pre></div>
+<p>When connecting to a cluster, preflight also checks resource capacity. It sums CPU and memory requests across all Deployment-type managed resources and warns if they exceed 80% of total node allocatable capacity:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>Warning: operator deployments request 5 CPU (71% of 7 allocatable across 2 nodes)
+</code></pre></div>
 <p>If a resource is missing, the output shows it clearly:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="w">  </span>COMPONENT<span class="w">              </span>NAME<span class="w">                    </span>KIND<span class="w">          </span>STATUS
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span>---------<span class="w">              </span>----<span class="w">                    </span>----<span class="w">          </span>------
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span>odh-model-controller<span class="w">   </span>odh-model-controller<span class="w">    </span>Deployment<span class="w">    </span>Found
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">  </span>odh-model-controller<span class="w">   </span>odh-model-controller<span class="w">    </span>ServiceAccount<span class="w"> </span>Missing
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="m">1</span><span class="w"> </span>resources<span class="w"> </span>missing,<span class="w"> </span><span class="m">0</span><span class="w"> </span>resources<span class="w"> </span>could<span class="w"> </span>not<span class="w"> </span>be<span class="w"> </span>checked
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="w">  </span>COMPONENT<span class="w">              </span>NAME<span class="w">                    </span>KIND<span class="w">          </span>STATUS
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span>---------<span class="w">              </span>----<span class="w">                    </span>----<span class="w">          </span>------
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span>odh-model-controller<span class="w">   </span>odh-model-controller<span class="w">    </span>Deployment<span class="w">    </span>Found
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span>odh-model-controller<span class="w">   </span>odh-model-controller<span class="w">    </span>ServiceAccount<span class="w"> </span>Missing
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="m">1</span><span class="w"> </span>resources<span class="w"> </span>missing,<span class="w"> </span><span class="m">0</span><span class="w"> </span>resources<span class="w"> </span>could<span class="w"> </span>not<span class="w"> </span>be<span class="w"> </span>checked
 </code></pre></div>
 <p>To validate just the knowledge file structure without connecting to a cluster:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>$<span class="w"> </span>operator-chaos<span class="w"> </span>preflight<span class="w"> </span>--knowledge<span class="w"> </span>knowledge.yaml<span class="w"> </span>--local
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>Operator:<span class="w">    </span>opendatahub-operator
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>Namespace:<span class="w">   </span>opendatahub
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>Components:<span class="w">  </span><span class="m">1</span>
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>Resources:<span class="w">   </span><span class="m">2</span>
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>Webhooks:<span class="w">    </span><span class="m">1</span>
-<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>Finalizers:<span class="w">  </span><span class="m">0</span>
-<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>
-<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>Local<span class="w"> </span>preflight<span class="w"> </span>passed.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>$<span class="w"> </span>operator-chaos<span class="w"> </span>preflight<span class="w"> </span>--knowledge<span class="w"> </span>knowledge.yaml<span class="w"> </span>--local
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>Operator:<span class="w">    </span>opendatahub-operator
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>Namespace:<span class="w">   </span>opendatahub
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>Components:<span class="w">  </span><span class="m">1</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>Resources:<span class="w">   </span><span class="m">2</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>Webhooks:<span class="w">    </span><span class="m">1</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>Finalizers:<span class="w">  </span><span class="m">0</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>Local<span class="w"> </span>preflight<span class="w"> </span>passed.
 </code></pre></div>
 <h3 id="step-6-dry-run">Step 6: Dry run<a class="headerlink" href="#step-6-dry-run" title="Permanent link">¶</a></h3>
 <p>Test the full experiment lifecycle without injecting any fault:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>$<span class="w"> </span>operator-chaos<span class="w"> </span>run<span class="w"> </span>experiment.yaml<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">    </span>--knowledge<span class="w"> </span>knowledge.yaml<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span>--dry-run
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>Experiment:<span class="w"> </span>odh-model-controller-PodKill
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>Verdict:<span class="w">    </span>Resilient
-<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>Confidence:<span class="w"> </span>validated<span class="w"> </span><span class="o">(</span>dry-run<span class="w"> </span>or<span class="w"> </span>pre-execution<span class="o">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>$<span class="w"> </span>operator-chaos<span class="w"> </span>run<span class="w"> </span>experiment.yaml<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">    </span>--knowledge<span class="w"> </span>knowledge.yaml<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span>--dry-run
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>Experiment:<span class="w"> </span>odh-model-controller-PodKill
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>Verdict:<span class="w">    </span>Resilient
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>Confidence:<span class="w"> </span>validated<span class="w"> </span><span class="o">(</span>dry-run<span class="w"> </span>or<span class="w"> </span>pre-execution<span class="o">)</span>
 </code></pre></div>
 <p>The dry run validates experiment loading, steady-state checks, and report generation without performing destructive operations.</p>
 <h3 id="step-7-run-the-experiment">Step 7: Run the experiment<a class="headerlink" href="#step-7-run-the-experiment" title="Permanent link">¶</a></h3>
 <p>Execute the experiment against your live cluster:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>$<span class="w"> </span>operator-chaos<span class="w"> </span>run<span class="w"> </span>experiment.yaml<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">    </span>--knowledge<span class="w"> </span>knowledge.yaml<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span>-v
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>$<span class="w"> </span>operator-chaos<span class="w"> </span>run<span class="w"> </span>experiment.yaml<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span>--knowledge<span class="w"> </span>knowledge.yaml<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span>-v
 </code></pre></div>
 <p>The verbose (<code>-v</code>) flag shows each phase as it executes. When the experiment completes, you see the result:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>Experiment: odh-model-controller-PodKill
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>Verdict:    Resilient
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>Confidence: high
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>Experiment: odh-model-controller-PodKill
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>Verdict:    Resilient
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>Confidence: high
 </code></pre></div>
 <p>If the operator doesn't recover in time, the verdict changes:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>Experiment: odh-model-controller-PodKill
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>Verdict:    Degraded
-<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>Confidence: medium
-<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>Deviations:
-<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>  - [slow_recovery] recovery took 45s, expected &lt; 30s
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>Experiment: odh-model-controller-PodKill
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>Verdict:    Degraded
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>Confidence: medium
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>Deviations:
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>  - [slow_recovery] recovery took 45s, expected &lt; 30s
 </code></pre></div>
 <h4 id="verdicts-and-exit-codes">Verdicts and exit codes<a class="headerlink" href="#verdicts-and-exit-codes" title="Permanent link">¶</a></h4>
 <table>
@@ -5856,58 +6043,65 @@
 <p>Non-zero exit codes on non-Resilient verdicts let you gate CI/CD pipelines on experiment results.</p>
 <h3 id="step-8-run-a-suite-of-experiments">Step 8: Run a suite of experiments<a class="headerlink" href="#step-8-run-a-suite-of-experiments" title="Permanent link">¶</a></h3>
 <p>To run all experiments in a directory sequentially:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>$<span class="w"> </span>operator-chaos<span class="w"> </span>suite<span class="w"> </span>experiments/odh-model-controller/<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">    </span>--knowledge<span class="w"> </span>knowledge.yaml<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span>--report-dir<span class="w"> </span>/tmp/chaos-results/<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">    </span>--timeout<span class="w"> </span>10m
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>$<span class="w"> </span>operator-chaos<span class="w"> </span>suite<span class="w"> </span>experiments/odh-model-controller/<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">    </span>--knowledge<span class="w"> </span>knowledge.yaml<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">    </span>--report-dir<span class="w"> </span>/tmp/chaos-results/<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">    </span>--timeout<span class="w"> </span>10m
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>Found 7 experiments in experiments/odh-model-controller/
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
-<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>PASS  omc-podkill (Resilient, 12s recovery, 0 deviations)
-<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>PASS  omc-configdrift (Resilient, 23s recovery, 0 deviations)
-<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>PASS  omc-networkpartition (Resilient, 18s recovery, 0 deviations)
-<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>PASS  omc-crdmutation (Resilient, 31s recovery, 0 deviations)
-<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>PASS  omc-finalizerblock (Resilient, 8s recovery, 0 deviations)
-<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>FAIL  omc-webhookdisrupt (Degraded, 95s recovery, 1 deviations)
-<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>PASS  omc-rbacrevoke (Resilient, 42s recovery, 0 deviations)
-<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>
-<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>Suite summary: 6 passed, 1 failed, 0 skipped (total: 7)
-<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>JUnit report written to /tmp/chaos-results/suite-results.xml
-<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>HTML report written to /tmp/chaos-results/report.html
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>Found 7 experiments in experiments/odh-model-controller/
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>PASS  omc-podkill (Resilient, 12s recovery, 0 deviations)
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>PASS  omc-configdrift (Resilient, 23s recovery, 0 deviations)
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>PASS  omc-networkpartition (Resilient, 18s recovery, 0 deviations)
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>PASS  omc-crdmutation (Resilient, 31s recovery, 0 deviations)
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>PASS  omc-finalizerblock (Resilient, 8s recovery, 0 deviations)
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>FAIL  omc-webhookdisrupt (Degraded, 95s recovery, 1 deviations)
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>PASS  omc-rbacrevoke (Resilient, 42s recovery, 0 deviations)
+<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a>
+<a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a>Suite summary: 6 passed, 1 failed, 0 skipped (total: 7)
+<a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a>JUnit report written to /tmp/chaos-results/suite-results.xml
+<a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a>HTML report written to /tmp/chaos-results/report.html
 </code></pre></div>
 <p>The suite generates JUnit XML (for CI integration) and HTML reports in the <code>--report-dir</code>.</p>
+<p>For disruptive experiments that leave the cluster in a temporarily degraded state, use <code>--cooldown</code> to add a delay between sequential experiments:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>$<span class="w"> </span>operator-chaos<span class="w"> </span>suite<span class="w"> </span>experiments/<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">    </span>--knowledge<span class="w"> </span>knowledge.yaml<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">    </span>--cooldown<span class="w"> </span>30s<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">    </span>--max-tier<span class="w"> </span><span class="m">3</span>
+</code></pre></div>
+<p>This prevents cascading pre-check failures where one experiment's aftermath causes the next experiment's steady-state validation to fail.</p>
 <h3 id="step-9-clean-up-chaos-artifacts">Step 9: Clean up chaos artifacts<a class="headerlink" href="#step-9-clean-up-chaos-artifacts" title="Permanent link">¶</a></h3>
 <p>If an experiment is interrupted or leaves artifacts behind (NetworkPolicies, finalizers, modified webhooks), use the <code>clean</code> command:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>$<span class="w"> </span>operator-chaos<span class="w"> </span>clean<span class="w"> </span>--namespace<span class="w"> </span>opendatahub
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>$<span class="w"> </span>operator-chaos<span class="w"> </span>clean<span class="w"> </span>--namespace<span class="w"> </span>opendatahub
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>Deleting NetworkPolicy opendatahub/chaos-deny-all-odh-model-controller
-<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>Restoring ValidatingWebhookConfiguration "validating.odh-model-controller.opendatahub.io"
-<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>
-<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>--- Clean Summary ---
-<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>  NetworkPolicies removed:    1
-<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>  Webhooks restored:          1
-<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>  Total cleaned:              2
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>Deleting NetworkPolicy opendatahub/chaos-deny-all-odh-model-controller
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>Restoring ValidatingWebhookConfiguration "validating.odh-model-controller.opendatahub.io"
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>--- Clean Summary ---
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>  NetworkPolicies removed:    1
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>  Webhooks restored:          1
+<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>  Total cleaned:              2
 </code></pre></div>
 <p>If nothing needs cleaning:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>No chaos artifacts found.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>No chaos artifacts found.
 </code></pre></div>
 <p>For continuous monitoring in shared clusters:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>$<span class="w"> </span>operator-chaos<span class="w"> </span>clean<span class="w"> </span>--namespace<span class="w"> </span>opendatahub<span class="w"> </span>--watch<span class="w"> </span>--interval<span class="w"> </span>30s
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>$<span class="w"> </span>operator-chaos<span class="w"> </span>clean<span class="w"> </span>--namespace<span class="w"> </span>opendatahub<span class="w"> </span>--watch<span class="w"> </span>--interval<span class="w"> </span>30s
 </code></pre></div>
 <p>This scans for stale artifacts every 30 seconds until you press Ctrl+C.</p>
 <h2 id="rhoai-clusters">RHOAI Clusters<a class="headerlink" href="#rhoai-clusters" title="Permanent link">¶</a></h2>
 <p>Experiment YAML files default to the <code>opendatahub</code> namespace. When running on RHOAI clusters (which use <code>redhat-ods-applications</code>), use the <code>--namespace</code> flag:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>$<span class="w"> </span>operator-chaos<span class="w"> </span>run<span class="w"> </span>experiment.yaml<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="w">    </span>--knowledge<span class="w"> </span>knowledge.yaml<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">    </span>--namespace<span class="w"> </span>redhat-ods-applications
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>$<span class="w"> </span>operator-chaos<span class="w"> </span>run<span class="w"> </span>experiment.yaml<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="w">    </span>--knowledge<span class="w"> </span>knowledge.yaml<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="w">    </span>--namespace<span class="w"> </span>redhat-ods-applications
 </code></pre></div>
 <p>The <code>--namespace</code> flag overrides the experiment's metadata namespace, steady-state check namespaces, blast radius <code>allowedNamespaces</code>, and reconciliation checker namespace. You can use the same experiment YAML for both ODH and RHOAI clusters without modification.</p>
 <h2 id="distributed-locking">Distributed Locking<a class="headerlink" href="#distributed-locking" title="Permanent link">¶</a></h2>
 <p>When multiple people run experiments on the same cluster, use distributed locking to prevent overlapping experiments:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>$<span class="w"> </span>operator-chaos<span class="w"> </span>run<span class="w"> </span>experiment.yaml<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="w">    </span>--knowledge<span class="w"> </span>knowledge.yaml<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="w">    </span>--distributed-lock<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="w">    </span>--lock-namespace<span class="w"> </span>opendatahub
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>$<span class="w"> </span>operator-chaos<span class="w"> </span>run<span class="w"> </span>experiment.yaml<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="w">    </span>--knowledge<span class="w"> </span>knowledge.yaml<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="w">    </span>--distributed-lock<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="w">    </span>--lock-namespace<span class="w"> </span>opendatahub
 </code></pre></div>
 <p>This creates a Kubernetes Lease in the target namespace. Only one experiment can hold the lock at a time. Other attempts will wait or fail with a lock conflict.</p>
 <h2 id="available-injection-types">Available Injection Types<a class="headerlink" href="#available-injection-types" title="Permanent link">¶</a></h2>
@@ -6017,7 +6211,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 27, 2026 10:47:07 UTC">April 27, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 29, 2026 15:09:39 UTC">April 29, 2026</span>
   </span>
 
     

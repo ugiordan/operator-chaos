@@ -377,6 +377,22 @@
          <lastmod>2026-04-29</lastmod>
     </url>
     <url>
+         <loc>https://ugiordan.github.io/operator-chaos/guides/environments/k3s/</loc>
+         <lastmod>2026-04-29</lastmod>
+    </url>
+    <url>
+         <loc>https://ugiordan.github.io/operator-chaos/guides/environments/kind/</loc>
+         <lastmod>2026-04-29</lastmod>
+    </url>
+    <url>
+         <loc>https://ugiordan.github.io/operator-chaos/guides/environments/ocp/</loc>
+         <lastmod>2026-04-29</lastmod>
+    </url>
+    <url>
+         <loc>https://ugiordan.github.io/operator-chaos/guides/environments/okd/</loc>
+         <lastmod>2026-04-29</lastmod>
+    </url>
+    <url>
          <loc>https://ugiordan.github.io/operator-chaos/modes/cli/</loc>
          <lastmod>2026-04-29</lastmod>
     </url>
