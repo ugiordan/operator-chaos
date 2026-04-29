@@ -1,0 +1,102 @@
+operator:
+  name: cert-manager
+  namespace: cert-manager
+  repository: https://github.com/cert-manager/cert-manager
+
+components:
+  - name: cert-manager-controller
+    controller: Deployment
+    managedResources:
+      - apiVersion: apps/v1
+        kind: Deployment
+        name: cert-manager
+        namespace: cert-manager
+        labels:
+          app: cert-manager
+          app.kubernetes.io/name: cert-manager
+          app.kubernetes.io/component: controller
+        expectedSpec:
+          replicas: 1
+      - apiVersion: v1
+        kind: ServiceAccount
+        name: cert-manager
+        namespace: cert-manager
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRole
+        name: cert-manager-controller-issuers
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRole
+        name: cert-manager-controller-certificates
+      - apiVersion: rbac.authorization.k8s.io/v1
+        kind: ClusterRoleBinding
+        name: cert-manager-controller-issuers
+    steadyState:
+      checks:
+        - type: conditionTrue
+          apiVersion: apps/v1
+          kind: Deployment
+          name: cert-manager
+          namespace: cert-manager
+          conditionType: Available
+      timeout: "60s"
+
+  - name: cert-manager-webhook
+    controller: Deployment
+    managedResources:
+      - apiVersion: apps/v1
+        kind: Deployment
+        name: cert-manager-webhook
+        namespace: cert-manager
+        labels:
+          app: cert-manager
+          app.kubernetes.io/name: webhook
+          app.kubernetes.io/component: webhook
+        expectedSpec:
+          replicas: 1
+      - apiVersion: v1
+        kind: Service
+        name: cert-manager-webhook
+        namespace: cert-manager
+      - apiVersion: admissionregistration.k8s.io/v1
+        kind: ValidatingWebhookConfiguration
+        name: cert-manager-webhook
+    webhooks:
+      - name: cert-manager-webhook
+        type: validating
+        path: /validate
+    steadyState:
+      checks:
+        - type: conditionTrue
+          apiVersion: apps/v1
+          kind: Deployment
+          name: cert-manager-webhook
+          namespace: cert-manager
+          conditionType: Available
+      timeout: "60s"
+
+  - name: cert-manager-cainjector
+    controller: Deployment
+    managedResources:
+      - apiVersion: apps/v1
+        kind: Deployment
+        name: cert-manager-cainjector
+        namespace: cert-manager
+        labels:
+          app: cert-manager
+          app.kubernetes.io/name: cainjector
+          app.kubernetes.io/component: cainjector
+        expectedSpec:
+          replicas: 1
+    steadyState:
+      checks:
+        - type: conditionTrue
+          apiVersion: apps/v1
+          kind: Deployment
+          name: cert-manager-cainjector
+          namespace: cert-manager
+          conditionType: Available
+      timeout: "60s"
+
+recovery:
+  reconcileTimeout: "120s"
+  maxReconcileCycles: 5

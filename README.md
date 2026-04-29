@@ -737,6 +737,7 @@ operator-chaos run experiment.yaml [flags]
 
 | Flag | Description | Default |
 |------|-------------|---------|
+| `--profile` | Named profile (resolves knowledge directory automatically) | |
 | `--knowledge` | Path to operator knowledge YAML (repeatable) | |
 | `--knowledge-dir` | Directory of knowledge YAMLs (loads all *.yaml) | |
 | `--report-dir` | Directory for report output | |
@@ -764,6 +765,7 @@ operator-chaos suite <experiments-directory> [flags]
 
 | Flag | Description | Default |
 |------|-------------|---------|
+| `--profile` | Named profile (resolves knowledge directory automatically) | |
 | `--knowledge` | Path to operator knowledge YAML (repeatable) | |
 | `--knowledge-dir` | Directory of knowledge YAMLs (loads all *.yaml) | |
 | `--parallel` | Max concurrent experiments | `1` |
@@ -995,7 +997,24 @@ dashboard/
   embed.go              go:embed for serving built UI assets
 knowledge/              Operator knowledge YAML files (versioned: odh/v2.10, rhoai/v3.3)
 experiments/            Pre-built experiment suites (116 experiments, tiered 1-5)
+profiles/               Third-party operator profiles (e.g. cert-manager)
 ```
+
+## Profiles
+
+A profile is a set of knowledge models and experiments for a specific operator. The framework ships with built-in profiles for ODH and RHOAI, and includes a cert-manager example showing how to target any Kubernetes operator.
+
+```bash
+# Use the RHOAI profile (resolves knowledge from knowledge/rhoai/)
+operator-chaos suite experiments/rhoai/dashboard/ --profile rhoai
+
+# Use a self-contained profile (resolves from profiles/cert-manager/)
+operator-chaos suite profiles/cert-manager/experiments/ --profile cert-manager
+```
+
+The `--profile` flag searches `profiles/<name>/knowledge/` first, then falls back to `knowledge/<name>/`. Explicit `--knowledge` or `--knowledge-dir` flags take precedence.
+
+See the [Profiles Guide](https://ugiordan.github.io/operator-chaos/guides/profiles/) for how to write a profile for your own operator.
 
 ## Dashboard
 

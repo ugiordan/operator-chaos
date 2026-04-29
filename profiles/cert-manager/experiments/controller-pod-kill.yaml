@@ -1,0 +1,36 @@
+apiVersion: chaos.operatorchaos.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: cert-manager-controller-pod-kill
+spec:
+  tier: 1
+  target:
+    operator: cert-manager
+    component: cert-manager-controller
+    resource: Deployment/cert-manager
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: cert-manager
+        namespace: cert-manager
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: PodKill
+    parameters:
+      labelSelector: app.kubernetes.io/name=cert-manager
+    count: 1
+    ttl: "300s"
+  hypothesis:
+    description: >-
+      Killing the cert-manager controller pod should trigger a Deployment
+      rollout that recreates it. Existing certificates remain valid since
+      they are stored as Secrets. Pending certificate requests will stall
+      until the controller recovers.
+    recoveryTimeout: 120s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - cert-manager

@@ -1,0 +1,36 @@
+apiVersion: chaos.operatorchaos.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: cert-manager-controller-network-partition
+spec:
+  tier: 2
+  target:
+    operator: cert-manager
+    component: cert-manager-controller
+    resource: Deployment/cert-manager
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: cert-manager
+        namespace: cert-manager
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: NetworkPartition
+    parameters:
+      labelSelector: app.kubernetes.io/name=cert-manager
+      direction: ingress
+    ttl: "120s"
+  hypothesis:
+    description: >-
+      Isolating the cert-manager controller from the API server should cause
+      certificate reconciliation to stall. Existing certificates and Secrets
+      remain valid. After the partition is lifted, the controller should
+      reconnect and process any backlogged certificate requests.
+    recoveryTimeout: 120s
+  blastRadius:
+    maxPodsAffected: 1
+    allowedNamespaces:
+      - cert-manager

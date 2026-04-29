@@ -15,6 +15,7 @@ func newRunCommand() *cobra.Command {
 	var (
 		knowledgePaths  []string
 		knowledgeDir    string
+		profile         string
 		reportDir       string
 		dryRun          bool
 		timeout         time.Duration
@@ -30,6 +31,16 @@ func newRunCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if maxTier < 0 || maxTier > v1alpha1.MaxTier {
 				return fmt.Errorf("--max-tier must be 0 (no filter) or between %d and %d", v1alpha1.MinTier, v1alpha1.MaxTier)
+			}
+
+			if profile != "" {
+				pp, err := resolveProfile(profile)
+				if err != nil {
+					return err
+				}
+				if pp.KnowledgeDir != "" && knowledgeDir == "" && len(knowledgePaths) == 0 {
+					knowledgeDir = pp.KnowledgeDir
+				}
 			}
 
 			ctx, cancel := context.WithTimeout(cmd.Context(), timeout)
@@ -103,8 +114,8 @@ func newRunCommand() *cobra.Command {
 		},
 	}
 
+	cmd.Flags().StringVar(&profile, "profile", "", "named profile (resolves knowledge directory automatically)")
 	cmd.Flags().StringArrayVar(&knowledgePaths, "knowledge", nil, "path to operator knowledge YAML (repeatable)")
-
 	cmd.Flags().StringVar(&knowledgeDir, "knowledge-dir", "", "directory of operator knowledge YAMLs")
 	cmd.Flags().StringVar(&reportDir, "report-dir", "", "directory for report output")
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "validate without injecting")

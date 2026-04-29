@@ -33,6 +33,7 @@ func newSuiteCommand() *cobra.Command {
 	var (
 		knowledgePaths  []string
 		knowledgeDir    string
+		profile         string
 		reportDir       string
 		dryRun          bool
 		timeout         time.Duration
@@ -53,6 +54,16 @@ func newSuiteCommand() *cobra.Command {
 			}
 			if maxTier < 0 || maxTier > v1alpha1.MaxTier {
 				return fmt.Errorf("--max-tier must be 0 (no filter) or between %d and %d", v1alpha1.MinTier, v1alpha1.MaxTier)
+			}
+
+			if profile != "" {
+				pp, err := resolveProfile(profile)
+				if err != nil {
+					return err
+				}
+				if pp.KnowledgeDir != "" && knowledgeDir == "" && len(knowledgePaths) == 0 {
+					knowledgeDir = pp.KnowledgeDir
+				}
 			}
 
 			dir := args[0]
@@ -87,8 +98,8 @@ func newSuiteCommand() *cobra.Command {
 			}
 
 			// Only override namespace when the user explicitly passes --namespace.
-			// The persistent flag has a default value ("opendatahub"), so always
-			// reading it would silently override per-check namespaces in YAML.
+			// The persistent flag has a default value, so always reading it
+			// would silently override per-check namespaces in YAML.
 			var namespace string
 			if cmd.Flags().Changed("namespace") {
 				namespace, _ = cmd.Flags().GetString("namespace")
@@ -164,6 +175,7 @@ func newSuiteCommand() *cobra.Command {
 		},
 	}
 
+	cmd.Flags().StringVar(&profile, "profile", "", "named profile (resolves knowledge directory automatically)")
 	cmd.Flags().StringArrayVar(&knowledgePaths, "knowledge", nil, "path to operator knowledge YAML (repeatable)")
 	cmd.Flags().StringVar(&knowledgeDir, "knowledge-dir", "", "directory of operator knowledge YAMLs")
 	cmd.Flags().StringVar(&reportDir, "report-dir", "", "directory for report output")

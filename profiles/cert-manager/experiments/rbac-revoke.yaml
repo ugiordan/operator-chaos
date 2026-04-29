@@ -1,0 +1,37 @@
+apiVersion: chaos.operatorchaos.io/v1alpha1
+kind: ChaosExperiment
+metadata:
+  name: cert-manager-rbac-revoke
+spec:
+  tier: 4
+  target:
+    operator: cert-manager
+    component: cert-manager-controller
+    resource: ClusterRoleBinding/cert-manager-controller-issuers
+  steadyState:
+    checks:
+      - type: conditionTrue
+        apiVersion: apps/v1
+        kind: Deployment
+        name: cert-manager
+        namespace: cert-manager
+        conditionType: Available
+    timeout: "30s"
+  injection:
+    type: RBACRevoke
+    parameters:
+      bindingName: cert-manager-controller-issuers
+      bindingType: ClusterRoleBinding
+    ttl: "120s"
+  hypothesis:
+    description: >-
+      Revoking the cert-manager controller's ClusterRoleBinding for issuers
+      should cause certificate issuance to fail with RBAC errors. The controller
+      pod remains running but cannot reconcile Issuer resources. After rollback,
+      the ClusterRoleBinding is restored and pending issuance resumes.
+    recoveryTimeout: 120s
+  blastRadius:
+    maxPodsAffected: 1
+    allowDangerous: true
+    allowedNamespaces:
+      - cert-manager

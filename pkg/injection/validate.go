@@ -879,8 +879,8 @@ var forbiddenNamespaces = map[string]bool{
 }
 
 // forbiddenNamespacePrefixes are namespace name prefixes that must never be deleted.
-// Note: "redhat-ods-" is intentionally NOT forbidden here because it is the
-// primary RHOAI namespace that chaos experiments target. Safety is enforced via
+// Operator-specific namespaces (e.g. vendor prefixes) are not forbidden here
+// because they are legitimate chaos targets. Safety is enforced via
 // dangerLevel: high + allowDangerous: true.
 var forbiddenNamespacePrefixes = []string{
 	"openshift-",
