@@ -2,406 +2,406 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/troubleshooting/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/architecture/injection-engine/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/architecture/observer-blackboard/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/architecture/overview/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/architecture/upgrade-diff-engine/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/codeflare/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/codeflare/custom-experiments/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/codeflare/failure-modes/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/codeflare/validation-results/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/dashboard/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/dashboard/custom-experiments/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/dashboard/failure-modes/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/dashboard/validation-results/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/data-science-pipelines/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/data-science-pipelines/custom-experiments/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/data-science-pipelines/failure-modes/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/data-science-pipelines/validation-results/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/feast/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/feast/custom-experiments/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/feast/failure-modes/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/feast/validation-results/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/kserve/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/kserve/custom-experiments/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/kserve/failure-modes/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/kserve/validation-results/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/kueue/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/kueue/custom-experiments/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/kueue/failure-modes/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/kueue/validation-results/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/llamastack/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/llamastack/custom-experiments/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/llamastack/failure-modes/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/llamastack/validation-results/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/model-registry/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/model-registry/custom-experiments/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/model-registry/failure-modes/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/model-registry/validation-results/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/modelmesh/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/modelmesh/custom-experiments/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/modelmesh/failure-modes/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/modelmesh/validation-results/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/odh-model-controller/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/odh-model-controller/custom-experiments/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/odh-model-controller/failure-modes/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/odh-model-controller/validation-results/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/opendatahub-operator/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/opendatahub-operator/custom-experiments/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/opendatahub-operator/failure-modes/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/opendatahub-operator/validation-results/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/ray/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/ray/custom-experiments/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/ray/failure-modes/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/ray/validation-results/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/training-operator/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/training-operator/custom-experiments/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/training-operator/failure-modes/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/training-operator/validation-results/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/trustyai/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/trustyai/custom-experiments/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/trustyai/failure-modes/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/trustyai/validation-results/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/workbenches/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/workbenches/custom-experiments/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/workbenches/failure-modes/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/components/workbenches/validation-results/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/contributing/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/contributing/adding-failure-modes/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/contributing/development-setup/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/failure-modes/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/failure-modes/client-fault/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/failure-modes/config-drift/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/failure-modes/crd-mutation/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/failure-modes/custom-failure-modes/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/failure-modes/finalizer-block/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/failure-modes/label-stomping/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/failure-modes/namespace-deletion/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/failure-modes/network-partition/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/failure-modes/ownerref-orphan/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/failure-modes/podkill/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/failure-modes/quota-exhaustion/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/failure-modes/rbac-revoke/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/failure-modes/webhook-disrupt/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/failure-modes/webhook-latency/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/getting-started/installation/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/guides/ci-integration/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/guides/controller-advanced/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/guides/dashboard-grafana/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/guides/dashboard-operator/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/guides/e2e-testing/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/guides/knowledge-models/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/guides/route-chaos/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/guides/upgrade-testing/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/modes/cli/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/modes/controller/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/modes/fuzz/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/modes/sdk/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/reference/cli-commands/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/reference/crd-schema/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
     <url>
          <loc>https://ugiordan.github.io/operator-chaos/reference/go-sdk/</loc>
-         <lastmod>2026-04-28</lastmod>
+         <lastmod>2026-04-29</lastmod>
     </url>
 </urlset>
