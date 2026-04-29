@@ -315,15 +315,8 @@
   
     
     
-      
-  
-  
-  
-  
-    
-    
       <li class="md-tabs__item">
-        <a href="../../guides/e2e-testing/" class="md-tabs__link">
+        <a href="../../guides/profiles/" class="md-tabs__link">
           
   
   
@@ -333,9 +326,6 @@
 
         </a>
       </li>
-    
-  
-
     
   
 
@@ -1502,6 +1492,8 @@
       
         
       
+        
+      
     
     
     
@@ -1553,6 +1545,34 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../../guides/profiles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Profiles
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
     
     
       
@@ -1579,10 +1599,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1">
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2">
         
           
-          <label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
             
   
   
@@ -1600,8 +1620,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_1">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1789,10 +1809,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2">
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3">
         
           
-          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
             
   
   
@@ -1810,8 +1830,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_2">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1969,10 +1989,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3">
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4">
         
           
-          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_4" id="__nav_5_4_label" tabindex="0">
             
   
   
@@ -1990,8 +2010,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -5770,8 +5790,9 @@ knowledge file structure without connecting to a cluster.</p>
 <a id="__codelineno-44-5" name="__codelineno-44-5" href="#__codelineno-44-5"></a>      --knowledge-dir string    directory of operator knowledge YAMLs
 <a id="__codelineno-44-6" name="__codelineno-44-6" href="#__codelineno-44-6"></a>      --lock-namespace string   namespace for distributed lock leases (default "default")
 <a id="__codelineno-44-7" name="__codelineno-44-7" href="#__codelineno-44-7"></a>      --max-tier int32          skip experiments above this tier (0 = no filter)
-<a id="__codelineno-44-8" name="__codelineno-44-8" href="#__codelineno-44-8"></a>      --report-dir string       directory for report output
-<a id="__codelineno-44-9" name="__codelineno-44-9" href="#__codelineno-44-9"></a>      --timeout duration        total experiment timeout (default 10m0s)
+<a id="__codelineno-44-8" name="__codelineno-44-8" href="#__codelineno-44-8"></a>      --profile string          named profile (resolves knowledge directory automatically)
+<a id="__codelineno-44-9" name="__codelineno-44-9" href="#__codelineno-44-9"></a>      --report-dir string       directory for report output
+<a id="__codelineno-44-10" name="__codelineno-44-10" href="#__codelineno-44-10"></a>      --timeout duration        total experiment timeout (default 10m0s)
 </code></pre></div>
 <h3 id="options-inherited-from-parent-commands_15">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_15" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>      --kubeconfig string   path to kubeconfig file
@@ -5823,8 +5844,9 @@ experiments without executing them.</p>
 <a id="__codelineno-50-7" name="__codelineno-50-7" href="#__codelineno-50-7"></a>      --lock-namespace string   namespace for distributed lock leases (default "default")
 <a id="__codelineno-50-8" name="__codelineno-50-8" href="#__codelineno-50-8"></a>      --max-tier int32          skip experiments above this tier (0 = no filter)
 <a id="__codelineno-50-9" name="__codelineno-50-9" href="#__codelineno-50-9"></a>      --parallel int            max concurrent experiments (default 1)
-<a id="__codelineno-50-10" name="__codelineno-50-10" href="#__codelineno-50-10"></a>      --report-dir string       directory for report output
-<a id="__codelineno-50-11" name="__codelineno-50-11" href="#__codelineno-50-11"></a>      --timeout duration        timeout per experiment (default 10m0s)
+<a id="__codelineno-50-10" name="__codelineno-50-10" href="#__codelineno-50-10"></a>      --profile string          named profile (resolves knowledge directory automatically)
+<a id="__codelineno-50-11" name="__codelineno-50-11" href="#__codelineno-50-11"></a>      --report-dir string       directory for report output
+<a id="__codelineno-50-12" name="__codelineno-50-12" href="#__codelineno-50-12"></a>      --timeout duration        timeout per experiment (default 10m0s)
 </code></pre></div>
 <h3 id="options-inherited-from-parent-commands_17">Options inherited from parent commands<a class="headerlink" href="#options-inherited-from-parent-commands_17" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a>      --kubeconfig string   path to kubeconfig file
