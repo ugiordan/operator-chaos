@@ -37,11 +37,14 @@ jobs:
       - name: Install MkDocs dependencies
         run: pip install -r site/requirements.txt
 
+      - name: Download Go dependencies
+        run: go mod download
+
       - name: Generate CRD schema reference
-        run: go run hack/gen-crd-docs.go > site/docs/reference/crd-schema.md
+        run: go run -mod=mod hack/gen-crd-docs.go > site/docs/reference/crd-schema.md
 
       - name: Generate CLI reference
-        run: go run hack/gen-cli-docs.go > site/docs/reference/cli-commands.md
+        run: go run -mod=mod hack/gen-cli-docs.go > site/docs/reference/cli-commands.md
 
       - name: Deploy to GitHub Pages
         working-directory: site
