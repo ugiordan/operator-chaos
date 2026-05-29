@@ -1,9 +1,10 @@
-package sdk
+package chaosclient
 
 import (
 	"context"
 	"testing"
 
+	sdk "github.com/opendatahub-io/operator-chaos/pkg/sdk"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -32,10 +33,10 @@ func TestWrapReconcilerPassthrough(t *testing.T) {
 
 func TestWrapReconcilerWithFaults(t *testing.T) {
 	inner := &fakeReconciler{}
-	faults := &FaultConfig{
+	faults := &sdk.FaultConfig{
 		Active: true,
-		Faults: map[Operation]FaultSpec{
-			OpReconcile: {ErrorRate: 1.0, Error: "reconcile chaos"},
+		Faults: map[sdk.Operation]sdk.FaultSpec{
+			sdk.OpReconcile: {ErrorRate: 1.0, Error: "reconcile chaos"},
 		},
 	}
 	wrapped := WrapReconciler(inner, WithFaultConfig(faults))
@@ -48,10 +49,10 @@ func TestWrapReconcilerWithFaults(t *testing.T) {
 
 func TestWrapReconcilerInactiveFaults(t *testing.T) {
 	inner := &fakeReconciler{}
-	faults := &FaultConfig{
+	faults := &sdk.FaultConfig{
 		Active: false,
-		Faults: map[Operation]FaultSpec{
-			OpReconcile: {ErrorRate: 1.0, Error: "should not fire"},
+		Faults: map[sdk.Operation]sdk.FaultSpec{
+			sdk.OpReconcile: {ErrorRate: 1.0, Error: "should not fire"},
 		},
 	}
 	wrapped := WrapReconciler(inner, WithFaultConfig(faults))

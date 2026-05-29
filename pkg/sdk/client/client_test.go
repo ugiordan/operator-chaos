@@ -1,9 +1,10 @@
-package sdk
+package chaosclient
 
 import (
 	"context"
 	"testing"
 
+	sdk "github.com/opendatahub-io/operator-chaos/pkg/sdk"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
@@ -39,10 +40,10 @@ func TestChaosClientFaultInjection(t *testing.T) {
 		},
 	).Build()
 
-	faults := &FaultConfig{
+	faults := &sdk.FaultConfig{
 		Active: true,
-		Faults: map[Operation]FaultSpec{
-			OpGet: {ErrorRate: 1.0, Error: "api server error"},
+		Faults: map[sdk.Operation]sdk.FaultSpec{
+			sdk.OpGet: {ErrorRate: 1.0, Error: "api server error"},
 		},
 	}
 
@@ -68,10 +69,10 @@ func TestChaosClientInactiveFaultsPassthrough(t *testing.T) {
 		},
 	).Build()
 
-	faults := &FaultConfig{
+	faults := &sdk.FaultConfig{
 		Active: false,
-		Faults: map[Operation]FaultSpec{
-			OpGet: {ErrorRate: 1.0, Error: "should not fire"},
+		Faults: map[sdk.Operation]sdk.FaultSpec{
+			sdk.OpGet: {ErrorRate: 1.0, Error: "should not fire"},
 		},
 	}
 
@@ -89,13 +90,13 @@ func TestChaosClientFaultInjectionOnAllOperations(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		faultKey Operation
+		faultKey sdk.Operation
 		errMsg   string
 		callFn   func(cc *ChaosClient) error
 	}{
 		{
 			name:     "list fault",
-			faultKey: OpList,
+			faultKey: sdk.OpList,
 			errMsg:   "list chaos fault",
 			callFn: func(cc *ChaosClient) error {
 				return cc.List(context.Background(), &corev1.ConfigMapList{})
@@ -103,7 +104,7 @@ func TestChaosClientFaultInjectionOnAllOperations(t *testing.T) {
 		},
 		{
 			name:     "create fault",
-			faultKey: OpCreate,
+			faultKey: sdk.OpCreate,
 			errMsg:   "create chaos fault",
 			callFn: func(cc *ChaosClient) error {
 				return cc.Create(context.Background(), &corev1.ConfigMap{
@@ -113,7 +114,7 @@ func TestChaosClientFaultInjectionOnAllOperations(t *testing.T) {
 		},
 		{
 			name:     "update fault",
-			faultKey: OpUpdate,
+			faultKey: sdk.OpUpdate,
 			errMsg:   "update chaos fault",
 			callFn: func(cc *ChaosClient) error {
 				return cc.Update(context.Background(), &corev1.ConfigMap{
@@ -123,7 +124,7 @@ func TestChaosClientFaultInjectionOnAllOperations(t *testing.T) {
 		},
 		{
 			name:     "delete fault",
-			faultKey: OpDelete,
+			faultKey: sdk.OpDelete,
 			errMsg:   "delete chaos fault",
 			callFn: func(cc *ChaosClient) error {
 				return cc.Delete(context.Background(), &corev1.ConfigMap{
@@ -133,7 +134,7 @@ func TestChaosClientFaultInjectionOnAllOperations(t *testing.T) {
 		},
 		{
 			name:     "patch fault",
-			faultKey: OpPatch,
+			faultKey: sdk.OpPatch,
 			errMsg:   "patch chaos fault",
 			callFn: func(cc *ChaosClient) error {
 				return cc.Patch(context.Background(), &corev1.ConfigMap{
@@ -153,9 +154,9 @@ func TestChaosClientFaultInjectionOnAllOperations(t *testing.T) {
 				},
 			).Build()
 
-			faults := &FaultConfig{
+			faults := &sdk.FaultConfig{
 				Active: true,
-				Faults: map[Operation]FaultSpec{
+				Faults: map[sdk.Operation]sdk.FaultSpec{
 					tt.faultKey: {ErrorRate: 1.0, Error: tt.errMsg},
 				},
 			}
